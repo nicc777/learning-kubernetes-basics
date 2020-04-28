@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+
+{% block title %}
+    Cool App
+{% endblock %}
+
+{% block content %}
+    <h1>App Info</h1></ hr>
+    <table>
+        <tr>
+            <td>Hostname</td>
+            <td>{{ hostname }}</td>
+        </tr>
+        <tr>
+            <td>App Version</td>
+            <td>{{ app_version }}</td>
+        </tr>
+        <tr>
+            <td>Uptime</td>
+            <td>{{ uptime }}</td>
+        </tr>
+    </table>
+{% endblock %}
