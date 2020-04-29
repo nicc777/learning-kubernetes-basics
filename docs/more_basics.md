@@ -1,8 +1,9 @@
 
-- [Editing number of replicas in a running cluster](#editing-number-of-replicas-in-a-running-cluster)
-- [Resurrecting the dead](#resurrecting-the-dead)
+- [1. Editing number of replicas in a running cluster](#1-editing-number-of-replicas-in-a-running-cluster)
+- [2. Resurrecting the dead](#2-resurrecting-the-dead)
+- [3. View POD log files](#3-view-pod-log-files)
 
-# Editing number of replicas in a running cluster
+# 1. Editing number of replicas in a running cluster
 
 Assuming you have [version 0.0.1](../kubernetes/cool-app-0.0.1.yml) of the app running, you will notice in that configuration that the number of replicas is set to 1:
 
@@ -61,7 +62,7 @@ pid=37   |   hostname=cool-app-deployment-7df4f7dbfd-v4vmt     |   app_version=0
 
 The load balancer starts to send requests to the new POD, which now responds with a much lower `uptime` than the old running POD.
 
-# Resurrecting the dead
+# 2. Resurrecting the dead
 
 If a POD dies, it will automatically restart. Let's test that.
 
@@ -156,3 +157,105 @@ pid=14   |   hostname=cool-app-deployment-7df4f7dbfd-cqlfd     |   app_version=0
 Notice how the `READY` indicator for one POD changed to `0/1` and how it was then restarted. The restart is also incremented that POD's `RESTART` counter to `1`.
 
 The service was recovered uninterrupted since there were enough POD's running to continue serve all requests. As the one POD was restarted, for a time all requests were handled by the remaining running POD.
+
+To examine the detailed POD description, run the following:
+
+```bash
+$ kubectl describe pod cool-app-deployment-7df4f7dbfd-g226k
+Name:         cool-app-deployment-7df4f7dbfd-g226k
+Namespace:    demo
+Priority:     0
+Node:         ng3/192.168.0.160
+Start Time:   Wed, 29 Apr 2020 06:40:35 +0200
+Labels:       app=cool-app
+              pod-template-hash=7df4f7dbfd
+Annotations:  <none>
+Status:       Running
+IP:           172.17.0.9
+IPs:
+  IP:           172.17.0.9
+Controlled By:  ReplicaSet/cool-app-deployment-7df4f7dbfd
+Containers:
+  cool-app:
+    Container ID:   docker://83478dfc743b44b93a30832d2ed5748d35914fde06384cc0fcf748d523aa057c
+    Image:          nicc777/cool-app:0.0.1
+    Image ID:       docker-pullable://nicc777/cool-app@sha256:b2f26a7dfb2cef4f05d1fc2c5a9f4a3a69a15443070bbb57b0b76ced6fa7a0be
+    Port:           8080/TCP
+    Host Port:      0/TCP
+    State:          Running
+      Started:      Wed, 29 Apr 2020 06:48:24 +0200
+    Last State:     Terminated
+      Reason:       Completed
+      Exit Code:    0
+      Started:      Wed, 29 Apr 2020 06:40:36 +0200
+      Finished:     Wed, 29 Apr 2020 06:48:24 +0200
+    Ready:          True
+    Restart Count:  1
+    Limits:
+      cpu:     1
+      memory:  256Mi
+    Requests:
+      cpu:        500m
+      memory:     256Mi
+    Liveness:     http-get http://:8080/probe/alive delay=3s timeout=1s period=3s #success=1 #failure=3
+    Readiness:    http-get http://:8080/probe/ready delay=5s timeout=1s period=5s #success=1 #failure=3
+    Environment:  <none>
+    Mounts:
+      /var/run/secrets/kubernetes.io/serviceaccount from default-token-kgs6c (ro)
+Conditions:
+  Type              Status
+  Initialized       True 
+  Ready             True 
+  ContainersReady   True 
+  PodScheduled      True 
+Volumes:
+  default-token-kgs6c:
+    Type:        Secret (a volume populated by a Secret)
+    SecretName:  default-token-kgs6c
+    Optional:    false
+QoS Class:       Burstable
+Node-Selectors:  <none>
+Tolerations:     node.kubernetes.io/not-ready:NoExecute for 300s
+                 node.kubernetes.io/unreachable:NoExecute for 300s
+Events:
+  Type     Reason     Age                From               Message
+  ----     ------     ----               ----               -------
+  Normal   Scheduled  <unknown>          default-scheduler  Successfully assigned demo/cool-app-deployment-7df4f7dbfd-g226k to ng3
+  Normal   Pulled     21m (x2 over 29m)  kubelet, ng3       Container image "nicc777/cool-app:0.0.1" already present on machine
+  Normal   Created    21m (x2 over 29m)  kubelet, ng3       Created container cool-app
+  Normal   Started    21m (x2 over 29m)  kubelet, ng3       Started container cool-app
+  Warning  Unhealthy  21m (x3 over 21m)  kubelet, ng3       Liveness probe failed: HTTP probe failed with statuscode: 500
+  Normal   Killing    21m                kubelet, ng3       Container cool-app failed liveness probe, will be restarted
+```
+
+Note the `Events` toward the end.
+
+# 3. View POD log files
+
+List the pods:
+
+```bash
+$ kubectl get pods --show-labels
+NAME                                   READY   STATUS    RESTARTS   AGE   LABELS
+cool-app-deployment-7df4f7dbfd-cqlfd   1/1     Running   0          41m   app=cool-app,pod-template-hash=7df4f7dbfd
+cool-app-deployment-7df4f7dbfd-g226k   1/1     Running   1          41m   app=cool-app,pod-template-hash=7df4f7dbfd
+```
+
+Get the logs of a POD:
+
+```bash
+$ kubectl logs cool-app-deployment-7df4f7dbfd-g226k | less
+```
+
+To exclude the probes:
+
+```bash
+$ kubectl logs cool-app-deployment-7df4f7dbfd-g226k | grep -v "/probe/" | less
+```
+
+__Note__: Since the POD was restarted, you will NOT find the request to the `/die` resource (see [2. Resurrecting the dead](#2-resurrecting-the-dead)). Logs are not persisted between restarts.
+
+Consider also the following tools for log viewing/tailing:
+
+* [kail](https://github.com/boz/kail)
+* [stern](https://github.com/wercker/stern)
