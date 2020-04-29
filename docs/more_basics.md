@@ -2,6 +2,9 @@
 - [1. Editing number of replicas in a running cluster](#1-editing-number-of-replicas-in-a-running-cluster)
 - [2. Resurrecting the dead](#2-resurrecting-the-dead)
 - [3. View POD log files](#3-view-pod-log-files)
+- [4. Getting inside a POD's head](#4-getting-inside-a-pods-head)
+  - [4.1 Access a shell in a running POD](#41-access-a-shell-in-a-running-pod)
+  - [4.2 Executing a command in a running POD](#42-executing-a-command-in-a-running-pod)
 
 # 1. Editing number of replicas in a running cluster
 
@@ -259,3 +262,36 @@ Consider also the following tools for log viewing/tailing:
 
 * [kail](https://github.com/boz/kail)
 * [stern](https://github.com/wercker/stern)
+
+# 4. Getting inside a POD's head
+
+If there are some rare case when a POD needs to be accessed directly, the following commands could help:
+
+## 4.1 Access a shell in a running POD
+
+```bash
+$ kubectl exec -it cool-app-deployment-7df4f7dbfd-cqlfd /bin/bash
+root@cool-app-deployment-7df4f7dbfd-cqlfd:/usr/src/app# cat /etc/os-release 
+NAME="Ubuntu"
+VERSION="18.04.4 LTS (Bionic Beaver)"
+ID=ubuntu
+ID_LIKE=debian
+PRETTY_NAME="Ubuntu 18.04.4 LTS"
+VERSION_ID="18.04"
+...
+```
+
+## 4.2 Executing a command in a running POD
+
+```bash
+$ kubectl exec cool-app-deployment-7df4f7dbfd-cqlfd /bin/ps
+  PID TTY          TIME CMD
+    1 ?        00:00:00 gunicorn
+    9 ?        00:00:05 gunicorn
+   11 ?        00:00:05 gunicorn
+   12 ?        00:00:05 gunicorn
+   14 ?        00:00:05 gunicorn
+  526 ?        00:00:00 ps
+```
+
+
