@@ -5,6 +5,7 @@ This is a simple demo app that can be used in Kubernetes demos
 This initial README's objective is to get started. More detailed topics will be covered in the `docs/`:
 
 * [More Basics](docs/more_basics.md)
+* [All About Application Metrics](docs/app_metrics.md)
 
 __Table of Contents for this README__
 
