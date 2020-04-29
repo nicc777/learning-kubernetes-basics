@@ -160,6 +160,32 @@ And now tag and push your image:
 (venv) $ docker push yourhubusername/cool-app:0.0.1
 ```
 
+__Note #1__ : If you have a previous build, you will see the following from a `docker images | grep cool` command:
+
+```text
+cool-app                                  latest              c795421372ef        15 seconds ago      493MB
+nicc777/cool-app                          0.0.1               67505a44d18b        23 hours ago        493MB
+cool-app-base                             latest              b3b116e47bb3        37 hours ago        493MB
+```
+
+In this instance, first remove the old image (`67505a44d18b`) in this case:
+
+```
+$ docker image rm 67505a44d18b
+```
+
+Now you can tag and push the image as per normal.
+
+__Note #2__ : If the deployment was already running and if you are developing on te same system as what minikube is running on, you may first need to delete the deployment:
+
+```bash
+$ kubectl get deployments
+NAME                  READY   UP-TO-DATE   AVAILABLE   AGE
+cool-app-deployment   1/1     1            1           3m20s
+$ kubectl delete deployment cool-app-deployment
+deployment.apps "cool-app-deployment" deleted
+```
+
 # 4. Minikube Testing
 
 Assuming you have a [running minikube](https://kubernetes.io/docs/setup/learning-environment/minikube/) on either your local system or a server you have access to, you can deploy this app into a namespace.

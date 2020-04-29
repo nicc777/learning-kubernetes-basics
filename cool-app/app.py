@@ -2,7 +2,7 @@ import socket
 import traceback
 import os
 from datetime import datetime
-from flask import Flask, render_template, redirect, url_for
+from flask import Flask, render_template, redirect, url_for, Response
 
 
 app = Flask(__name__)
@@ -65,6 +65,20 @@ def die():
     except:
         traceback.print_exc()
     return redirect(url_for('welcome'))
+
+
+@app.route('/starve')
+def starve():
+    def generate():
+        l = list()
+        counter = 0
+        for i in range(0, 1024*1024*1024):
+            counter += 1
+            l.append('{}: ********************************'.format(i))
+            if counter > 100000:
+                yield 'Generated {} items\n'.format(i)
+                counter = 0
+    return Response(generate(), mimetype='text/plain')
 
 
 @app.route('/probe/alive')
