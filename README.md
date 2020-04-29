@@ -286,44 +286,9 @@ deployment.apps "cool-app-deployment" deleted
 
 ## 5.1 Prometheus 
 
-Refer to the [prometheus documentation](https://prometheus.io/docs/introduction/overview/) for more information.
-
-The example configuration is located in `prometheus/prometheus.yml`
-
-The following example starts a docker version of Prometheus:
-
-```bash
-$ docker run -d --name lab-monitor \
--p 0.0.0.0:9090:9090               \
--v $PWD/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml prom/prometheus
-```
+__Important__: This section will soon be replaced by learnings [from this tutorial](https://sysdig.com/blog/kubernetes-monitoring-prometheus/)
 
 ## 5.2 Grafana 
 
-Refer to the [Grafana documentation](https://grafana.com/docs/) for more information.
+__Important__ This section will soon be replaced by learnings [from this tutorial](https://sysdig.com/blog/kubernetes-monitoring-with-prometheus-alertmanager-grafana-pushgateway-part-2/)
 
-For persistence, first create a local docker volume:
-
-```bash
-$ docker volume create grafana-storage
-$ docker volume inspect grafana-storage
-[
-    {
-        "CreatedAt": "2020-04-29T05:02:15+02:00",
-        "Driver": "local",
-        "Labels": {},
-        "Mountpoint": "/var/lib/docker/volumes/grafana-storage/_data",
-        "Name": "grafana-storage",
-        "Options": {},
-        "Scope": "local"
-    }
-]
-```
-
-The following example starts a docker version of Grafana:
-
-```bash
-$ docker run -d --name=grafana \
--p 0.0.0.0:3000:3000           \
--v grafana-storage:/var/lib/grafana grafana/grafana
-```
