@@ -7,4 +7,4 @@ LABEL Description="A container for hosting of a flask application" Vendor="none"
 RUN apt-get update && apt-get upgrade -y
 RUN apt-get install libterm-readline-perl-perl apt-utils -y
 RUN apt-get install -y python3 python3-pip
-RUN pip3 install Flask Flask-Cognito gunicorn cognitojwt
+RUN pip3 install Flask Flask-Cognito gunicorn cognitojwt redis

@@ -32,7 +32,7 @@ setup(
     #packages=find_packages(where='src'),  
     packages=find_packages(),  
     include_package_data=True,
-    install_requires=['Flask', 'cognitojwt', 'Flask-Cognito', 'gunicorn'],
+    install_requires=['Flask', 'cognitojwt', 'Flask-Cognito', 'gunicorn', 'redis'],
     python_requires='>=3.*, <4',
     extras_require={  
         'dev': ['check-manifest'],
