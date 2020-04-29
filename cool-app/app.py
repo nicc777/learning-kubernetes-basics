@@ -15,7 +15,7 @@ import traceback
 import os
 import sys
 from datetime import datetime
-from flask import Flask, render_template, redirect, url_for, Response
+from flask import Flask, render_template, redirect, url_for, Response, request
 import redis 
 
 
@@ -153,6 +153,7 @@ def uptime()->int:
 
 
 def get_metric_by_key(name: str='welcome-resource')->int:
+    print('[pid={}] get_metric_by_key(): called for name={}'.format(thread_pid, name))
     value = 0
     try:
         if redis_circuit_breaker_flag == 0:
@@ -209,8 +210,9 @@ def admin_reset_circuit_breaker(name: str='redis'):
 
 @app.route('/metrics/get-counter')
 def metrics_get_stats(name: str='welcome-resource'):
-    record_hit(key='metrics-get-counter-resource', value=1)
-    return '{}'.format(get_metric_by_key(name=name))
+    record_hit(key='metrics-get-stats-resource', value=1)
+    print('[pid={}] metrics_get_stats(): called for name={}'.format(thread_pid, name))
+    return '{}'.format(get_metric_by_key(name=request.args.get('name', name)))
 
 
 @app.route('/status')
