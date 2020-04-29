@@ -2,6 +2,12 @@
 
 This is a simple demo app that can be used in Kubernetes demos
 
+This initial README's objective is to get started. More detailed topics will be covered in the `docs/`:
+
+* [More Basics](docs/more_basics.md)
+
+__Table of Contents for this README__
+
 - [Cool App](#cool-app)
 - [1. Local development testing](#1-local-development-testing)
   - [1.1 Prepare environment](#11-prepare-environment)
@@ -18,6 +24,9 @@ This is a simple demo app that can be used in Kubernetes demos
   - [4.3 Continuos Monitoring of the App](#43-continuos-monitoring-of-the-app)
   - [4.4 Force a POD restart](#44-force-a-pod-restart)
   - [4.5 Deleting the Service and Deployment](#45-deleting-the-service-and-deployment)
+- [5. Monitoring Tools](#5-monitoring-tools)
+  - [5.1 Prometheus](#51-prometheus)
+  - [5.2 Grafana](#52-grafana)
 
 # 1. Local development testing
 
@@ -271,4 +280,50 @@ $ kubectl delete service cool-app-service
 service "cool-app-service" deleted
 $ kubectl delete deployment cool-app-deployment
 deployment.apps "cool-app-deployment" deleted
+```
+
+# 5. Monitoring Tools
+
+## 5.1 Prometheus 
+
+Refer to the [prometheus documentation](https://prometheus.io/docs/introduction/overview/) for more information.
+
+The example configuration is located in `prometheus/prometheus.yml`
+
+The following example starts a docker version of Prometheus:
+
+```bash
+$ docker run -d --name lab-monitor \
+-p 0.0.0.0:9090:9090               \
+-v $PWD/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml prom/prometheus
+```
+
+## 5.2 Grafana 
+
+Refer to the [Grafana documentation](https://grafana.com/docs/) for more information.
+
+For persistence, first create a local docker volume:
+
+```bash
+$ docker volume create grafana-storage
+$ docker volume inspect grafana-storage
+[
+    {
+        "CreatedAt": "2020-04-29T05:02:15+02:00",
+        "Driver": "local",
+        "Labels": {},
+        "Mountpoint": "/var/lib/docker/volumes/grafana-storage/_data",
+        "Name": "grafana-storage",
+        "Options": {},
+        "Scope": "local"
+    }
+]
+```
+
+The following example starts a docker version of Grafana:
+
+```bash
+$ docker run -d --name=grafana \
+-p 0.0.0.0:3000:3000           \
+-v grafana-storage:/var/lib/grafana grafana/grafana
 ```
