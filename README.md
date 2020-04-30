@@ -1,5 +1,9 @@
 # Cool App
 
+__IMPORTANT__: I am busy with a major reorganization of the project - things are currently broken.
+
+__NOTE__: There is a [TODO list](./TODO.md) which summarize the current project state in lue of issues being logged. Will be starting to log issues as I did not originally think this project will become this big.
+
 This is a simple demo app that can be used in Kubernetes demos
 
 This initial README's objective is to get started. More detailed topics will be covered in the `docs/`:

@@ -8,12 +8,12 @@ with open(path.join(here, 'README.md'), encoding='utf-8') as f:
     long_description = f.read()
 
 setup(
-    name='cool-app',
+    name='cool_app',
     version='0.0.1',
     description='An example Flask project, deployed in Docker for testing Kubernetes',
     long_description=long_description,
     long_description_content_type='text/markdown',
-    url='https://localhost:5000/',
+    url='https://github.com/nicc777/learning-kubernetes-basics',
     author='Nico Coetzee',
     author_email='nicc777@gmail.com',
     classifiers=[
@@ -43,8 +43,8 @@ setup(
     #         'sample=sample:main',
     #     ],
     # },
-    # project_urls={  
-    #     'Bug Reports': 'https://localhost',
-    #     'Source': 'https://localhost',
-    # },
+    project_urls={  
+        'Bug Reports': 'https://github.com/nicc777/learning-kubernetes-basics/issues',
+        'Source': 'https://github.com/nicc777/learning-kubernetes-basics/tree/master/cool_app',
+    },
 )

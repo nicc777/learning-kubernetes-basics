@@ -15,8 +15,10 @@ import traceback
 import os
 import sys
 from datetime import datetime
+import sqlite3
 from flask import Flask, render_template, redirect, url_for, Response, request
 import redis 
+from cool_app.state.state_manager import *
 
 
 '''
@@ -29,13 +31,14 @@ import redis
 
 
 app = Flask(__name__)
-start_time = int(datetime.now().timestamp())
-with open('/tmp/alive', 'w') as f:
-    f.write('1')
-app_version = '0.0.1'
-redis_circuit_breaker_flag = 0 
-redis_client = None
 thread_pid = os.getpid()
+conn = sqlite3.connect(os.getenv('STATE_DB_PATH', '/opt/state.db'))
+if not test_state_db_ready(conn=conn, thread_pid=thread_pid):
+    print('[pid={}] warning: state DB failed readyness'.format(thread_pid))
+start_time = int(datetime.now().timestamp())
+app_version = '0.0.1'
+redis_client = None
+
 
 
 '''
@@ -60,51 +63,35 @@ def get_redis_client():
 
 
 def get_redis_error_count()->int:
-    result = -1
-    global redis_circuit_breaker_flag
+    result = 99
     try:
-        result = os.path.getsize('redis_error')
-        print('[pid={}] info: get_redis_error_count(): result={}'.format(thread_pid, result))
+        result = get_field_value(conn=conn, thread_pid=thread_pid, field_name='redis_bad_counter', default=result)
     except:
-        try:
-            with open('redis_error', 'a') as f:
-                f.print('\n')
-        except:
-            print('[pid={}] warning: failed to initialize redis_error file. If this message repeats often, kill the POD'.format(thread_pid))
-            redis_circuit_breaker_flag = 1
         traceback.print_exc(file=sys.stdout)
-        result = 0
-        print('[pid={}] warning: can not determine redis file size - returning 0'.format(thread_pid))
     return result
 
 
-def reset_redis_error_file():
+def reset_redis_error_count():
     try:
-        os.unlink('redis_error')
+        result = update_thread_field(conn=conn, thread_pid=thread_pid, field_name='redis_bad_counter', value=0)
+        print('[pid={}] info: redis error count set to {}'.format(thread_pid, result))
     except:
         traceback.print_exc(file=sys.stdout)
-        print('[pid={}] warning: failed to reset redis_error file'.format(thread_pid))
+        print('[pid={}] warning: failed to reset redis error count'.format(thread_pid))
 
 
 def log_redis_critical_error()->int:
-    redis_circuit_breaker_counter = get_redis_error_count()
-    global redis_circuit_breaker_flag
+    redis_circuit_breaker_counter = 99
     try:
-        with open('redis_error', 'a') as f:
-            f.print('*\n')
-        redis_circuit_breaker_counter = get_redis_error_count()
+        redis_circuit_breaker_counter = update_thread_field(conn=conn, thread_pid=thread_pid, field_name='redis_bad_counter', value=get_redis_error_count() + 1)
     except:
         traceback.print_exc(file=sys.stdout)
-        if redis_circuit_breaker_counter >= 10:
-            print('[pid={}] warning: DISABLING REDIS [function: log_redis_critical_error()]'.format(thread_pid))
-            redis_circuit_breaker_flag = 1
     return redis_circuit_breaker_counter
 
 
 def record_hit(key: str, value: int):
-    global redis_circuit_breaker_flag
     try:
-        if redis_circuit_breaker_flag == 0:
+        if get_redis_error_count() == 0:
             try:
                 r = get_redis_client()
                 with r.lock('host-{}-pid-{}'.format(get_hostname(), str(thread_pid)), blocking_timeout=5) as lock:
@@ -115,9 +102,7 @@ def record_hit(key: str, value: int):
             except LockError:
                 print('[pid={}] warning: failed to acquire redis lock. this metric will not be recorded: function=record_hit() key={}'.format(thread_pid, key))            
         else:
-            if get_redis_error_count() < 10:
-                redis_circuit_breaker_flag = 0
-                print('[pid={}] info: record_hit(): Hits will be recorded again from the next attempt'.format(thread_pid))
+            print('[pid={}] info: record_hit(): redis is not ready'.format(thread_pid))
     except:      
         log_redis_critical_error()
         traceback.print_exc(file=sys.stdout)
@@ -134,18 +119,20 @@ def get_hostname():
 
 def livelyness()->bool:
     try:
-        with open('/tmp/alive', 'r') as f:
-            lines = f.readlines()
-        if len(lines) > 0:
-            if int(lines[0]) != 1:
-                return False
+        if get_field_value(conn=conn, thread_pid=thread_pid, field_name='alive', default=0) == 1:
+            return True
     except:
         traceback.print_exc(file=sys.stdout)
-    return True
+    return False
 
 
 def readiness()->bool:
-    return True
+    try:
+        if get_field_value(conn=conn, thread_pid=thread_pid, field_name='ready', default=0) == 1:
+            return True
+    except:
+        traceback.print_exc(file=sys.stdout)
+    return False
 
 
 def uptime()->int:
@@ -156,7 +143,7 @@ def get_metric_by_key(name: str='welcome-resource')->int:
     print('[pid={}] get_metric_by_key(): called for name={}'.format(thread_pid, name))
     value = 0
     try:
-        if redis_circuit_breaker_flag == 0:
+        if get_redis_error_count() == 0:
             r = get_redis_client()
             value = r.get(name=name)
             if isinstance(value, str):
@@ -193,7 +180,7 @@ def metrics_get_circuit_breakers():
     record_hit(key='metrics-get-circuit-breakers-resource', value=1)
     return {
         'Redis': {
-            'Flag': redis_circuit_breaker_flag,
+            'Flag': get_redis_error_count(),
             'Counter': get_redis_error_count()
         }
     }
@@ -201,9 +188,9 @@ def metrics_get_circuit_breakers():
 
 @app.route('/admin/reset-circuit-breaker')
 def admin_reset_circuit_breaker(name: str='redis'):
-    global redis_circuit_breaker_flag
-    redis_circuit_breaker_flag = 0
-    reset_redis_error_file()
+    global get_redis_error_count()
+    get_redis_error_count() = 0
+    reset_redis_error_count()
     return redirect(url_for('metrics_get_circuit_breakers'))
     
 
@@ -255,7 +242,7 @@ def starve():
 def k8s_alive():
     record_hit(key='probe-alive-resource', value=1)
     if livelyness() is False:
-        return ('** Oops, I died\n', 500)
+        return ('** Oops, I am dead?\n', 500)
     return '** ok\n'
 
 
