@@ -10,12 +10,13 @@
   - [4.4 Cloning this repo](#44-cloning-this-repo)
   - [4.5 Prepare your Python environment](#45-prepare-your-python-environment)
 - [5. Story Line and Scenarios](#5-story-line-and-scenarios)
+- [6. Handy Tips](#6-handy-tips)
 
 # 1. Introduction & Background
 
 This is a project that I started to learn about Modern IT Architectures, DevSecOps, Microservices, Cloud-Native, Kubernetes and other "buzz" words in technology.
 
-The learning experience will be organized in `scenarios`, each with it's own branch. Within each `scenario` branch, will be a `docs/` directory containing theoretical material around the specific scenario.
+The learning experience will be organized in `scenarios`, each with it's own branch. Within each `scenario` branch, will be a `scenario/` directory containing theoretical material around the specific scenario.
 
 All `scenarios` follow a story line: There is this `Cool App`, which happens to be an existing [Python](https://www.python.org/) [Flask](https://flask.palletsprojects.com/en/1.1.x/) App.
 
@@ -170,3 +171,8 @@ You can start now with the first scenario by issuing the following command in `$
 
 Once you have done that, open the `scenario` [README](scenario/README.md)
 
+# 6. Handy Tips
+
+__Tip #1__: You can checkout the relevant `scenario` branch on GitHub and read the README.md there, while working on the relevant `app-src` version in your repo.
+
+__Tip #2__: If you want to experiment, you can always fork the repo and then in your own fork create experimental branches where you can then change code and configuration to see what happens.
