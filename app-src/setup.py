@@ -32,7 +32,7 @@ setup(
     #packages=find_packages(where='src'),  
     packages=find_packages(),  
     include_package_data=True,
-    install_requires=['gunicorn', 'connexion[swagger-ui]'],
+    install_requires=['gunicorn', 'connexion[swagger-ui]', 'sqlalchemy', 'psycopg2-binary'],
     python_requires='>=3.*, <4',
     extras_require={  
         'dev': ['check-manifest'],
