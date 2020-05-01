@@ -1,1 +1,1 @@
-This is a place holder for the application README
+Application source code will soon appear here
