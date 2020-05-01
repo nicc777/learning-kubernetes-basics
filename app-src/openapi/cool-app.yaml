@@ -38,8 +38,52 @@ paths:
               schema:
                 $ref: "#/components/schemas/WelcomeMessage"
 
+  /user-profile:
+    get:
+      summary: "Get a user's profile"
+      description: "Requires a user email address to search for the user's profile in the database"
+      operationId: cool_app.service_app.get_user_profile
+      parameters:
+        - name: email_address
+          in: query
+          description: "An email address"
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserProfile"
+
 components:
+
   schemas:
+
+    UserProfile:
+      type: object
+      properties:
+        UserId:
+          type: int
+          description: 'The unique ID of the user'
+          example: 123
+        UserAlias:
+          type: string
+          description: 'The alias of the user'
+          example: 'User123'
+        UserEmailAddress:
+          type: string
+          description: 'The e-mail address of the user'
+          example: 'user123@example.tld'
+        AccountStatus:
+          type: int
+          description: 'The profile status: 1=active; 0=disabled. Only users with active profiles can view and post notes'
+          example: 1
+      required:
+        - UserAlias
+
     WelcomeMessage:
       type: object
       example: "Hello World"

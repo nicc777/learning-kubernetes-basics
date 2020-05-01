@@ -17,6 +17,7 @@ import sys
 from datetime import datetime
 import connexion
 from cool_app import ServiceLogger
+from cool_app.persistence import User
 
 
 '''
@@ -72,6 +73,22 @@ def uptime()->int:
 
 def welcome(message):
     return {'message': message}
+
+
+def get_user_profile(email_address):
+    result = dict()
+    result['UserId'] = 0
+    result['UserAlias'] = ''
+    result['UserEmailAddress'] = ''
+    result['AccountStatus'] = 0
+    u = User(logger=L)
+    u.load_user_profile(user_email_address=email_address)
+    if u.uid is not None:
+        result['UserId'] = u.uid
+        result['UserAlias'] = u.user_alias
+        result['UserEmailAddress'] = u.user_email_address
+        result['AccountStatus'] = u.account_status
+    return result
 
 
 options = {"swagger_ui": False}

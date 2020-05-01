@@ -99,6 +99,30 @@ class User:
             self.L.error(message='EXCEPTION: {}'.format(traceback.format_exc()))
         return user_loaded
 
+    def load_user_profile_by_uid(self, uid: int)->bool:
+        user_loaded = False
+        self.uid = None
+        self.user_email_address = None
+        self.user_alias = None
+        self.account_status = None
+        try:
+            if self.engine is not None:
+                with engine.connect() as connection:
+                    result = connection.execute(text('SELECT uid, user_alias, user_email_address, account_status FROM user_profiles WHERE uid = :f1'), f1=uid).fetchone()
+                    self.L.debug(message='result={}'.format(result))
+                    if result:
+                        self.uid = result['uid']
+                        self.user_alias = result['user_alias']
+                        self.user_email_address = result['user_email_address']
+                        self.account_status = result['account_status']
+            else:
+                self.L.error(message='Database engine not ready. User profile not loaded')
+            if self.uid is not None and self.user_alias is not None and self.user_email_address is not None and self.account_status is not None:
+                user_loaded = True
+        except:
+            self.L.error(message='EXCEPTION: {}'.format(traceback.format_exc()))
+        return user_loaded
+
     def update_user_profile(self)->bool:
         user_updated = False
         try:
