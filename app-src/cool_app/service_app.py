@@ -16,6 +16,7 @@ import os
 import sys
 from datetime import datetime
 import connexion
+from cool_app import ServiceLogger
 
 
 '''
@@ -27,8 +28,9 @@ import connexion
 ////////////////////////////////////////////////////////////////////////////////'''
 
 
+L = ServiceLogger()
 SPECIFICATION_DIR = os.getenv('SPECIFICATION_DIR', '/usr/src/app')
-print('Reading OpenAPI from file "{}"'.format(os.getenv('SPECIFICATION_DIR', '/opt/cool-app.yaml')))
+L.info(message='Reading OpenAPI from file "{}"'.format(os.getenv('SPECIFICATION_DIR', '/opt/cool-app.yaml')))
 start_time = int(datetime.now().timestamp())
 app_version = '0.0.1'
 
