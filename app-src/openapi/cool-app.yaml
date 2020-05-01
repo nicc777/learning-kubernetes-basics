@@ -1,0 +1,51 @@
+openapi: "3.0.2"
+info:
+  title: Cool-App
+  version: "1.0"
+servers:
+  - url: "{protocol}://{server}:{port}/v1"
+    variables:
+      protocol:
+        enum:
+          - http
+          - https
+        default: http
+      server:
+        default: "127.0.0.1"
+        description: A server hostname or IP address
+      port:
+        default: "8080"
+        description: The TCP port the server is listening on
+
+paths:
+  /welcome:    
+    get:
+      summary: "A simple welcome message service"
+      description: "A very simple service endpoint just to test the service"
+      operationId: cool_app.service_app.welcome
+      parameters:
+        - name: message
+          in: query
+          description: "A user friendly message"
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/WelcomeMessage"
+
+components:
+  schemas:
+    WelcomeMessage:
+      type: object
+      example: "Hello World"
+      properties:
+        message:
+          type: string
+          description: The message
+      required:
+        - message
