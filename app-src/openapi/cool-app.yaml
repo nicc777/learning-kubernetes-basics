@@ -37,7 +37,7 @@ paths:
         "404":
           $ref: '#/components/responses/NotFoundResponse'
 
-  /user-profiles/new:
+  /user-profiles:
     post:
       summary: "Create a new user profile"
       description: "Specify a field and its new value"

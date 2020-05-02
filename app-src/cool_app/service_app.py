@@ -155,7 +155,7 @@ def update_user_profile(uid, body):
 
 def new_user_profile(body):
     '''
-        Request Handler for path '/user-profiles/new' using a POST method
+        Request Handler for path '/user-profiles' using a POST method
 
         Note that this function is implemented in a idempotent way. No matter how many times you submit the same user 
         data to be created, if the record already exist, you will just get the persisted data back.
@@ -235,7 +235,7 @@ def new_user_note(uid: int, body):
         Request Handler for path '/notes/{uid}' using a POST method
     '''
     http_response_code = 404
-    result = generate_generic_error_response(error_code=404, error_message='Failed to create not. New note not found on the backend.')
+    result = generate_generic_error_response(error_code=404, error_message='Failed to create note.')
     note = Note(logger=L)
     note.uid = uid
     note.note_text = body['NoteText']
@@ -255,7 +255,7 @@ def update_user_note(uid: int, note_timestamp:int, body):
         Request Handler for path '/notes/{uid}/{note_timestamp}' using a PUT method
     '''
     http_response_code = 404
-    result = generate_generic_error_response(error_code=404, error_message='Original not not found')
+    result = generate_generic_error_response(error_code=404, error_message='Original note not found')
     note = Note(logger=L)
     note.uid = uid
     if note.load_note(note_timestamp=note_timestamp) is True:

@@ -7,7 +7,10 @@ from cool_app.persistence import engine
 
 
 class Note:
-    
+    '''
+        The Note class is where a user's Note lives.
+    '''
+
     def __init__(
         self,
         logger: ServiceLogger=ServiceLogger(),
@@ -20,8 +23,9 @@ class Note:
         self.engine = engine
     
     def create_note(self)->bool:
-        note_created = True
+        note_created = False
         self.L.info(message='Attempting to create note in database')
+        exception_caught = False
         try:
             if self.engine is not None:
                 with engine.connect() as connection:
@@ -31,9 +35,12 @@ class Note:
                 self.L.error(message='Database engine not ready. User profile not persisted')
         except:
             self.L.error(message='EXCEPTION: {}'.format(traceback.format_exc()))
-        self.L.info(message='Final result: {}'.format(note_created))
-        if self.load_note(note_timestamp=self.note_timestamp):
-            note_created = True
+            self.L.error(message='CRITICAL: the new note could NOT be created')
+            exception_caught = True
+        if exception_caught is False:            
+            if self.load_note(note_timestamp=self.note_timestamp):
+                note_created = True
+            self.L.debug(message='Final result: {}'.format(note_created))
         return note_created
 
     def load_note(self, note_timestamp: int)->bool:
