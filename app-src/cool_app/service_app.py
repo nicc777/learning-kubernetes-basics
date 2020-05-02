@@ -48,6 +48,9 @@ The basic criteria is to place any operation that repeat in more than one reques
 
 
 def get_utc_timestamp(with_decimal: bool=False):
+    '''
+        One way to create a proper UTC based Unix Timestamp
+    '''
     epoch = datetime(1970,1,1,0,0,0)
     now = datetime.utcnow()
     timestamp = (now - epoch).total_seconds()
