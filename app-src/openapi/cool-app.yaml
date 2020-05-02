@@ -35,7 +35,7 @@ paths:
         "200":
           $ref: "#/components/responses/UserProfileResponse"
         "404":
-          $ref: '#/components/responses/UserProfileNotFoundResponse'
+          $ref: '#/components/responses/NotFoundResponse'
 
   /user-profiles/new:
     post:
@@ -53,7 +53,7 @@ paths:
         "200":
           $ref: "#/components/responses/GeneralSuccessResponse"
         "404":
-          $ref: '#/components/responses/UserProfileNotFoundResponse'
+          $ref: '#/components/responses/NotFoundResponse'
 
   /user-profiles/{uid}:
     get:
@@ -72,7 +72,7 @@ paths:
         "200":
           $ref: "#/components/responses/UserProfileResponse"
         "404":
-          $ref: '#/components/responses/UserProfileNotFoundResponse'
+          $ref: '#/components/responses/NotFoundResponse'
     put:
       summary: "Update a user profile"
       description: "Specify a field and its new value"
@@ -96,11 +96,50 @@ paths:
         "200":
           $ref: "#/components/responses/GeneralSuccessResponse"
         "404":
-          $ref: '#/components/responses/UserProfileNotFoundResponse'
+          $ref: '#/components/responses/NotFoundResponse'
+
+  /notes/{uid}:
+    get:
+      summary: "Retrieve all notes for a user"
+      description: "Based on the parameters, will run a search on the database and return all matching notes"
+      operationId: cool_app.service_app.get_user_notes
+      parameters:
+        - name: uid
+          in: path
+          description: "A unique user ID"
+          required: true
+          schema:
+            type: string
+        - name: start_timestamp
+          in: query
+          description: "The timestamp from where to start the search. The query will search all notes greater than this timestamp."
+          required: false
+          schema:
+            type: integer
+        - name: limit
+          in: query
+          description: "The maximum number of notes to return"
+          required: false
+          schema:
+            type: integer
+            maximum: 100
+            minimum: 10
+      responses:
+        "200":
+          $ref: "#/components/responses/AllUserNotesResponse"
+        "404":
+          $ref: '#/components/responses/NotFoundResponse'
 
 components:
 
   responses:
+
+    AllUserNotesResponse:
+      description: "All the users notes"
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/AllUserNotesSchema'
 
     GeneralSuccessResponse:
       description: "A generic success response"
@@ -116,14 +155,44 @@ components:
           schema:
             $ref: '#/components/schemas/UserProfileSearchResult'
 
-    UserProfileNotFoundResponse:
-      description: "The user profile was not found"
+    NotFoundResponse:
+      description: "The requested resource was not found"
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/GenericError'
 
   schemas:
+
+    NoteSchema:
+      type: object
+      properties:
+        Link:
+          type: string
+          description: 'URL to the relevant resource'
+          example: "/notes/123/1588413785"
+        Uid:
+          type: integer
+          description: "The users unique ID"
+          example: 123
+        NoteTimestamp:
+          type: integer
+          description: "The Unix timestamp when the note was created"
+          example: 1588413785
+        NoteText:
+          type: string
+          description: "The text of the Note"
+          example: "This is a simple note."
+      required:
+        - Link
+        - Uid
+        - NoteTimestamp
+        - NoteText
+
+    AllUserNotesSchema:
+      type: array
+      items:
+        $ref: '#/components/schemas/NoteSchema'
 
     GeneralSuccessSchema:
       type: object
@@ -194,7 +263,7 @@ components:
           description: 'URL to the user profile'
           example: /user-profiles/123
         UserId:
-          type: int
+          type: integer
           description: 'The unique ID of the user'
           example: 123
         UserAlias:
@@ -206,7 +275,7 @@ components:
           description: 'The e-mail address of the user'
           example: 'user123@example.tld'
         AccountStatus:
-          type: int
+          type: integer
           description: 'The profile status: 1=active; 0=disabled. Only users with active profiles can view and post notes'
           example: 1
       required:
@@ -220,7 +289,7 @@ components:
       type: object
       properties:
         ErrorCode:
-          type: int
+          type: integer
           description: "An application specific code, which may or may not be the same as the HTTP error code"
           example: 404
         ErrorMessage:

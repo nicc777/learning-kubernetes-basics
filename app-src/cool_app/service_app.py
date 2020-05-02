@@ -13,6 +13,7 @@ from datetime import datetime
 import connexion
 from cool_app import ServiceLogger
 from cool_app.persistence.user_profiles import User
+from cool_app.persistence.notes import Note, Notes
 
 
 '''
@@ -172,6 +173,30 @@ def new_user_profile(body):
             message='User with e-mail address "{}" created'.format(u.user_email_address),
             link='/user-profiles/{}'.format(u.uid), link_type='UserProfile'
         )
+    return result, http_response_code
+
+
+def get_user_notes(uid, start_timestamp: int=0, limit: int=25):
+    http_response_code = 404
+    result = generate_generic_error_response(error_code=404, error_message='No user notes found')
+    L.debug(message='uid={}   start_timestamp={}   limit={}'.format(uid, start_timestamp, limit))
+    notes = Notes(logger=L)
+    notes.uid = uid
+    notes.load_notes(
+        start_timestamp=start_timestamp,
+        limit=limit,
+        order_descending=False
+    )
+    if len(notes.notes) > 0:
+        http_response_code = 200
+        result = list()
+        for note in notes.notes:
+            note_result = dict()
+            note_result['Link'] = '/notes/{}/{}'.format(note.uid, note.note_timestamp)
+            note_result['Uid'] = note.uid
+            note_result['NoteTimestamp'] = note.note_timestamp
+            note_result['NoteText'] = note.note_text
+            result.append(note_result)
     return result, http_response_code
 
 
