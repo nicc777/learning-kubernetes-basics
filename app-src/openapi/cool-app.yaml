@@ -146,7 +146,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/NewUserNoteSchema'
+              $ref: '#/components/schemas/UserNoteSchema'
       responses:
         "200":
           $ref: "#/components/responses/GeneralSuccessResponse"
@@ -167,13 +167,43 @@ paths:
             type: string
         - name: note_timestamp
           in: path
-          description: "The timestamp from of the note"
+          description: "The timestamp of the note"
           required: true
           schema:
             type: integer
       responses:
         "200":
           $ref: "#/components/responses/UserNoteResponse"
+        "404":
+          $ref: '#/components/responses/NotFoundResponse'
+    put:
+      summary: "Update a user note"
+      description: "Update note text in place"
+      operationId: cool_app.service_app.update_user_note
+      parameters:
+        - name: uid
+          in: path
+          description: "A unique user ID that was assigned during registration. This is the profile that will be updated."
+          required: true
+          schema:
+            type: integer
+            format: int64
+        - name: note_timestamp
+          in: path
+          description: "The timestamp of the note"
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        description: "Set the updated text of an existing note"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserNoteSchema'
+      responses:
+        "200":
+          $ref: "#/components/responses/GeneralSuccessResponse"
         "404":
           $ref: '#/components/responses/NotFoundResponse'
 
@@ -218,7 +248,7 @@ components:
 
   schemas:
 
-    NewUserNoteSchema:
+    UserNoteSchema:
       type: object
       properties:
         NoteText:

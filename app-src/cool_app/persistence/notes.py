@@ -70,6 +70,9 @@ class Note:
                 self.L.error(message='Database engine not ready. User profile not loaded')
         except:
             self.L.error(message='EXCEPTION: {}'.format(traceback.format_exc()))
+        if self.load_note(note_timestamp=self.note_timestamp):
+            if self.note_text == updated_text:
+                note_updated = True
         return note_updated
 
     def delete_note(self):

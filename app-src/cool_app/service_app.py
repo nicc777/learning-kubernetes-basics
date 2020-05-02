@@ -250,6 +250,24 @@ def new_user_note(uid: int, body):
     return result, http_response_code
 
 
+def update_user_note(uid: int, note_timestamp:int, body):
+    '''
+        Request Handler for path '/notes/{uid}/{note_timestamp}' using a PUT method
+    '''
+    http_response_code = 404
+    result = generate_generic_error_response(error_code=404, error_message='Original not not found')
+    note = Note(logger=L)
+    note.uid = uid
+    if note.load_note(note_timestamp=note_timestamp) is True:
+        note.note_text = body['NoteText']
+        if note.update_note(updated_text=body['NoteText']) is True:
+            http_response_code = 200
+            result = dict()
+            result['Link'] = '/notes/{}/{}'.format(note.uid, note.note_timestamp)
+            result['Uid'] = note.uid
+            result['NoteTimestamp'] = note.note_timestamp
+            result['NoteText'] = note.note_text
+    return result, http_response_code
 
 
 '''
