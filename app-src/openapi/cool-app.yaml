@@ -18,34 +18,403 @@ servers:
         description: The TCP port the server is listening on
 
 paths:
-  /welcome:    
+
+  /user-profiles/search:
     get:
-      summary: "A simple welcome message service"
-      description: "A very simple service endpoint just to test the service"
-      operationId: cool_app.service_app.welcome
+      summary: "Search for a user's profile by e-mail address"
+      description: "Requires a user email address to search for the user's profile in the database"
+      operationId: cool_app.service_app.search_user_profiles
       parameters:
-        - name: message
+        - name: email_address
           in: query
-          description: "A user friendly message"
-          required: false
+          description: "An email address"
+          required: true
           schema:
             type: string
       responses:
         "200":
-          description: "OK"
+          $ref: "#/components/responses/UserProfileResponse"
+        "404":
+          $ref: '#/components/responses/NotFoundResponse'
+
+  /user-profiles:
+    post:
+      summary: "Create a new user profile"
+      description: "Specify a field and its new value"
+      operationId: cool_app.service_app.new_user_profile
+      requestBody:
+        description: "Define what field must be updated and the new value"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NewUserProfileSchema'
+      responses:
+        "200":
+          $ref: "#/components/responses/GeneralSuccessResponse"
+        "404":
+          $ref: '#/components/responses/NotFoundResponse'
+
+  /user-profiles/{uid}:
+    get:
+      summary: "Get for a user's profile by UID"
+      description: "Requires a user email address to search for the user's profile in the database"
+      operationId: cool_app.service_app.get_user_profile
+      parameters:
+        - name: uid
+          in: path
+          description: "A unique user ID that was assigned during registration"
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        "200":
+          $ref: "#/components/responses/UserProfileResponse"
+        "404":
+          $ref: '#/components/responses/NotFoundResponse'
+    put:
+      summary: "Update a user profile"
+      description: "Specify a field and its new value"
+      operationId: cool_app.service_app.update_user_profile
+      parameters:
+        - name: uid
+          in: path
+          description: "A unique user ID that was assigned during registration. This is the profile that will be updated."
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        description: "Define what field must be updated and the new value"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserProfileUpdateSchema'
+      responses:
+        "200":
+          $ref: "#/components/responses/GeneralSuccessResponse"
+        "404":
+          $ref: '#/components/responses/NotFoundResponse'
+
+  /notes/{uid}:
+    get:
+      summary: "Retrieve all notes for a user"
+      description: "Based on the parameters, will run a search on the database and return all matching notes"
+      operationId: cool_app.service_app.get_user_notes
+      parameters:
+        - name: uid
+          in: path
+          description: "A unique user ID"
+          required: true
+          schema:
+            type: string
+        - name: start_timestamp
+          in: query
+          description: "The timestamp from where to start the search. The query will search all notes greater than this timestamp."
+          required: false
+          schema:
+            type: integer
+        - name: limit
+          in: query
+          description: "The maximum number of notes to return"
+          required: false
+          schema:
+            type: integer
+            maximum: 100
+            minimum: 10
+      responses:
+        "200":
+          $ref: "#/components/responses/AllUserNotesResponse"
+        "404":
+          $ref: '#/components/responses/NotFoundResponse'
+    post:
+      summary: "Create a new note"
+      description: "Create a new note for a user"
+      operationId: cool_app.service_app.new_user_note
+      parameters:
+        - name: uid
+          in: path
+          description: "A unique user ID"
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: "Set the text of the new note"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserNoteSchema'
+      responses:
+        "200":
+          $ref: "#/components/responses/GeneralSuccessResponse"
+        "404":
+          $ref: '#/components/responses/NotFoundResponse'
+
+  /notes/{uid}/{note_timestamp}:
+    get:
+      summary: "Retrieve a note belonging to a user"
+      description: "Based on the parameters, will run a search on the database and return the matching note"
+      operationId: cool_app.service_app.get_user_note
+      parameters:
+        - name: uid
+          in: path
+          description: "A unique user ID"
+          required: true
+          schema:
+            type: string
+        - name: note_timestamp
+          in: path
+          description: "The timestamp of the note"
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          $ref: "#/components/responses/UserNoteResponse"
+        "404":
+          $ref: '#/components/responses/NotFoundResponse'
+    put:
+      summary: "Update a user note"
+      description: "Update note text in place"
+      operationId: cool_app.service_app.update_user_note
+      parameters:
+        - name: uid
+          in: path
+          description: "A unique user ID that was assigned during registration. This is the profile that will be updated."
+          required: true
+          schema:
+            type: integer
+            format: int64
+        - name: note_timestamp
+          in: path
+          description: "The timestamp of the note"
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        description: "Set the updated text of an existing note"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserNoteSchema'
+      responses:
+        "200":
+          $ref: "#/components/responses/GeneralSuccessResponse"
+        "404":
+          $ref: '#/components/responses/NotFoundResponse'
+    delete:
+      summary: "Delete a note belonging to a user"
+      description: "Based on the parameters, will delete a matching note on the database"
+      operationId: cool_app.service_app.delete_user_note
+      parameters:
+        - name: uid
+          in: path
+          description: "A unique user ID"
+          required: true
+          schema:
+            type: string
+        - name: note_timestamp
+          in: path
+          description: "The timestamp of the note"
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: This call will always return Ok
           content:
-            application/json:
+            text/plain:
               schema:
-                $ref: "#/components/schemas/WelcomeMessage"
+                type: string
+                example: Ok
 
 components:
+
+  responses:
+
+    UserNoteResponse:
+      description: "All the users notes"
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/NoteSchema'
+
+    AllUserNotesResponse:
+      description: "All the users notes"
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/AllUserNotesSchema'
+
+    GeneralSuccessResponse:
+      description: "A generic success response"
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/GeneralSuccessSchema'
+
+    UserProfileResponse:
+      description: "The user profile"
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/UserProfileSearchResult'
+
+    NotFoundResponse:
+      description: "The requested resource was not found"
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/GenericError'
+
   schemas:
-    WelcomeMessage:
+
+    UserNoteSchema:
       type: object
-      example: "Hello World"
       properties:
-        message:
+        NoteText:
           type: string
-          description: The message
+          description: "The text of the Note"
+          example: "This is a simple note."
       required:
-        - message
+        - NoteText
+
+    NoteSchema:
+      type: object
+      properties:
+        Link:
+          type: string
+          description: 'URL to the relevant resource'
+          example: "/notes/123/1588413785"
+        Uid:
+          type: integer
+          description: "The users unique ID"
+          example: 123
+        NoteTimestamp:
+          type: integer
+          description: "The Unix timestamp when the note was created"
+          example: 1588413785
+        NoteText:
+          type: string
+          description: "The text of the Note"
+          example: "This is a simple note."
+      required:
+        - Link
+        - Uid
+        - NoteTimestamp
+        - NoteText
+
+    AllUserNotesSchema:
+      type: array
+      items:
+        $ref: '#/components/schemas/NoteSchema'
+
+    GeneralSuccessSchema:
+      type: object
+      properties:
+        Message:
+          type: string
+          description: "A more detailed explanation of the event"
+          example: "User profile 123 successfully updated"
+        Link:
+          type: string
+          description: 'URL to the relevant resource'
+          example: "/user-profiles/123"
+        LinkType:
+          type: string
+          description: 'URL to the relevant resource'
+          enum:
+            - UserProfile
+            - Note
+            - None
+          example: "UserProfile"
+      required:
+        - Message
+
+    UserProfileUpdateSchema:
+      type: object
+      properties:
+        FieldName:
+          type: string
+          description: "The field to update"
+          enum:
+            - UserAlias
+            - UserEmailAddress
+            - AccountStatus
+          example: "UserEmailAddress"
+        FieldValue:
+          type: string
+          description: "The new value, as a string. AccountStatus is technically a number, but this schema still requires a string. The application will do the correct integer conversion from the string value."
+          example: "user@new-example.tld"
+      required:
+        - FieldName
+        - FieldValue
+
+    NewUserProfileSchema:
+      type: object
+      properties:
+        UserAlias:
+          type: string
+          description: 'The alias of the user'
+          example: 'User123'
+        UserEmailAddress:
+          type: string
+          description: 'The e-mail address of the user'
+          example: 'user123@example.tld'
+        AccountStatus:
+          type: integer
+          description: 'The profile status: 1=active; 0=disabled. Only users with active profiles can view and post notes'
+          default: 0
+          example: 1
+      required:
+        - UserAlias
+        - UserEmailAddress
+
+    UserProfileSearchResult:
+      type: object
+      properties:
+        UserProfileLink:
+          type: string
+          description: 'URL to the user profile'
+          example: /user-profiles/123
+        UserId:
+          type: integer
+          description: 'The unique ID of the user'
+          example: 123
+        UserAlias:
+          type: string
+          description: 'The alias of the user'
+          example: 'User123'
+        UserEmailAddress:
+          type: string
+          description: 'The e-mail address of the user'
+          example: 'user123@example.tld'
+        AccountStatus:
+          type: integer
+          description: 'The profile status: 1=active; 0=disabled. Only users with active profiles can view and post notes'
+          example: 1
+      required:
+        - UserProfileLink
+        - UserId
+        - UserAlias
+        - UserEmailAddress
+        - AccountStatus
+
+    GenericError:
+      type: object
+      properties:
+        ErrorCode:
+          type: integer
+          description: "An application specific code, which may or may not be the same as the HTTP error code"
+          example: 404
+        ErrorMessage:
+          type: string
+          description: "A more detailed explanation of the error"
+          example: "There was an error processing your request"
+      required:
+        - ErrorCode
+        - ErrorMessage

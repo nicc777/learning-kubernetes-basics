@@ -1,13 +1,8 @@
 '''
 Comments in this file will be verbose as it is intended as a learning tool
 
-The cool-app is intended to demonstrate some cool features of microservices running in a typical Kubernetes cluster.
-
-The following high-level features are implemented:
-
-* Liveliness and readyness probes as suggested by Kubernetes - see https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/
-* Metrics collectors and API, using Redis as a backend
-* Circuit-Breaker pattern to cater for cases where redis is not installed or otherwise unusable - see https://martinfowler.com/bliki/CircuitBreaker.html
+This version of the application demonstrated a typical "legacy" REST application using a PostgreSQL database for 
+persistence.
 '''
 
 import socket
@@ -16,6 +11,9 @@ import os
 import sys
 from datetime import datetime
 import connexion
+from cool_app import ServiceLogger
+from cool_app.persistence.user_profiles import User
+from cool_app.persistence.notes import Note, Notes
 
 
 '''
@@ -23,18 +21,17 @@ import connexion
 /////                                                                      /////
 /////                       THREAD INITIALIZATION                          /////
 /////                                                                      /////
-/////                                                                      /////
-////////////////////////////////////////////////////////////////////////////////'''
+////////////////////////////////////////////////////////////////////////////////
+
+Here we do some initialization stuff to set-up the application.
+
+At this stage only a logger is set-up as well as the base path to our OpenAPI configuration
+'''
 
 
+L = ServiceLogger()
 SPECIFICATION_DIR = os.getenv('SPECIFICATION_DIR', '/usr/src/app')
-print('Reading OpenAPI from file "{}"'.format(os.getenv('SPECIFICATION_DIR', '/opt/cool-app.yaml')))
-start_time = int(datetime.now().timestamp())
-app_version = '0.0.1'
-
-
-def run_service():
-    app.run(port=8080)
+L.info(message='Reading OpenAPI from file "{}"'.format(os.getenv('SPECIFICATION_DIR', '/opt/cool-app.yaml')))
 
 
 '''
@@ -42,21 +39,58 @@ def run_service():
 /////                                                                      /////
 /////                          HELPER FUNCTIONS                            /////
 /////                                                                      /////
-/////                                                                      /////
-////////////////////////////////////////////////////////////////////////////////'''
+////////////////////////////////////////////////////////////////////////////////
+
+These are common functions that may be used within request handlers.
+
+The basic criteria is to place any operation that repeat in more than one request handler here as a function
+'''
 
 
-def get_hostname():
-    hostname = 'unknown2'
-    try:
-        hostname = socket.gethostname()
-    except:
-        traceback.print_exc(file=sys.stdout)
-    return hostname
+def get_utc_timestamp(with_decimal: bool=False):
+    '''
+        One way to create a proper UTC based Unix Timestamp
+    '''
+    epoch = datetime(1970,1,1,0,0,0)
+    now = datetime.utcnow()
+    timestamp = (now - epoch).total_seconds()
+    if with_decimal:
+        return timestamp
+    return int(timestamp)
 
 
-def uptime()->int:
-    return int(datetime.now().timestamp()) - start_time
+def generate_generic_error_response(error_code: int, error_message: str)->dict:
+    '''
+        Response generator for the '#/components/schemas/UserProfileSearchResult' schema
+    '''
+    return {
+        'ErrorCode': error_code,
+        'ErrorMessage': error_message
+    }
+
+
+def prepare_user_profile_response(u: User)->dict:
+    '''
+        Response generator for the '#/components/schemas/GenericError' schema
+    '''
+    result = dict()
+    result['UserProfileLink'] = '/user-profiles/{}'.format(u.uid)
+    result['UserId'] = u.uid
+    result['UserAlias'] = u.user_alias
+    result['UserEmailAddress'] = u.user_email_address
+    result['AccountStatus'] = u.account_status
+    return result
+
+
+def general_success_response(message: str, link: str='', link_type: str='None')->dict:
+    '''
+        Response generator for the '#/components/schemas/GeneralSuccessSchema' schema
+    '''
+    result = dict()
+    result['Message'] = message
+    result['Link'] = link
+    result['LinkType'] = link_type
+    return result
 
 
 '''
@@ -64,12 +98,198 @@ def uptime()->int:
 /////                                                                      /////
 /////                     REQUEST HANDLERS SECTION                         /////
 /////                                                                      /////
-/////                                                                      /////
 ////////////////////////////////////////////////////////////////////////////////'''
 
 
-def welcome(message):
-    return {'message': message}
+def search_user_profiles(email_address):
+    '''
+        Request Handler for path '/user-profiles/search'
+    '''
+    http_response_code = 404
+    result = generate_generic_error_response(error_code=404, error_message='User Profile Not Found')
+    u = User(logger=L)
+    if u.load_user_profile_by_email_address(user_email_address=email_address):
+        result = prepare_user_profile_response(u=u)
+        http_response_code = 200
+    return result, http_response_code
+
+
+def get_user_profile(uid):
+    '''
+        Request Handler for path '/user-profiles/{uid}' using a GET method
+    '''
+    http_response_code = 404
+    result = generate_generic_error_response(error_code=404, error_message='User Profile Not Found')
+    u = User(logger=L)
+    if u.load_user_profile_by_uid(uid=uid):
+        result = prepare_user_profile_response(u=u)
+        http_response_code = 200
+    return result, http_response_code
+
+
+def update_user_profile(uid, body):
+    '''
+        Request Handler for path '/user-profiles/{uid}' using a PUT method
+    '''
+    http_response_code = 404
+    result = generate_generic_error_response(error_code=404, error_message='User Profile Not Found')
+    u = User(logger=L)
+    if u.load_user_profile_by_uid(uid=uid):
+        if body['FieldName'] == 'UserAlias':
+            u.user_alias = body['FieldValue']
+        elif body['FieldName'] == 'UserEmailAddress':
+            u.user_email_address = body['FieldValue']
+        elif body['FieldName'] == 'AccountStatus':
+            u.user_email_address = int(body['FieldValue'])
+        else:
+            return generate_generic_error_response(
+                error_code=404,
+                error_message='The field to update could not be found'
+            ), http_response_code
+        if u.update_user_profile() is True:
+            http_response_code = 201
+            result = general_success_response(
+                message='Field "{}" updated'.format(body['FieldName']),
+                link='/user-profiles/{}'.format(u.uid),
+                link_type='UserProfile'
+            )
+    return result, http_response_code
+
+
+def new_user_profile(body):
+    '''
+        Request Handler for path '/user-profiles' using a POST method
+
+        Note that this function is implemented in a idempotent way. No matter how many times you submit the same user 
+        data to be created, if the record already exist, you will just get the persisted data back.
+
+        The only caveat to the idempotent implementation is that if subsequent requests have different field values, 
+        you will still get the response with the field values as persisted in the database - so perhaps not a 100% pure 
+        idempotent implementation?
+
+        This implementation differ from the official guidance at https://restfulapi.net/idempotent-rest-apis/ as the 
+        database is keyed on e-mail address and we don't want multiple user profiles with the same e-mail address.
+    '''
+    http_response_code = 404
+    result = generate_generic_error_response(error_code=500, error_message='Failed to create the user profile')
+    u = User(logger=L)
+    u.user_alias = body['UserAlias']
+    u.user_email_address = '{}'.format(body['UserEmailAddress']).lower()
+    if 'AccountStatus' in body:
+        u.account_status = int(body['AccountStatus'])
+    else:
+        u.account_status = 0
+    if u.create_user_profile():
+        http_response_code = 201
+        result = general_success_response(
+            message='User with e-mail address "{}" created'.format(u.user_email_address),
+            link='/user-profiles/{}'.format(u.uid), link_type='UserProfile'
+        )
+    return result, http_response_code
+
+
+def get_user_notes(uid, start_timestamp: int=0, limit: int=25):
+    '''
+        Request Handler for path '/notes/{uid}' using a GET method
+    '''
+    http_response_code = 404
+    result = generate_generic_error_response(error_code=404, error_message='No user notes found')
+    L.debug(message='uid={}   start_timestamp={}   limit={}'.format(uid, start_timestamp, limit))
+    notes = Notes(logger=L)
+    notes.uid = uid
+    notes.load_notes(
+        start_timestamp=start_timestamp,
+        limit=limit,
+        order_descending=False
+    )
+    if len(notes.notes) > 0:
+        http_response_code = 200
+        result = list()
+        for note in notes.notes:
+            note_result = dict()
+            note_result['Link'] = '/notes/{}/{}'.format(note.uid, note.note_timestamp)
+            note_result['Uid'] = note.uid
+            note_result['NoteTimestamp'] = note.note_timestamp
+            note_result['NoteText'] = note.note_text
+            result.append(note_result)
+    return result, http_response_code
+
+
+def get_user_note(uid: int, note_timestamp: int):
+    '''
+        Request Handler for path '/notes/{uid}/{note_timestamp}' using a GET method
+    '''
+    http_response_code = 404
+    result = generate_generic_error_response(error_code=404, error_message='User note not found')
+    note = Note(logger=L)
+    note.uid = uid
+    if note.load_note(note_timestamp=note_timestamp):
+        http_response_code=200
+        result = dict()
+        result['Link'] = '/notes/{}/{}'.format(note.uid, note.note_timestamp)
+        result['Uid'] = note.uid
+        result['NoteTimestamp'] = note.note_timestamp
+        result['NoteText'] = note.note_text
+    return result, http_response_code
+
+
+def new_user_note(uid: int, body):
+    '''
+        Request Handler for path '/notes/{uid}' using a POST method
+    '''
+    http_response_code = 404
+    result = generate_generic_error_response(error_code=404, error_message='Failed to create note.')
+    note = Note(logger=L)
+    note.uid = uid
+    note.note_text = body['NoteText']
+    note.note_timestamp = get_utc_timestamp(with_decimal=False)
+    if note.create_note() is True:
+        http_response_code = 200
+        result = dict()
+        result['Link'] = '/notes/{}/{}'.format(note.uid, note.note_timestamp)
+        result['Uid'] = note.uid
+        result['NoteTimestamp'] = note.note_timestamp
+        result['NoteText'] = note.note_text
+    return result, http_response_code
+
+
+def update_user_note(uid: int, note_timestamp:int, body):
+    '''
+        Request Handler for path '/notes/{uid}/{note_timestamp}' using a PUT method
+    '''
+    http_response_code = 404
+    result = generate_generic_error_response(error_code=404, error_message='Original note not found')
+    note = Note(logger=L)
+    note.uid = uid
+    if note.load_note(note_timestamp=note_timestamp) is True:
+        note.note_text = body['NoteText']
+        if note.update_note(updated_text=body['NoteText']) is True:
+            http_response_code = 200
+            result = dict()
+            result['Link'] = '/notes/{}/{}'.format(note.uid, note.note_timestamp)
+            result['Uid'] = note.uid
+            result['NoteTimestamp'] = note.note_timestamp
+            result['NoteText'] = note.note_text
+    return result, http_response_code
+
+
+def delete_user_note(uid: int, note_timestamp:int):
+    note = Note(logger=L)
+    note.uid = uid
+    note.note_timestamp = note_timestamp
+    note.delete_note()
+    return 'Ok', 200
+
+
+'''
+////////////////////////////////////////////////////////////////////////////////
+/////                                                                      /////
+/////                         APP SETUP SECTION                            /////
+/////                                                                      /////
+////////////////////////////////////////////////////////////////////////////////
+
+This is the connexion specific setup area and have to be at the end of the file.
+'''
 
 
 options = {"swagger_ui": False}
@@ -77,6 +297,5 @@ if int(os.getenv('SWAGGER_UI', '1')) > 0:
     options = {"swagger_ui": True}    
 app = connexion.FlaskApp(__name__, specification_dir=SPECIFICATION_DIR)
 app.add_api('cool-app.yaml', strict_validation=True)
-application = app.app # expose global WSGI application object
 
 # EOF
