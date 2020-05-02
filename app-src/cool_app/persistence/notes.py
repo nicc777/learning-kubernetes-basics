@@ -23,6 +23,26 @@ class Note:
         self.engine = engine
     
     def create_note(self)->bool:
+        '''
+            Creates a new note for the user
+
+            Example:
+
+                >>> note = Note()
+                >>> note.uid = uid
+                >>> note.note_text = 'hello world'
+                >>> note.note_timestamp = 1234567890
+                >>> if note.create_note() is True:
+                >>>     pass # Process success state
+                >>> else:
+                >>>     pass # Process failed state
+
+            There is not currently a elegant way to handle duplicate notes. The database implements a constraint to 
+            prevent a user submitting the exact same text more than once. However, on Exception we do not have enough 
+            contextual data to retrieve the existing record (yet). 
+
+            FIXME: The above is an issue (but for the scenarios to solve - so it's intended at this point)
+        '''
         note_created = False
         self.L.info(message='Attempting to create note in database')
         exception_caught = False
@@ -44,6 +64,18 @@ class Note:
         return note_created
 
     def load_note(self, note_timestamp: int)->bool:
+        '''
+            Loads a note for a user, given the note_timestamp
+
+            Example:
+
+                >>> note = Note()
+                >>> note.uid = uid
+                >>> if note.load_note(note_timestamp=note_timestamp):
+                >>>     pass # Process success state
+                >>> else:
+                >>>     pass # Process failed state
+        '''
         note_loaded = False
         self.note_text = None
         self.note_timestamp = None
@@ -65,6 +97,22 @@ class Note:
         return note_loaded
 
     def update_note(self, updated_text: str)->bool:
+        '''
+            Updates a user's existing note
+
+            Example:
+
+                >>> note = Note()
+                >>> note.uid = uid
+                >>> if note.load_note(note_timestamp=note_timestamp) is True:
+                >>>     note.note_text = body['NoteText']
+                >>>     if note.update_note(updated_text='I am the best programmer ever!!') is True:
+                >>>         pass # Process success state
+                >>>     else:
+                >>>         pass # Process failed state
+                >>> else:
+                >>>     pass # Process failed state
+        '''
         note_updated = False
         try:
             if self.engine is not None:
@@ -83,6 +131,16 @@ class Note:
         return note_updated
 
     def delete_note(self):
+        '''
+            Deletes a note
+
+            Example:
+
+                >>> note = Note()
+                >>> note.uid = 123
+                >>> note.note_timestamp = 1234567890
+                >>> note.delete_note()
+        '''
         try:
             if self.engine is not None:
                 with engine.connect() as connection:
@@ -120,8 +178,6 @@ class Notes:
                     order = 'ASC'
                     if order_descending is True:
                         order = 'DESC'
-                    sql_text = text('SELECT uid, note_timestamp, note_text FROM notes WHERE uid = :f1 AND note_timestamp >= :f2 ORDER BY note_timestamp {} LIMIT {}'.format(order, limit))
-                    self.L.debug(message='sql_text={}'.format(sql_text))
                     for row in connection.execute(text('SELECT uid, note_timestamp, note_text FROM notes WHERE uid = :f1 AND note_timestamp >= :f2 ORDER BY note_timestamp {} LIMIT {}'.format(order, limit)), f1=self.uid, f2=start_timestamp).fetchall():
                         self.L.debug(message='row={}'.format(row))
                         note = Note()

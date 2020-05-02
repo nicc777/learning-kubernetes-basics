@@ -270,6 +270,14 @@ def update_user_note(uid: int, note_timestamp:int, body):
     return result, http_response_code
 
 
+def delete_user_note(uid: int, note_timestamp:int):
+    note = Note(logger=L)
+    note.uid = uid
+    note.note_timestamp = note_timestamp
+    note.delete_note()
+    return 'Ok', 200
+
+
 '''
 ////////////////////////////////////////////////////////////////////////////////
 /////                                                                      /////
@@ -286,6 +294,5 @@ if int(os.getenv('SWAGGER_UI', '1')) > 0:
     options = {"swagger_ui": True}    
 app = connexion.FlaskApp(__name__, specification_dir=SPECIFICATION_DIR)
 app.add_api('cool-app.yaml', strict_validation=True)
-#application = app.app # expose global WSGI application object
 
 # EOF

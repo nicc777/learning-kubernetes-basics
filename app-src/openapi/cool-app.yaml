@@ -206,6 +206,31 @@ paths:
           $ref: "#/components/responses/GeneralSuccessResponse"
         "404":
           $ref: '#/components/responses/NotFoundResponse'
+    delete:
+      summary: "Delete a note belonging to a user"
+      description: "Based on the parameters, will delete a matching note on the database"
+      operationId: cool_app.service_app.delete_user_note
+      parameters:
+        - name: uid
+          in: path
+          description: "A unique user ID"
+          required: true
+          schema:
+            type: string
+        - name: note_timestamp
+          in: path
+          description: "The timestamp of the note"
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: This call will always return Ok
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Ok
 
 components:
 
