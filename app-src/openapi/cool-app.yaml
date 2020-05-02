@@ -18,31 +18,12 @@ servers:
         description: The TCP port the server is listening on
 
 paths:
-  /welcome:    
-    get:
-      summary: "A simple welcome message service"
-      description: "A very simple service endpoint just to test the service"
-      operationId: cool_app.service_app.welcome
-      parameters:
-        - name: message
-          in: query
-          description: "A user friendly message"
-          required: false
-          schema:
-            type: string
-      responses:
-        "200":
-          description: "OK"
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/WelcomeMessage"
 
-  /user-profile:
+  /user-profiles/search:
     get:
-      summary: "Get a user's profile"
+      summary: "Search for a user's profile by e-mail address"
       description: "Requires a user email address to search for the user's profile in the database"
-      operationId: cool_app.service_app.get_user_profile
+      operationId: cool_app.service_app.search_user_profiles
       parameters:
         - name: email_address
           in: query
@@ -52,19 +33,56 @@ paths:
             type: string
       responses:
         "200":
-          description: "OK"
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/UserProfile"
+          $ref: "#/components/responses/UserProfileResponse"
+        "404":
+          $ref: '#/components/responses/UserProfileNotFoundResponse'
+
+  /user-profiles/{uid}:
+    get:
+      summary: "Get for a user's profile by UID"
+      description: "Requires a user email address to search for the user's profile in the database"
+      operationId: cool_app.service_app.get_user_profile
+      parameters:
+        - name: uid
+          in: path
+          description: "A unique user ID that was assigned during registration"
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        "200":
+          $ref: "#/components/responses/UserProfileResponse"
+        "404":
+          $ref: '#/components/responses/UserProfileNotFoundResponse'
 
 components:
 
+  responses:
+
+    UserProfileResponse:
+      description: "The user profile"
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/UserProfileSearchResult'
+
+    UserProfileNotFoundResponse:
+      description: "The user profile was not found"
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/GenericError'
+
   schemas:
 
-    UserProfile:
+    UserProfileSearchResult:
       type: object
       properties:
+        UserProfileLink:
+          type: string
+          description: 'URL to the user profile'
+          example: /user-profiles/123
         UserId:
           type: int
           description: 'The unique ID of the user'
@@ -84,12 +102,17 @@ components:
       required:
         - UserAlias
 
-    WelcomeMessage:
+    GenericError:
       type: object
-      example: "Hello World"
       properties:
-        message:
+        ErrorCode:
+          type: int
+          description: "An application specific code, which may or may not be the same as the HTTP error code"
+          example: 404
+        ErrorMessage:
           type: string
-          description: The message
+          description: "A more detailed explanation of the error"
+          example: "There was an error processing your request"
       required:
-        - message
+        - ErrorCode
+        - ErrorMessage

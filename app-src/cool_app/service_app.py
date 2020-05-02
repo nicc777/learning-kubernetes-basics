@@ -17,7 +17,7 @@ import sys
 from datetime import datetime
 import connexion
 from cool_app import ServiceLogger
-from cool_app.persistence import User
+from cool_app.persistence.user_profiles import User
 
 
 '''
@@ -34,10 +34,6 @@ SPECIFICATION_DIR = os.getenv('SPECIFICATION_DIR', '/usr/src/app')
 L.info(message='Reading OpenAPI from file "{}"'.format(os.getenv('SPECIFICATION_DIR', '/opt/cool-app.yaml')))
 start_time = int(datetime.now().timestamp())
 app_version = '0.0.1'
-
-
-def run_service():
-    app.run(port=8080)
 
 
 '''
@@ -62,6 +58,13 @@ def uptime()->int:
     return int(datetime.now().timestamp()) - start_time
 
 
+def generate_generic_error_response(error_code: int, error_message: str)->dict:
+    return {
+        'ErrorCode': error_code,
+        'ErrorMessage': error_message
+    }
+
+
 '''
 ////////////////////////////////////////////////////////////////////////////////
 /////                                                                      /////
@@ -71,24 +74,42 @@ def uptime()->int:
 ////////////////////////////////////////////////////////////////////////////////'''
 
 
-def welcome(message):
-    return {'message': message}
-
-
-def get_user_profile(email_address):
-    result = dict()
-    result['UserId'] = 0
-    result['UserAlias'] = ''
-    result['UserEmailAddress'] = ''
-    result['AccountStatus'] = 0
+def search_user_profiles(email_address):
+    http_response_code = 404
+    result = generate_generic_error_response(error_code=404, error_message='User Profile Not Found')
     u = User(logger=L)
-    u.load_user_profile(user_email_address=email_address)
-    if u.uid is not None:
+    if u.load_user_profile_by_email_address(user_email_address=email_address):
+        result = dict()
+        result['UserProfileLink'] = '/user-profiles/{}'.format(u.uid)
         result['UserId'] = u.uid
         result['UserAlias'] = u.user_alias
         result['UserEmailAddress'] = u.user_email_address
         result['AccountStatus'] = u.account_status
-    return result
+        http_response_code = 200
+    return result, http_response_code
+
+
+def get_user_profile(uid):
+    http_response_code = 404
+    result = generate_generic_error_response(error_code=404, error_message='User Profile Not Found')
+    u = User(logger=L)
+    if u.load_user_profile_by_uid(uid=uid):
+        result = dict()
+        result['UserProfileLink'] = '/user-profiles/{}'.format(u.uid)
+        result['UserId'] = u.uid
+        result['UserAlias'] = u.user_alias
+        result['UserEmailAddress'] = u.user_email_address
+        result['AccountStatus'] = u.account_status
+        http_response_code = 200
+    return result, http_response_code
+
+
+'''
+////////////////////////////////////////////////////////////////////////////////
+/////                                                                      /////
+/////                         APP SETUP SECTION                            /////
+/////                                                                      /////
+////////////////////////////////////////////////////////////////////////////////'''
 
 
 options = {"swagger_ui": False}

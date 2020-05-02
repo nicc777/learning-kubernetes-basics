@@ -6,6 +6,7 @@
 - [3. Run the application](#3-run-the-application)
   - [3.1 Preparing to run the application for the first time](#31-preparing-to-run-the-application-for-the-first-time)
   - [3.2 Run the application](#32-run-the-application)
+- [4. The Swagger UI](#4-the-swagger-ui)
 
 # 1. Cool App
 
@@ -94,6 +95,7 @@ __Tip__: Using SSH port forwarding it will be possible to connect to the databas
 Run the application with the following command, adjusting the various options to your needs:
 
 ```bash
+(venv) $ export DEBUG=1
 (venv) $ docker container stop coolapp-rest-service
 (venv) $ docker container rm coolapp-rest-service
 (venv) $ docker run --name coolapp-rest-service \
@@ -109,12 +111,13 @@ Run the application with the following command, adjusting the various options to
 Assuming the data was loaded correctly, you should see the following with a quick curls test from your `Workstation`:
 
 ```bash
-$ curl -X GET "http://192.168.0.160:8080/v1/user-profile?email_address=user1%40example.tld" -H  "accept: application/json"
+$ curl -X GET "http://192.168.0.160:8080/v1/user-profiles/search?email_address=user1%40example.tld" -H  "accept: application/json"
 {
   "AccountStatus": 1,
   "UserAlias": "user1",
   "UserEmailAddress": "user1@example.tld",
-  "UserId": 1
+  "UserId": 1,
+  "UserProfileLink": "/user-profiles/1"
 }
 ```
 
@@ -122,11 +125,40 @@ To see what's happening on the server, you can tail the logs on the `Server`:
 
 ```bash
 (venv) $ docker logs -f coolapp-rest-service
-   .
-   .
-   .
---==>  2020-05-01 13:23:37,124 - DEBUG - [None] [__init__.py:88:load_user_profile] result=(1, 'user1', 'user1@example.tld', 1)
-
-192.168.0.100 - - [01/May/2020:13:23:37 +0000] "GET /v1/user-profile?email_address=user1%40example.tld HTTP/1.1" 200 92 "-" "curl/7.64.1"
 ```
 
+```text
+   .
+   .
+   .
+--==>  2020-05-02 02:28:41,434 - DEBUG - [None] [user_profiles.py:52:load_user_profile_by_email_address] result=(1, 'user1', 'user1@example.tld', 1)
+
+192.168.0.100 - - [02/May/2020:02:28:41 +0000] "GET /v1/user-profiles/search?email_address=user1%40example.tld HTTP/1.1" 200 148 "-" "curl/7.64.1"
+```
+
+From the response, you will see the user profile is located at `/user-profiles/1`, which you can also query:
+
+```bash
+$ curl -X GET "http://192.168.0.160:8080/v1/user-profiles/1" -H  "accept: application/json"
+{
+  "AccountStatus": 1,
+  "UserAlias": "user1",
+  "UserEmailAddress": "user1@example.tld",
+  "UserId": 1,
+  "UserProfileLink": "/user-profiles/1"
+}
+```
+
+And the related log entries:
+
+```text
+--==>  2020-05-02 02:31:32,753 - DEBUG - [None] [user_profiles.py:76:load_user_profile_by_uid] result=(1, 'user1', 'user1@example.tld', 1)
+
+192.168.0.100 - - [02/May/2020:02:31:32 +0000] "GET /v1/user-profiles/1 HTTP/1.1" 200 148 "-" "curl/7.64.1"
+```
+
+# 4. The Swagger UI
+
+If you started the app with the `SWAGGER_UI=1` you can view the Swagger UI in your browser: http://192.168.0.160:8080/v1/ui/
+
+To disable the Swagger UI, set `SWAGGER_UI=0`, or just omit it from the command line - the default value is `0` (disabled).
