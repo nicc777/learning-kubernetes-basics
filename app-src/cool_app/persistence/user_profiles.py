@@ -37,6 +37,7 @@ class User:
         else:
             self.L.warning(message='User profile appears to be already persisted. Nothing to do. uid={}'.format(self.uid))
         self.L.info(message='Final result: {}'.format(user_created))
+        self.load_user_profile_by_email_address(user_email_address=self.user_email_address)
         return user_created
 
     def load_user_profile_by_email_address(self, user_email_address: str)->bool:

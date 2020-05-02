@@ -162,3 +162,4 @@ And the related log entries:
 If you started the app with the `SWAGGER_UI=1` you can view the Swagger UI in your browser: http://192.168.0.160:8080/v1/ui/
 
 To disable the Swagger UI, set `SWAGGER_UI=0`, or just omit it from the command line - the default value is `0` (disabled).
+

@@ -4,7 +4,8 @@ CREATE TABLE public.user_profiles (
 	user_alias varchar(64) NOT NULL,
 	user_email_address varchar(255) NOT NULL,
 	account_status int4 NOT NULL DEFAULT 1,
-	CONSTRAINT user_profiles_pk PRIMARY KEY (uid)
+	CONSTRAINT user_profiles_pk PRIMARY KEY (uid),
+	CONSTRAINT user_profiles_un_001 UNIQUE (user_email_address)
 );
 
 DROP TABLE public.notes;

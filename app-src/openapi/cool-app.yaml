@@ -37,6 +37,24 @@ paths:
         "404":
           $ref: '#/components/responses/UserProfileNotFoundResponse'
 
+  /user-profiles/new:
+    post:
+      summary: "Create a new user profile"
+      description: "Specify a field and its new value"
+      operationId: cool_app.service_app.new_user_profile
+      requestBody:
+        description: "Define what field must be updated and the new value"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NewUserProfileSchema'
+      responses:
+        "200":
+          $ref: "#/components/responses/GeneralSuccessResponse"
+        "404":
+          $ref: '#/components/responses/UserProfileNotFoundResponse'
+
   /user-profiles/{uid}:
     get:
       summary: "Get for a user's profile by UID"
@@ -55,10 +73,41 @@ paths:
           $ref: "#/components/responses/UserProfileResponse"
         "404":
           $ref: '#/components/responses/UserProfileNotFoundResponse'
+    put:
+      summary: "Update a user profile"
+      description: "Specify a field and its new value"
+      operationId: cool_app.service_app.update_user_profile
+      parameters:
+        - name: uid
+          in: path
+          description: "A unique user ID that was assigned during registration. This is the profile that will be updated."
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        description: "Define what field must be updated and the new value"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserProfileUpdateSchema'
+      responses:
+        "200":
+          $ref: "#/components/responses/GeneralSuccessResponse"
+        "404":
+          $ref: '#/components/responses/UserProfileNotFoundResponse'
 
 components:
 
   responses:
+
+    GeneralSuccessResponse:
+      description: "A generic success response"
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/GeneralSuccessSchema'
 
     UserProfileResponse:
       description: "The user profile"
@@ -75,6 +124,67 @@ components:
             $ref: '#/components/schemas/GenericError'
 
   schemas:
+
+    GeneralSuccessSchema:
+      type: object
+      properties:
+        Message:
+          type: string
+          description: "A more detailed explanation of the event"
+          example: "User profile 123 successfully updated"
+        Link:
+          type: string
+          description: 'URL to the relevant resource'
+          example: "/user-profiles/123"
+        LinkType:
+          type: string
+          description: 'URL to the relevant resource'
+          enum:
+            - UserProfile
+            - Note
+            - None
+          example: "UserProfile"
+      required:
+        - Message
+
+    UserProfileUpdateSchema:
+      type: object
+      properties:
+        FieldName:
+          type: string
+          description: "The field to update"
+          enum:
+            - UserAlias
+            - UserEmailAddress
+            - AccountStatus
+          example: "UserEmailAddress"
+        FieldValue:
+          type: string
+          description: "The new value, as a string. AccountStatus is technically a number, but this schema still requires a string. The application will do the correct integer conversion from the string value."
+          example: "user@new-example.tld"
+      required:
+        - FieldName
+        - FieldValue
+
+    NewUserProfileSchema:
+      type: object
+      properties:
+        UserAlias:
+          type: string
+          description: 'The alias of the user'
+          example: 'User123'
+        UserEmailAddress:
+          type: string
+          description: 'The e-mail address of the user'
+          example: 'user123@example.tld'
+        AccountStatus:
+          type: integer
+          description: 'The profile status: 1=active; 0=disabled. Only users with active profiles can view and post notes'
+          default: 0
+          example: 1
+      required:
+        - UserAlias
+        - UserEmailAddress
 
     UserProfileSearchResult:
       type: object
@@ -100,7 +210,11 @@ components:
           description: 'The profile status: 1=active; 0=disabled. Only users with active profiles can view and post notes'
           example: 1
       required:
+        - UserProfileLink
+        - UserId
         - UserAlias
+        - UserEmailAddress
+        - AccountStatus
 
     GenericError:
       type: object
