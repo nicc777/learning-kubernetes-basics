@@ -129,10 +129,64 @@ paths:
           $ref: "#/components/responses/AllUserNotesResponse"
         "404":
           $ref: '#/components/responses/NotFoundResponse'
+    post:
+      summary: "Create a new note"
+      description: "Create a new note for a user"
+      operationId: cool_app.service_app.new_user_note
+      parameters:
+        - name: uid
+          in: path
+          description: "A unique user ID"
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: "Set the text of the new note"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NewUserNoteSchema'
+      responses:
+        "200":
+          $ref: "#/components/responses/GeneralSuccessResponse"
+        "404":
+          $ref: '#/components/responses/NotFoundResponse'
+
+  /notes/{uid}/{note_timestamp}:
+    get:
+      summary: "Retrieve a note belonging to a user"
+      description: "Based on the parameters, will run a search on the database and return the matching note"
+      operationId: cool_app.service_app.get_user_note
+      parameters:
+        - name: uid
+          in: path
+          description: "A unique user ID"
+          required: true
+          schema:
+            type: string
+        - name: note_timestamp
+          in: path
+          description: "The timestamp from of the note"
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          $ref: "#/components/responses/UserNoteResponse"
+        "404":
+          $ref: '#/components/responses/NotFoundResponse'
 
 components:
 
   responses:
+
+    UserNoteResponse:
+      description: "All the users notes"
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/NoteSchema'
 
     AllUserNotesResponse:
       description: "All the users notes"
@@ -163,6 +217,16 @@ components:
             $ref: '#/components/schemas/GenericError'
 
   schemas:
+
+    NewUserNoteSchema:
+      type: object
+      properties:
+        NoteText:
+          type: string
+          description: "The text of the Note"
+          example: "This is a simple note."
+      required:
+        - NoteText
 
     NoteSchema:
       type: object

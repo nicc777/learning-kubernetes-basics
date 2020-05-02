@@ -22,32 +22,28 @@ class Note:
     def create_note(self)->bool:
         note_created = True
         self.L.info(message='Attempting to create note in database')
-        if self.uid is None and self.note_timestamp is not None and self.note_text is not None:
-            try:
-                if self.engine is not None:
-                    with engine.connect() as connection:
-                        result = connection.execute(text('INSERT INTO notes ( uid, note_timestamp, note_text ) VALUES ( :f1, :f2, :f3 )'), f1=self.uid, f2=self.note_timestamp, f3=self.note_text)
-                        self.L.debug(message='result={}'.format(result))
-                else:
-                    self.L.error(message='Database engine not ready. User profile not persisted')
-            except:
-                self.L.error(message='EXCEPTION: {}'.format(traceback.format_exc()))
-        else:
-            self.L.warning(message='User profile appears to be already persisted. Nothing to do. uid={}'.format(self.uid))
+        try:
+            if self.engine is not None:
+                with engine.connect() as connection:
+                    result = connection.execute(text('INSERT INTO notes ( uid, note_timestamp, note_text ) VALUES ( :f1, :f2, :f3 )'), f1=self.uid, f2=self.note_timestamp, f3=self.note_text)
+                    self.L.debug(message='result={}'.format(result))
+            else:
+                self.L.error(message='Database engine not ready. User profile not persisted')
+        except:
+            self.L.error(message='EXCEPTION: {}'.format(traceback.format_exc()))
         self.L.info(message='Final result: {}'.format(note_created))
-        if self.load_note(uid=self.uid, note_timestamp=self.note_timestamp):
+        if self.load_note(note_timestamp=self.note_timestamp):
             note_created = True
         return note_created
 
-    def load_note(self, uid: str, note_timestamp: int)->bool:
+    def load_note(self, note_timestamp: int)->bool:
         note_loaded = False
-        self.uid = None
         self.note_text = None
         self.note_timestamp = None
         try:
             if self.engine is not None:
                 with engine.connect() as connection:
-                    result = connection.execute(text('SELECT uid, note_timestamp, note_text FROM notes WHERE uid = :f1 AND note_timestamp = :f2'), f1=uid, f2=note_timestamp).fetchone()
+                    result = connection.execute(text('SELECT uid, note_timestamp, note_text FROM notes WHERE uid = :f1 AND note_timestamp = :f2'), f1=self.uid, f2=note_timestamp).fetchone()
                     self.L.debug(message='result={}'.format(result))
                     if result:
                         self.uid = result['uid']

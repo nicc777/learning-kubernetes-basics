@@ -47,6 +47,15 @@ The basic criteria is to place any operation that repeat in more than one reques
 '''
 
 
+def get_utc_timestamp(with_decimal: bool=False):
+    epoch = datetime(1970,1,1,0,0,0)
+    now = datetime.utcnow()
+    timestamp = (now - epoch).total_seconds()
+    if with_decimal:
+        return timestamp
+    return int(timestamp)
+
+
 def generate_generic_error_response(error_code: int, error_message: str)->dict:
     '''
         Response generator for the '#/components/schemas/UserProfileSearchResult' schema
@@ -177,6 +186,9 @@ def new_user_profile(body):
 
 
 def get_user_notes(uid, start_timestamp: int=0, limit: int=25):
+    '''
+        Request Handler for path '/notes/{uid}' using a GET method
+    '''
     http_response_code = 404
     result = generate_generic_error_response(error_code=404, error_message='No user notes found')
     L.debug(message='uid={}   start_timestamp={}   limit={}'.format(uid, start_timestamp, limit))
@@ -198,6 +210,46 @@ def get_user_notes(uid, start_timestamp: int=0, limit: int=25):
             note_result['NoteText'] = note.note_text
             result.append(note_result)
     return result, http_response_code
+
+
+def get_user_note(uid: int, note_timestamp: int):
+    '''
+        Request Handler for path '/notes/{uid}/{note_timestamp}' using a GET method
+    '''
+    http_response_code = 404
+    result = generate_generic_error_response(error_code=404, error_message='User note not found')
+    note = Note(logger=L)
+    note.uid = uid
+    if note.load_note(note_timestamp=note_timestamp):
+        http_response_code=200
+        result = dict()
+        result['Link'] = '/notes/{}/{}'.format(note.uid, note.note_timestamp)
+        result['Uid'] = note.uid
+        result['NoteTimestamp'] = note.note_timestamp
+        result['NoteText'] = note.note_text
+    return result, http_response_code
+
+
+def new_user_note(uid: int, body):
+    '''
+        Request Handler for path '/notes/{uid}' using a POST method
+    '''
+    http_response_code = 404
+    result = generate_generic_error_response(error_code=404, error_message='Failed to create not. New note not found on the backend.')
+    note = Note(logger=L)
+    note.uid = uid
+    note.note_text = body['NoteText']
+    note.note_timestamp = get_utc_timestamp(with_decimal=False)
+    if note.create_note() is True:
+        http_response_code = 200
+        result = dict()
+        result['Link'] = '/notes/{}/{}'.format(note.uid, note.note_timestamp)
+        result['Uid'] = note.uid
+        result['NoteTimestamp'] = note.note_timestamp
+        result['NoteText'] = note.note_text
+    return result, http_response_code
+
+
 
 
 '''
