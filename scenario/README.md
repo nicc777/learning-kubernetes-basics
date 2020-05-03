@@ -24,8 +24,6 @@ What needs to be build is the following:
 
 For this scenario a build server is required and since [Jenkins](https://www.jenkins.io) is still widely used, I will stick to this trusty old workhorse.
 
-
-
 # 3. Step-by-Step Demo Walk Through
 
 These steps are executed on a system where you will host your CI/CD pipeline. For me that is on my `Server` and the commands shown are executed from that server.
