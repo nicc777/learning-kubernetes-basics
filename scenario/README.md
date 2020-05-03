@@ -2,7 +2,9 @@
 - [1. Objectives of the Scenario](#1-objectives-of-the-scenario)
 - [2. Technology & Patterns](#2-technology--patterns)
 - [3. Step-by-Step Demo Walk Through](#3-step-by-step-demo-walk-through)
-- [4. Conclusion](#4-conclusion)
+- [4. Scenario Discussion](#4-scenario-discussion)
+  - [4.1 Trail-Map Progress](#41-trail-map-progress)
+  - [4.2 Cloud-Native Principles Progress](#42-cloud-native-principles-progress)
 - [5. References](#5-references)
 
 # 1. Objectives of the Scenario
@@ -38,7 +40,19 @@ The application source code, warts-and-all, with a detailed README to get the ap
 
 And next you can open the `app-src/README.md` file and follow the instructions.
 
-# 4. Conclusion
+# 4. Scenario Discussion
+
+At minimum you have a running service in a Docker container, together with a database also containerized.
+
+The project at this stage has a number of obvious holes. There are no unit tests and testing of the services was done manually. Keep in mind the back story that this was a quick 1x sprint effort to quickly get a notes services deployed. This is common, and the reason why I have set up my learning environment as it is very likely for many projects to follow a similar pattern. The Cloud-Native alignment and required changes will happen next.
+
+In each scenario we will map our progress against the Cloud-Native Trail Map and against the Cloud-Native Principles.
+
+## 4.1 Trail-Map Progress
+
+TODO
+
+## 4.2 Cloud-Native Principles Progress
 
 TODO
 
