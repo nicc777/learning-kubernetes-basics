@@ -1,16 +1,16 @@
 
 - [1. Introduction & Background](#1-introduction--background)
   - [1.1 Trail Map](#11-trail-map)
+  - [1.2 Architecture and Scope of Work](#12-architecture-and-scope-of-work)
 - [2. Guiding Principles](#2-guiding-principles)
 - [3. Lab Environment](#3-lab-environment)
 - [4. Getting Started](#4-getting-started)
   - [4.1 Preparing the Workstation](#41-preparing-the-workstation)
   - [4.2 Preparing the Server](#42-preparing-the-server)
   - [4.3 Network and Security](#43-network-and-security)
-  - [4.4 Cloning this repo](#44-cloning-this-repo)
+  - [4.4 Cloning your repo](#44-cloning-your-repo)
   - [4.5 Prepare your Python environment](#45-prepare-your-python-environment)
 - [5. Story Line and Scenarios](#5-story-line-and-scenarios)
-- [6. Handy Tips](#6-handy-tips)
 
 # 1. Introduction & Background
 
@@ -32,7 +32,17 @@ The trail map I will use is included below and was copied from the [Cloud-Native
 
 ([click on the map for a larger version](artwork/cncf_trailmap_latest.png))
 
-<center><a href="artwork/cncf_trailmap_latest.png"><img src="artwork/cncf_trailmap_latest.png" alt="Trail Map" height="350" width="406"></a></center>
+<center><a href="artwork/cncf_trailmap_latest.png"><img src="artwork/cncf_trailmap_latest.png" alt="Trail Map"></a></center>
+
+## 1.2 Architecture and Scope of Work
+
+The larger application is a web based application deployed in a traditional data center. The `scenarios` in this project is focused only on a sub-set of the larger application. The back story goes something like this: _"The team have been tasked to align to the new IT Modernization strategy the company and as such you need to start the work on the notes service, which your team originally hacked together in a sprint to fill a gap. The job was so rushed, the best name that the team could come up with was the `Cool App`. The business is expecting massive growth and want to move the entire stack to an architecture that is massively scalable. The guidance was to target a Kubernetes type environment and to ensure that all applications are adapted as required to operate and scale within such an environment."_
+
+The overview of the current stack and how the pieces fit together can be viewed in the following diagram:
+
+<center><a href="artwork/scope_of_work.png"><img src="artwork/scope_of_work.png" alt="Design"></a></center>
+
+Within the `Services` block is the `Cool App` - a note taking service - with it's database (PosgreSQL).
 
 # 2. Guiding Principles
 
@@ -54,13 +64,24 @@ The diagram below illustrate my lab setup:
 
  For more information on getting Visual Studio Code to work on a remote Git repository, refer to the [documentation](https://code.visualstudio.com/docs/remote/ssh).
 
- The `Workstation` generally refers to the Mac Book Pro I am actually working on. The `Server` refers to the Dell laptop acting as a server.
+ The `Workstation` generally refers to the Mac Book Pro I am actually working on. The `Server` refers to the Dell laptop acting as a server. 
+
+ __Important__: Some of the examples may include hostnames or IP addresses relevant to the original lab environment. You should adjust these to suite your environment. It is entirely possible to run everything on a single system.
 
  # 4. Getting Started
 
-Initial tools
+As a start, I suggest you fork this repo so that you have your own place to play. You can keep up to date by following this GitHub guide:
 
-Before checking out the first `scenario`, take some time to set-up your environment.
+* [Working with forks](https://help.github.com/en/github/collaborating-with-issues-and-pull-requests/working-with-forks)
+
+Once you have done that, i would suggest the following:
+
+* Use your web browser to view **_this README_** in the master branch in your forked GitHub repo - on GitHub.
+* The next action you can do on your cloned repo in your local environment:
+  * Checkout the various scenarios and view the [`scenario` README](./scenario/README.md) in another browser tab.
+  * If you need to work on the source code in any of the source branches, you can checkout the source branch and do what ever you need to do. As long as you don't navigate away from the README in the browser tab, you should be able to follow all the instructions although that README is technicall no longer "there"
+
+Now, with that out of the way and before checking out the first `scenario`, take some time to set-up your environment.
 
 ## 4.1 Preparing the Workstation
 
@@ -88,6 +109,7 @@ Below is a list of extensions I have installed on VS Code. They are all optional
 * Python
 * YAML
 * and those installed for SSH remote work
+* PostgreSQL
 
 ## 4.2 Preparing the Server
 
@@ -111,13 +133,13 @@ Apart from that, I highly recommend that you set-up SSH [key based authenticatio
 
 You will probably also need SSH keys for many other uses, [such as your GitHub repo](https://help.github.com/en/github/authenticating-to-github/connecting-to-github-with-ssh).
 
-## 4.4 Cloning this repo
+## 4.4 Cloning your repo
 
-Log onto your `Server` and clone this repo:
+Assuming you [have now forked this repo](https://github.com/nicc777/learning-kubernetes-basics), log onto your `Server` and clone your repo:
 
 ```
 $ mkdir git ; cd git
-$ git clone https://github.com/nicc777/learning-kubernetes-basics.git
+$ git clone https://github.com/<your-user-name>/learning-kubernetes-basics.git
 $ cd learning-kubernetes-basics
 $ export TUTORIAL_HOME=$PWD
 ```
@@ -128,7 +150,7 @@ In all scenarios, unless otherwise stated, it is assumed you are working in `$TU
 
 I use a [Python Virtual Environment](https://docs.python.org/3/tutorial/venv.html) whenever possible.
 
-To set it up, run the following:
+To set it up, run the following on your `Server`:
 
 ```
 $ python3 -m venv venv
@@ -159,7 +181,7 @@ In the table below is a brief explanation of the proposed sequence in which you 
 |------------|----------|-------------|--------|--------|
 | Containers (Docker) | Getting Started | Basic orientation of the app and how to get it built using Docker | scenario-000001 | In-Progress, Not-Ready |
 
-__Note__: The table will be updated.
+__Note__: The table will be updated as I get time to document my learnings.
 
 __Note__: In order to cater for new scenarios that I may want to put in-between existing scenarios, I will leave a gap of about 50 between the initial scenarios. Also, each focus area will have it's own starting digit, starting with 0. Therefore, scenario 1 of Containers will be named branch `scenario-100001` and scenario 2 will be `scenario-100050`. For streaming and messaging, which is the 8th category, the first scenario will be `scenario-800001` and the second `scenario-800050` and so on. 
 
@@ -169,10 +191,6 @@ You can start now with the first scenario by issuing the following command in `$
 (venv) $ git checkout scenario-100001
 ```
 
-Once you have done that, open the `scenario` [README](scenario/README.md)
+Once you have done that, open the `scenario` [README](scenario/README.md) in another browser tab. You can also use the Visual Studio Code extension called `Markdown All in One` to open a preview in a tab.
 
-# 6. Handy Tips
 
-__Tip #1__: You can checkout the relevant `scenario` branch on GitHub and read the README.md there, while working on the relevant `app-src` version in your repo.
-
-__Tip #2__: If you want to experiment, you can always fork the repo and then in your own fork create experimental branches where you can then change code and configuration to see what happens.
