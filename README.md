@@ -14,7 +14,7 @@
 
 # 1. Introduction & Background
 
-This is a project that I started to learn about Modern IT Architectures, DevSecOps, Microservices, Cloud-Native, Kubernetes and other "buzz" words in technology.
+This is a project that I started to learn about Modern IT Architectures, DevSecOps, Microservices, Cloud-Native, Kubernetes and other "buzz" words in technology. 
 
 The learning experience will be organized in `scenarios`, each with it's own branch. Within each `scenario` branch, will be a `scenario/` directory containing theoretical material around the specific scenario.
 
