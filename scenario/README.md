@@ -11,6 +11,8 @@ In this scenario we will ensure that you are starting of with a working applicat
 
 The application relies on a PostgreSQL database, which will also be deployed as a Docker container.
 
+This scenario represents a starting point that many projects may follow, which is to containerize an application. Nothing much really happens in terms of the original source code. The aim is to get the application running in a Docker container with as little fuss as possible.
+
 # 2. Technology & Patterns
 
 Technology stack for this scenario:
@@ -28,7 +30,11 @@ Important patterns to consider in this scenario:
 
 # 3. Step-by-Step Demo Walk Through
 
-TODO
+The application source code, warts-and-all, with a detailed README to get the application going, is all available in the source branch. You can issue the following commands to check out that branch and follow the README instructions to build and run the Docker containers:
+
+```bash
+
+```
 
 # 4. Conclusion
 
