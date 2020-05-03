@@ -27,11 +27,38 @@ In each scenario we will map our progress against the Cloud-Native Trail Map and
 
 ## 4.1 Trail-Map Progress
 
-TODO
+| Category                               | Technologies & Patterns Used | Progress and other notes |
+|----------------------------------------|------------------------------|--------------------------|
+| Containers (Docker)                    | n/a                          | not started yet          |
+| CI/CD                                  | n/a                          | not started yet          |
+| Orchestration & Application Definition | n/a                          | not started yet          |
+| Observability and Analysis             | n/a                          | not started yet          |
+| Service Proxy, Discovery & Mesh        | n/a                          | not started yet          |
+| Networking, Policy & Security          | n/a                          | not started yet          |
+| Distributed Database & Storage         | n/a                          | not started yet          |
+| Streaming & Messaging                  | n/a                          | not started yet          |
+| Container Registry & Runtime           | n/a                          | not started yet          |
+| Software Distribution                  | n/a                          | not started yet          |
 
 ## 4.2 Cloud-Native Principles Progress
 
-TODO
+| Factor                        | Progress and Discussion |
+|-------------------------------|-------------------------|
+| Code Base                     | No progress yet         |
+| Dependencies                  | No progress yet         |
+| Configurations                | No progress yet         |
+| Backing Services              | No progress yet         |
+| Build, Release, Run           | No progress yet         |
+| Processes                     | No progress yet         |
+| Port Binding                  | No progress yet         |
+| Concurrency                   | No progress yet         |
+| Disposability                 | No progress yet         |
+| Dev/Prod Parity               | No progress yet         |
+| Logging                       | No progress yet         |
+| Admin Processes               | No progress yet         |
+| API First                     | No progress yet         |
+| Telemetry                     | No progress yet         |
+| Authentication/ Authorization | No progress yet         |
 
 # 5. References
 
