@@ -33,8 +33,10 @@ Important patterns to consider in this scenario:
 The application source code, warts-and-all, with a detailed README to get the application going, is all available in the source branch. You can issue the following commands to check out that branch and follow the README instructions to build and run the Docker containers:
 
 ```bash
-
+(venv) $ git checkout appsrc-0.0.1
 ```
+
+And next you can open the `app-src/README.md` file and follow the instructions.
 
 # 4. Conclusion
 
