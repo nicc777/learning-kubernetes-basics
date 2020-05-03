@@ -71,28 +71,44 @@ docker container run \
   docker:dind
 ```
 
-TODO ~ complete....
+Check the logs and wait until you see the following:
+
+```bash
+(venv) $ docker logs -f jenkins-docker
+   <lot of output>
+   .
+   .
+time="2020-05-03T14:07:47.735011769Z" level=info msg="Loading containers: done."
+time="2020-05-03T14:07:47.764854743Z" level=info msg="Docker daemon" commit=afacb8b7f0 graphdriver(s)=overlay2 version=19.03.8
+time="2020-05-03T14:07:47.764990792Z" level=info msg="Daemon has completed initialization"
+time="2020-05-03T14:07:47.796493439Z" level=info msg="API listen on [::]:2376"
+time="2020-05-03T14:07:47.796699334Z" level=info msg="API listen on /var/run/docker.sock"
+/certs/server/cert.pem: OK
+/certs/client/cert.pem: OK
+```
 
 ## 3.2 Start the Jenkins Server
 
 Start the Jenkins server and give it some time do properly initialize. 
 
 ```bash
-(venv) $ docker run --name jenkins \
+(venv) $ docker container run \
+--name jenkins-blueocean \
+--rm -d \
+--network jenkins \
+-e DOCKER_HOST=tcp://docker:2376 \
+-e DOCKER_CERT_PATH=/certs/client \
+-e DOCKER_TLS_VERIFY=1 \
 -p 0.0.0.0:8085:8080 \
 -p 0.0.0.0:50000:50000 \
--m 4096M --memory-swap 4096M \
---cpu-quota 50000 \
--v jenkins:/var/jenkins_home \
--d jenkins
-a8960c40d74d984680ff5258f4dccc4184914ae91664eaadc5a110d244cf2d07
-(venv) $ docker logs -f jenkins
+-v jenkins-data:/var/jenkins_home \
+-v jenkins-docker-certs:/certs/client:ro \
+jenkinsci/blueocean
+8c06ace0b23a3dea3db329cf7cc4e3e405946a40edc93b415dbe66ca99ab42e9
+(venv) $ docker logs -f jenkins-blueocean
    <lot of output>
    .
    .
-May 03, 2020 9:22:15 AM jenkins.install.SetupWizard init
-INFO: 
-
 *************************************************************
 *************************************************************
 *************************************************************
@@ -100,19 +116,22 @@ INFO:
 Jenkins initial setup is required. An admin user has been created and a password generated.
 Please use the following password to proceed to installation:
 
-7d101e2773fc46dba562e4aa54ac85b3
+ee7a0fbc728b4d258c838d38cda77c95
 
 This may also be found at: /var/jenkins_home/secrets/initialAdminPassword
 
 *************************************************************
 *************************************************************
 *************************************************************
-
---> setting agent port for jnlp
---> setting agent port for jnlp... done
 ```
 
 __Important__: Take note of the `password` in the log message.
+
+You can now open [the jenkins page](http://192.168.0.160:8085/) on your `Workstation`.
+
+I started with the community common plug-set set, which turned out to be the following (it may change over time):
+
+<center><a href="screenshot001.png"><img src="screenshot001.png" alt="Plugins" height="268" width="350"></a></center>
 
 # 4. Scenario Discussion
 
