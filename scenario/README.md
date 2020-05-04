@@ -3,7 +3,8 @@
 - [2. Technology & Patterns](#2-technology--patterns)
 - [3. Step-by-Step Demo Walk Through](#3-step-by-step-demo-walk-through)
   - [3.1 Prepare a docker environment](#31-prepare-a-docker-environment)
-  - [3.2 Start the Jenkins Server](#32-start-the-jenkins-server)
+  - [3.2 Build a custom Jenkins container to suite the application environment](#32-build-a-custom-jenkins-container-to-suite-the-application-environment)
+  - [3.3 Start the Jenkins Server](#33-start-the-jenkins-server)
 - [4. Scenario Discussion](#4-scenario-discussion)
   - [4.1 Trail-Map Progress](#41-trail-map-progress)
   - [4.2 Cloud-Native Principles Progress](#42-cloud-native-principles-progress)
@@ -28,7 +29,7 @@ For this scenario a build server is required and since [Jenkins](https://www.jen
 
 These steps are executed on a system where you will host your CI/CD pipeline. For me that is on my `Server` and the commands shown are executed from that server.
 
-I will deploy the official [Docker version of Jenkins](https://hub.docker.com/_/jenkins/).
+I will deploy the official [Docker version of Jenkins](https://hub.docker.com/r/jenkins/jenkins).
 
 ## 3.1 Prepare a docker environment
 
@@ -38,7 +39,6 @@ Following the guidance from the official Jenkins documentation, you can relative
 
 ```bash
 (venv) $ docker network create jenkins
-(venv) $ docker volume create jenkins-docker-certs
 (venv) $ docker volume create jenkins-data
 (venv) $ docker volume inspect jenkins-data
 [
@@ -54,40 +54,11 @@ Following the guidance from the official Jenkins documentation, you can relative
 ]
 ```
 
-The following is the required bit to enable Jenkins to build docker images:
+## 3.2 Build a custom Jenkins container to suite the application environment
 
-```bash
-docker container run \
-  --name jenkins-docker \
-  --rm \
-  --detach \
-  --privileged \
-  --network jenkins \
-  --network-alias docker \
-  --env DOCKER_TLS_CERTDIR=/certs \
-  --volume jenkins-docker-certs:/certs/client \
-  --volume jenkins-data:/var/jenkins_home \
-  --publish 2376:2376 \
-  docker:dind
-```
+TODO
 
-Check the logs and wait until you see the following:
-
-```bash
-(venv) $ docker logs -f jenkins-docker
-   <lot of output>
-   .
-   .
-time="2020-05-03T14:07:47.735011769Z" level=info msg="Loading containers: done."
-time="2020-05-03T14:07:47.764854743Z" level=info msg="Docker daemon" commit=afacb8b7f0 graphdriver(s)=overlay2 version=19.03.8
-time="2020-05-03T14:07:47.764990792Z" level=info msg="Daemon has completed initialization"
-time="2020-05-03T14:07:47.796493439Z" level=info msg="API listen on [::]:2376"
-time="2020-05-03T14:07:47.796699334Z" level=info msg="API listen on /var/run/docker.sock"
-/certs/server/cert.pem: OK
-/certs/client/cert.pem: OK
-```
-
-## 3.2 Start the Jenkins Server
+## 3.3 Start the Jenkins Server
 
 Start the Jenkins server and give it some time do properly initialize. 
 
@@ -135,9 +106,7 @@ I started with the community common plug-set set, which turned out to be the fol
 
 # 4. Scenario Discussion
 
-TODO
-
-In each scenario we will map our progress against the Cloud-Native Trail Map and against the Cloud-Native Principles.
+I initially started out with the official Jenkins recommendation [as documented here](https://www.jenkins.io/doc/book/installing/#downloading-and-running-jenkins-in-docker), but after some trial and error as well as [some more reading](https://jpetazzo.github.io/2015/09/03/do-not-use-docker-in-docker-for-ci/), I decided on the final approach as documented here.
 
 ## 4.1 Trail-Map Progress
 
