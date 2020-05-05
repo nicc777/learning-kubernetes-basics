@@ -6,6 +6,8 @@
 
 # 1. Building
 
+It is assumed the project is built on a `Server` that has Docker running. In my set-up, it is te same server that hosts Minikube, although I am **_not_** installing this Jenkins container in Kubernetes -at least, not yet.
+
 Run:
 
 ```bash
@@ -65,12 +67,9 @@ This process takes a couple of minutes.
 
 # 3. Test
 
-TODO
+Of critical importance is to test if the Jenkins container can communicate with the Docker daemon running on the host `Server`, which is exposed via Unix sockets.
 
-1. Get the volume config (path)
-1. Copy the config.xml file to a new job
-
-The following is run from the `Server`:
+The following is run from the `Server`, and will determine exactly where the Jenkins volume's files live:
 
 ```bash
 $ docker volume inspect jenkins-data
@@ -89,14 +88,14 @@ $ docker volume inspect jenkins-data
 
 Take note of the `Mountpoint`.
 
-Now, create a JOB:
+Next, copy the TEST job from this project:
 
 ```bash
 $ sudo mkdir /var/lib/docker/volumes/jenkins-data/_data/jobs/test-docker-access
-$ sudo cp -vf ./config.xml /var/lib/docker/volumes/jenkins-data/_data/jobs/test-docker-access
+$ sudo cp -vf ./jobs/test/config.xml /var/lib/docker/volumes/jenkins-data/_data/jobs/test-docker-access
 ```
 
-__Note__: Typically the `../jobs` directory will not be owned by `root`. Make sure that the `../jobs/config.xml` file is also owned by the same user as `../jobs`.
+__Note__: Typically the Jenkins `../jobs` directory will not be owned by `root`. Make sure that the `../jobs/config.xml` file is also owned by the same user as `../jobs`.
 
 ```bash
 $ sudo chown <user>:<user> /var/lib/docker/volumes/jenkins-data/_data/jobs/test-docker-access
@@ -109,7 +108,7 @@ Now, restart Jenkins:
 $ docker container restart jenkins-coolapp-builder
 ```
 
-Run the new job from the browser console. If all worked out well, you should be able to see the two files created in the job `Workspace`:
+Run a build from the new job from the Jenkins browser console. If all worked out well, you should be able to see the two files created in the job `Workspace`:
 
 ```bash
 $ sudo ls -lahrt /var/lib/docker/volumes/jenkins-data/_data/workspace/test-docker-access
@@ -127,8 +126,10 @@ e06038c61d4f        jenkins             bridge              local
 8d548a8d6a9c        none                null                local
 ```
 
-If the file exists and you see output, then everything is ready for setting up the final build job.
+If the files exists and you see output, then everything is ready for setting up the final build job.
 
 # 4. Setup
 
-TODO
+The initial setup of the `Cool App` source will be manual. I hope to use a trigger of sorts at later stage.
+
+
