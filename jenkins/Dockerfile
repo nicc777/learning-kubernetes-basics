@@ -10,11 +10,6 @@ RUN add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/debia
 RUN apt-get update
 RUN apt-get install docker-ce-cli
 
-# TODO Should be able to delete the next three lines
-#RUN groupadd docker             
-#RUN usermod -aG sudo jenkins
-#RUN echo "jenkins:jenkins-password" | chpasswd 
-
 # Allow Jenkins to run the docker command as root without requiring a password. ($ sudo docker ....)
 COPY sudoers /etc/sudoers
 RUN chown root.root /etc/sudoers
