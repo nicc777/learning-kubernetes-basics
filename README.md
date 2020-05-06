@@ -32,7 +32,7 @@ The trail map I will use is included below and was copied from the [Cloud-Native
 
 ([click on the map for a larger version](artwork/cncf_trailmap_latest.png))
 
-<center><a href="artwork/cncf_trailmap_latest.png"><img src="artwork/cncf_trailmap_latest.png" alt="Trail Map"></a></center>
+<center><a href="artwork/cncf_trailmap_latest.png"><img src="artwork/cncf_trailmap_latest.png" alt="Trail Map" height="350" width="406"></a></center>
 
 ## 1.2 Architecture and Scope of Work
 
@@ -40,7 +40,7 @@ The larger application is a web based application deployed in a traditional data
 
 The overview of the current stack and how the pieces fit together can be viewed in the following diagram:
 
-<center><a href="artwork/scope_of_work.png"><img src="artwork/scope_of_work.png" alt="Design"></a></center>
+<center><a href="artwork/scope_of_work.png"><img src="artwork/scope_of_work.png" alt="Scope of work" height="350" width="658"></a></center>
 
 Within the `Services` block is the `Cool App` - a note taking service - with it's database (PosgreSQL).
 
@@ -180,8 +180,8 @@ In the table below is a brief explanation of the proposed sequence in which you 
 | Focus Area | Scenario | Description | Branch | Status |
 |------------|----------|-------------|--------|--------|
 | Containers (Docker) | Getting Started | Basic orientation of the app and how to get it built using Docker | scenario-100001 | Ready |
-| CI/CD | Set-up a build pipeline | Implement processes and tooling to automatically detect new releases that automatically creates new builds and artifacts. | scenario-200001 | In-Progress, Not-Ready |
-| CI/CD | Publish Container Images | Implement processes and tooling to automatically publish new container images to a container repo | scenario-200050 | Not-Started, Not-Ready |
+| CI/CD | Set-up a build pipeline | Implement processes and tooling to automatically detect new releases that automatically creates new builds and artifacts. | scenario-200001 | Ready |
+| CI/CD | Publish Container Images | Implement processes and tooling to automatically publish new container images to a container repo | scenario-200050 | In-Progress, Not-Ready |
 
 __Note__: The table will be updated as I get time to document my learnings.
 
