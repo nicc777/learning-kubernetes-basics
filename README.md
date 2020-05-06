@@ -3,6 +3,7 @@
 - [2. Start](#2-start)
 - [3. Test](#3-test)
 - [4. Setup](#4-setup)
+- [5. Conclusion](#5-conclusion)
 
 # 1. Building
 
@@ -130,6 +131,46 @@ If the files exists and you see output, then everything is ready for setting up 
 
 # 4. Setup
 
-The initial setup of the `Cool App` source will be manual. I hope to use a trigger of sorts at later stage.
+The initial setup of the `Cool App` source will be manual. I hope to use a trigger of sorts at later stage. The configuration does cater for an hourly build though and there are checks to only build hourly if changes in the source was detected.
 
+Changes to the build config may be required as I continue through the scenarios, and as such I have created several job configurations. Below is a table you can use as a guide to choose which version of the configuration to use:
 
+| File version                     | Scenarios                 | Notes |
+|----------------------------------|---------------------------|-------|
+| `./jobs/cool-app/config-V1.xml`  | All the initial scenarios | This will be updated as soon a V2 is created |
+
+__Important__: The configurations will all point to the [original repo](https://github.com/nicc777/learning-kubernetes-basics). If you want to point to your own fork, search for the following in the config and update the URL to point to your repo:
+
+```xml
+    <userRemoteConfigs>
+      <hudson.plugins.git.UserRemoteConfig>
+        <name>coolapp-origin</name>
+        <url>https://github.com/nicc777/learning-kubernetes-basics</url>
+      </hudson.plugins.git.UserRemoteConfig>
+    </userRemoteConfigs>
+```
+
+Still using the `Mountpoint` from the previous section, follow this process.
+
+Copy the `cool app` job from to the Jenkins jobs:
+
+```bash
+$ sudo mkdir /var/lib/docker/volumes/jenkins-data/_data/jobs/cool-app-service-build
+$ sudo cp -vf ./jobs/cool-app/config-V1.xml /var/lib/docker/volumes/jenkins-data/_data/jobs/cool-app-service-build/config.xml
+```
+
+__Note__: Typically the Jenkins `../jobs` directory will not be owned by `root`. Make sure that the `../jobs/config.xml` file is also owned by the same user as `../jobs`.
+
+```bash
+$ sudo chown <user>:<user> /var/lib/docker/volumes/jenkins-data/_data/jobs/test-docker-access
+$ sudo chown <user>:<user> /var/lib/docker/volumes/jenkins-data/_data/jobs/test-docker-access/config.xml
+```
+
+Now, restart Jenkins:
+
+```bash
+$ docker container restart jenkins-coolapp-builder
+
+# 5. Conclusion
+
+The `CI` portion is now complete. 
