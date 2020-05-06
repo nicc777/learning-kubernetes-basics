@@ -2,6 +2,8 @@
 - [1. Objectives of the Scenario](#1-objectives-of-the-scenario)
 - [2. Technology & Patterns](#2-technology--patterns)
 - [3. Step-by-Step Demo Walk Through](#3-step-by-step-demo-walk-through)
+  - [3.1 Starting the Docker Registry Service](#31-starting-the-docker-registry-service)
+  - [3.2 Adjusting Jenkins to push newly built images to the registry](#32-adjusting-jenkins-to-push-newly-built-images-to-the-registry)
 - [4. Scenario Discussion](#4-scenario-discussion)
   - [4.1 Trail-Map Progress](#41-trail-map-progress)
   - [4.2 Cloud-Native Principles Progress](#42-cloud-native-principles-progress)
@@ -18,6 +20,22 @@ There are many scenarios within the context of organizations where you would pre
 In this scenario, a private registry will be created according to the [Docker private registry documentation](https://docs.docker.com/registry/deploying/) and the `CI` pipeline in the `jenkins` branch will be updated to publish new images to this registry.
 
 # 3. Step-by-Step Demo Walk Through
+
+The steps are fairly basic since Docker already has a out-of-the-box solution for quickly setting up a registry.
+
+## 3.1 Starting the Docker Registry Service
+
+Run the following command:
+
+```bash
+(venv) $ docker run -d -p 0.0.0.0:5000:5000 --restart=always --name registry registry:2
+```
+
+__Note__: I have setup the registry to listen on the Ethernet interface in order to expose the service to my entire LAN. You may need to adjust this to suite your needs.
+
+__Security Note__: The [documentation](https://docs.docker.com/registry/deploying/) has a lot more detail around various scenarios, including TLS certificates and authentication. Again, adjust for your needs.
+
+## 3.2 Adjusting Jenkins to push newly built images to the registry
 
 TODO
 
@@ -64,4 +82,5 @@ In each scenario we will map our progress against the Cloud-Native Trail Map and
 
 # 5. References
 
-TODO
+* [Docker documentation on deploying a registry](https://docs.docker.com/registry/deploying/)
+* [Docker registry on Docker Hub](https://hub.docker.com/_/registry)
