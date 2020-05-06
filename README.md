@@ -135,9 +135,10 @@ The initial setup of the `Cool App` source will be manual. I hope to use a trigg
 
 Changes to the build config may be required as I continue through the scenarios, and as such I have created several job configurations. Below is a table you can use as a guide to choose which version of the configuration to use:
 
-| File version                     | Scenarios                 | Notes |
-|----------------------------------|---------------------------|-------|
-| `./jobs/cool-app/config-V1.xml`  | All the initial scenarios | This will be updated as soon a V2 is created |
+| File version                     | Scenarios                     | Notes |
+|----------------------------------|-------------------------------|-------|
+| `./jobs/cool-app/config-V1.xml`  | `scenario-200001`             | The basic building of the `cool-app` Docker image. |
+| `./jobs/cool-app/config-V2.xml`  | From `scenario-200050` onward | This will be updated as soon a V3 is created. In the `config-V2.xml`, be sure to set your registry host details |
 
 __Important__: The configurations will all point to the [original repo](https://github.com/nicc777/learning-kubernetes-basics). If you want to point to your own fork, search for the following in the config and update the URL to point to your repo:
 
