@@ -175,7 +175,6 @@ $ docker image rm nicc777/cool-app:0.0.1
 $ docker image rm 192.168.0.160:5000/cool-app
    ...lots of output omitted...
 $ docker image ls | grep cool
-192.168.0.160:5000/cool-app               latest               8388bdde897d        4 hours ago         524MB
 cool-app-base                             latest               9b76aee0ee2b        23 hours ago        524MB
 ```
 
