@@ -4,7 +4,6 @@
 - [3. Step-by-Step Demo Walk Through](#3-step-by-step-demo-walk-through)
   - [3.1 Prepare a docker environment](#31-prepare-a-docker-environment)
   - [3.2 Build a custom Jenkins container to suite the application environment](#32-build-a-custom-jenkins-container-to-suite-the-application-environment)
-  - [3.3 Start the Jenkins Server](#33-start-the-jenkins-server)
 - [4. Scenario Discussion](#4-scenario-discussion)
   - [4.1 Trail-Map Progress](#41-trail-map-progress)
   - [4.2 Cloud-Native Principles Progress](#42-cloud-native-principles-progress)
@@ -12,18 +11,24 @@
 
 # 1. Objectives of the Scenario
 
-In this scenario a release branch will be set-up with monitoring/triggers for changes in the release branch.
+In this scenario a release branch will be set-up with monitoring/triggers for changes in the `appsrc-develop` branch.
 
-Essentially whenever there is an approved pull request (PR) into the release branch, the automation needs to kick in.
+Ideally whenever there is an approved pull request (PR) into the release branch, the automation needs to kick in.
 
 What needs to be build is the following:
 
 1. If the Base Docker image have changed, build a new base
 2. Run the application build script that will also produce a new application image
 
+However, for the lab environment it is not possible to use web-hooks. In a production environment where you would use your own Git repository internally you would need to figure out how to set this up yourself.
+
+This section will use the configuration that will fetch all updates from the relevant branch and then use some basic tests to see if anything have changed, and then build new Docker images based on those tests, as required. The job will be configured to run once an hour at least, but in Jenkins you can also trigger the job manually.
+
 # 2. Technology & Patterns
 
 For this scenario a build server is required and since [Jenkins](https://www.jenkins.io) is still widely used, I will stick to this trusty old workhorse.
+
+Ideally you would use web hooks to trigger a build any time a merge pull request into `appsrc-develop` is approved.
 
 # 3. Step-by-Step Demo Walk Through
 
@@ -56,53 +61,7 @@ Following the guidance from the official Jenkins documentation, you can relative
 
 ## 3.2 Build a custom Jenkins container to suite the application environment
 
-TODO
-
-## 3.3 Start the Jenkins Server
-
-Start the Jenkins server and give it some time do properly initialize. 
-
-```bash
-(venv) $ docker container run \
---name jenkins-blueocean \
---rm -d \
---network jenkins \
--e DOCKER_HOST=tcp://docker:2376 \
--e DOCKER_CERT_PATH=/certs/client \
--e DOCKER_TLS_VERIFY=1 \
--p 0.0.0.0:8085:8080 \
--p 0.0.0.0:50000:50000 \
--v jenkins-data:/var/jenkins_home \
--v jenkins-docker-certs:/certs/client:ro \
-jenkinsci/blueocean
-8c06ace0b23a3dea3db329cf7cc4e3e405946a40edc93b415dbe66ca99ab42e9
-(venv) $ docker logs -f jenkins-blueocean
-   <lot of output>
-   .
-   .
-*************************************************************
-*************************************************************
-*************************************************************
-
-Jenkins initial setup is required. An admin user has been created and a password generated.
-Please use the following password to proceed to installation:
-
-ee7a0fbc728b4d258c838d38cda77c95
-
-This may also be found at: /var/jenkins_home/secrets/initialAdminPassword
-
-*************************************************************
-*************************************************************
-*************************************************************
-```
-
-__Important__: Take note of the `password` in the log message.
-
-You can now open [the jenkins page](http://192.168.0.160:8085/) on your `Workstation`.
-
-I started with the community common plug-set set, which turned out to be the following (it may change over time):
-
-<center><a href="screenshot001.png"><img src="screenshot001.png" alt="Plugins" height="268" width="350"></a></center>
+There is a branch called `jenkins` with detailed instructions in the `README.md` file.
 
 # 4. Scenario Discussion
 
@@ -112,8 +71,8 @@ I initially started out with the official Jenkins recommendation [as documented 
 
 | Category                               | Technologies & Patterns Used | Progress and other notes |
 |----------------------------------------|------------------------------|--------------------------|
-| Containers (Docker)                    | n/a                          | not started yet          |
-| CI/CD                                  | n/a                          | not started yet          |
+| Containers (Docker)                    | Docker | Current application and database have been containerized |
+| CI/CD                                  | Jenkins | The `CI` portion is now implemented. A Docker image is built on the `Server`. |
 | Orchestration & Application Definition | n/a                          | not started yet          |
 | Observability and Analysis             | n/a                          | not started yet          |
 | Service Proxy, Discovery & Mesh        | n/a                          | not started yet          |
@@ -127,23 +86,23 @@ I initially started out with the official Jenkins recommendation [as documented 
 
 | Factor                        | Progress and Discussion |
 |-------------------------------|-------------------------|
-| Code Base                     | No progress yet         |
-| Dependencies                  | No progress yet         |
-| Configurations                | No progress yet         |
-| Backing Services              | No progress yet         |
-| Build, Release, Run           | No progress yet         |
-| Processes                     | No progress yet         |
-| Port Binding                  | No progress yet         |
-| Concurrency                   | No progress yet         |
-| Disposability                 | No progress yet         |
+| Code Base                     | Source code is tracked in Git. Each version will have it's own branch. Each version can be independently built and deployed. |
+| Dependencies                  | As part of the containerization effort, all dependencies are defined in the base and main application Docker files. There is still potential for finding a more lightweight base image to start with. The approach takes was to use the base Docker configuration to install all required software and dependencies. This image is typically build once as it will take the most time to build. The application Docker image is essentially just an installation of the latest Python application package and the build is relatively quick and is perfectly geared to be done many times. |
+| Configurations                | Configuration is now done entirely through environment variable defined in the Docker configuration files. Configuration parameters can be set when launching the application. |
+| Backing Services              | The database server has also been containerized. The application is simple enough to not rely too much on database versions and therefore almost any version of PostgreSQL can be used. Changing from PostgreSQL to something else is relatively easy as long as that something else is supported by [SQLAlchemy](https://www.sqlalchemy.org) and only minor code changes will then be required. If this will happen often (which it shouldn't), more configuration options and a more dynamic dependency system can be considered. |
+| Build, Release, Run           | The `CI` portion of the `CI/CD` pipeline have been implemented with a Jenkins build that will produce an application Docker image on the `Server` |
+| Processes                     | No active effort have been made to ensure the application is truly stateless. Future testing will prove this and the application will be adjusted accordingly. At the moment the application should be able to run with multiple instances. |
+| Port Binding                  | This is considered completed as the application is hosted in the container and exposed via [gunicorn](https://gunicorn.org). |
+| Concurrency                   | Untested but assumed to not be a problem. Will revisit during more testing in future scenarios. |
+| Disposability                 | Untested but assumed to not be a problem. Will revisit during more testing in future scenarios. |
 | Dev/Prod Parity               | No progress yet         |
-| Logging                       | No progress yet         |
+| Logging                       | Logs are now logged to a file as well as `STDOUT`, and can be accessed via the Docker API. No log events are published yet and more work remain. |
 | Admin Processes               | No progress yet         |
-| API First                     | No progress yet         |
+| API First                     | Through the use of [connexion](https://github.com/zalando/connexion) the application have been implemented with an API first principle from the start. This is considered DONE. |
 | Telemetry                     | No progress yet         |
-| Authentication/ Authorization | No progress yet         |
+| Authentication/ Authorization | No progress yet. The application currently completely trusts the Application Server and relies on external configuration to prevent other unauthorized services connecting to it. |
 
 # 5. References
 
-* [Downloading and running Jenkins in Docker](https://www.jenkins.io/doc/book/installing/#downloading-and-running-jenkins-in-docker)
+* [Some thoughts on why using Docker in Docker is a bad idea for building images](https://jpetazzo.github.io/2015/09/03/do-not-use-docker-in-docker-for-ci/)
 
