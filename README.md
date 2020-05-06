@@ -170,6 +170,7 @@ Now, restart Jenkins:
 
 ```bash
 $ docker container restart jenkins-coolapp-builder
+```
 
 # 5. Conclusion
 
