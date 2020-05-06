@@ -164,16 +164,16 @@ You can now open the `$TUTORIAL_HOME` in your VS Code IDE, connected to the remo
 
 The major focus areas are aligned to the 10 areas as described in the Trail and they are:
 
-Containers (Docker)
-CI/CD
-Orchestration & Application Definition
-Observability and Analysis
-Service Proxy, Discovery & Mesh
-Networking, Policy & Security
-Distributed Database & Storage
-Streaming & Messaging
-Container Registry & Runtime
-Software Distribution
+* Containers (Docker)
+* CI/CD
+* Orchestration & Application Definition
+* Observability and Analysis
+* Service Proxy, Discovery & Mesh
+* Networking, Policy & Security
+* Distributed Database & Storage
+* Streaming & Messaging
+* Container Registry & Runtime
+* Software Distribution
 
 In the table below is a brief explanation of the proposed sequence in which you can run the `scenarios`.
 
@@ -181,7 +181,8 @@ In the table below is a brief explanation of the proposed sequence in which you 
 |------------|----------|-------------|--------|--------|
 | Containers (Docker) | Getting Started | Basic orientation of the app and how to get it built using Docker | scenario-100001 | Ready |
 | CI/CD | Set-up a build pipeline | Implement processes and tooling to automatically detect new releases that automatically creates new builds and artifacts. | scenario-200001 | Ready |
-| CI/CD | Publish Container Images | Implement processes and tooling to automatically publish new container images to a container repo | scenario-200050 | In-Progress, Not-Ready |
+| CI/CD | Publish Container Images | Implement processes and tooling to automatically publish new container images to a container repo | scenario-200050 | Ready |
+| CI/CD | Unit test pass validation | Ensure unit tests and code coverage passes minimum standards before publishing images to the registry. | scenario-200100 | Not-Started, Not-Ready |
 
 __Note__: The table will be updated as I get time to document my learnings.
 
