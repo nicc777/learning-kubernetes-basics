@@ -180,8 +180,8 @@ In the table below is a brief explanation of the proposed sequence in which you 
 | Focus Area | Scenario | Description | Branch | Status |
 |------------|----------|-------------|--------|--------|
 | Containers (Docker) | Getting Started | Basic orientation of the app and how to get it built using Docker | scenario-100001 | Ready |
-| CI/CD | Set-up a build pipeline | Implement processes and tooling to automatically detect new releases that automatically creates new builds and artifacts. | scenario-200001 | In-Progress, Not-Ready |
-| CI/CD | Publish Container Images | Implement processes and tooling to automatically publish new container images to a container repo | scenario-200050 | Not-Started, Not-Ready |
+| CI/CD | Set-up a build pipeline | Implement processes and tooling to automatically detect new releases that automatically creates new builds and artifacts. | scenario-200001 | Ready |
+| CI/CD | Publish Container Images | Implement processes and tooling to automatically publish new container images to a container repo | scenario-200050 | In-Progress, Not-Ready |
 
 __Note__: The table will be updated as I get time to document my learnings.
 
