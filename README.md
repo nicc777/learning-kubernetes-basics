@@ -9,7 +9,15 @@
 
 # 1. Objectives of the Scenario 
 
-TODO
+Objectives:
+
+* Add unit tests to our application
+* Add coverage reports
+* Amend our current builds to only allow the Docker images to ce created when all tests pass and the coverage is of acceptable level
+
+For this exercise we will allow a coverage of 60% to be sufficient. It is common practice to start with a low coverage and work upwards. These are details usually decided by each team, and I'm just using any number here really - just testing a concept.
+
+This may require introducing a build pipeline in Jenkins, although it is not always strictly required - you can do all the logic in Bash. However, as complexity grows, it make sense to start to split units of work out to more logical components that can be grouped and orchestrated in a pipe line.
 
 # 2. Technology & Patterns
 
