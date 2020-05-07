@@ -7,24 +7,7 @@ sys.path.append(os.path.normpath(os.path.join(SCRIPT_DIR, PACKAGE_PARENT)))
 
 import unittest
 from cool_app import ServiceLogger
-
-
-class DummyLogger:
-
-    def __init__(self):
-        self.log_lines = list()
-
-    def info(self, message: str):
-        self.log_lines.append(message)
-
-    def debug(self, message: str):
-        self.log_lines.append(message)
-
-    def warning(self, message: str):
-        self.log_lines.append(message)
-
-    def error(self, message: str):
-        self.log_lines.append(message)
+from tests import DummyLogger
 
 
 class TestServiceLogger(unittest.TestCase):

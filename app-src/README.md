@@ -225,3 +225,8 @@ cool_app/service_app.py                   152    152     0%   8-299
 TOTAL                                     454    383    16%
 ```
 
+__NOTES__:
+
+1. You may need to set the various environment variables for the DB connection to match your test DB environment
+2. 
+

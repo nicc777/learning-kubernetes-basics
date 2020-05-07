@@ -24,9 +24,9 @@ try:
         ),
         isolation_level="READ UNCOMMITTED"
     )
-except:
-    L.error(message='EXCEPTION: {}'.format(traceback.format_exc()))
-    engine = None
+except:                                                                 # pragma: no cover
+    L.error(message='EXCEPTION: {}'.format(traceback.format_exc()))     # pragma: no cover
+    engine = None                                                       # pragma: no cover
 
 
 def test_data_source(L: ServiceLogger=L)->bool:
@@ -37,11 +37,10 @@ def test_data_source(L: ServiceLogger=L)->bool:
     try:
         if engine is not None:
             with engine.connect() as connection:
-                result = connection.execute("select uid from user_profiles")
+                result = connection.execute("select uid from user_profiles").fetchone()
                 if result:
                     working = True
-                    for row in result:
-                        L.info(message='test_data_source(): found uid "{}"'.format(row[0]))
+                    L.info(message='test_data_source(): result "{}"'.format(result))
                 else:
                     L.info(message='test_data_source(): connection appears to have succeeded but there is no data')
         else:
@@ -50,6 +49,4 @@ def test_data_source(L: ServiceLogger=L)->bool:
         L.error(message='EXCEPTION: {}'.format(traceback.format_exc()))
     return working
 
-
-
-    
+# EOF
