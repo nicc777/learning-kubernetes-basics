@@ -1,18 +1,19 @@
 
 - [1. Cool App](#1-cool-app)
-- [2. Building the App](#2-building-the-app)
+- [2. Building the App (Local Testing)](#2-building-the-app-local-testing)
   - [2.1 Preparing the base container](#21-preparing-the-base-container)
   - [2.2 Build the app](#22-build-the-app)
-- [3. Run the application](#3-run-the-application)
+- [3. Run the application (Local Testing)](#3-run-the-application-local-testing)
   - [3.1 Preparing to run the application for the first time](#31-preparing-to-run-the-application-for-the-first-time)
   - [3.2 Run the application](#32-run-the-application)
 - [4. The Swagger UI](#4-the-swagger-ui)
+- [5. Unit Tests](#5-unit-tests)
 
 # 1. Cool App
 
 The cool app is a simple note taking app for users. This implementation comprises of the back-end services that handle note persistence as well as user profile management.
 
-# 2. Building the App
+# 2. Building the App (Local Testing)
 
 Ensure you are in the correct working directory:
 
@@ -37,14 +38,22 @@ Run the following commands:
 Run the following commands:
 
 ```bash
-(venv) $ ./build.sh
+(venv) $ rm -frR dist/
+(venv) $ python3 setup.py sdist
+(venv) $ docker container rm cool-app
+(venv) $ rm -frR container/app/dist
+(venv) $ mkdir container/app/dist
+(venv) $ cp -vf dist/* container/app/dist/
+(venv) $ cp -vf openapi/* container/app/dist/
+(venv) $ cd container/app
+(venv) $ docker build --no-cache -t cool-app .
 ```
 
-# 3. Run the application
+# 3. Run the application (Local Testing)
 
 ## 3.1 Preparing to run the application for the first time
 
-First, define a network:
+First, define a network (if it doesn't already exists):
 
 ```bash
 (venv) $ docker network create coolapp-net
@@ -57,7 +66,16 @@ eb7762f783b6        coolapp-net         bridge              local
 8d548a8d6a9c        none                null                local
 ```
 
-Next, run a PostgreSQL server:
+Check it the DB container exists:
+
+```bash
+$ docker container ls --all | grep postgres
+b6acbb212160        postgres                    "docker-entrypoint.s…"    6 days ago          Exited (137) 3 days ago                                                        coolapp-db
+```
+
+If it does **_not_** exist, run the following, or skip to the marker `DB EXISTS`:
+
+__MARKER: DB DOES NOT EXIST__
 
 ```bash
 (venv) $ docker run --name coolapp-db \
@@ -89,6 +107,14 @@ Once you have access to PostgreSQL, you can apply the SQL scripts to prepare som
 3. `sql/initial_notes.sql`
 
 __Tip__: Using SSH port forwarding it will be possible to connect to the database using a GUI tool like [DBeaver](https://dbeaver.io/)
+
+__MARKER: DB EXISTS__
+
+Run the following:
+
+```bash
+(venv) $ docker container start coolapp-db
+```
 
 ## 3.2 Run the application
 
@@ -163,3 +189,6 @@ If you started the app with the `SWAGGER_UI=1` you can view the Swagger UI in yo
 
 To disable the Swagger UI, set `SWAGGER_UI=0`, or just omit it from the command line - the default value is `0` (disabled).
 
+# 5. Unit Tests
+
+TODO

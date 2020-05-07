@@ -9,7 +9,7 @@ with open(path.join(here, 'README.md'), encoding='utf-8') as f:
 
 setup(
     name='cool_app',
-    version='0.0.1',
+    version='0.0.2',
     description='An example Flask project, deployed in Docker for testing Kubernetes',
     long_description=long_description,
     long_description_content_type='text/markdown',
