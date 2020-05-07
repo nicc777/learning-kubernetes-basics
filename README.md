@@ -183,6 +183,8 @@ In the table below is a brief explanation of the proposed sequence in which you 
 | CI/CD | Set-up a build pipeline | Implement processes and tooling to automatically detect new releases that automatically creates new builds and artifacts. | scenario-200001 | Ready |
 | CI/CD | Publish Container Images | Implement processes and tooling to automatically publish new container images to a container repo | scenario-200050 | Ready |
 | CI/CD | Unit test pass validation | Ensure unit tests and code coverage passes minimum standards before publishing images to the registry. | scenario-200100 | Not-Started, Not-Ready |
+| Orchestration & Application Definition | Manually deploy our application in a Kubernetes Cluster (Minikube) | In this scenario we see our app running for the first time in Kubernetes. It also lays the ground work for the `CD` exercises to follow to complete our `CI/CD` pipeline. | scenario-300001 | Not-Started, Not-Ready |
+| CI/CD | Explore [Argo](https://argoproj.github.io/argo-cd/) for the `CD` portion of the pipeline | Initial iteration of `Argo` to explore the set-up and configuration required to push our application to the Kubernetes cluster as part of a `CI/CD` pipeline | scenario-200150 | Not-Started, Not-Ready |
 
 __Note__: The table will be updated as I get time to document my learnings.
 
