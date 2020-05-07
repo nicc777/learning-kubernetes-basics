@@ -2,6 +2,10 @@
 - [1. Objectives of the Scenario](#1-objectives-of-the-scenario)
 - [2. Technology & Patterns](#2-technology--patterns)
 - [3. Step-by-Step Demo Walk Through](#3-step-by-step-demo-walk-through)
+  - [3.1. Source code updates](#31-source-code-updates)
+  - [3.2 Jenkins Updates](#32-jenkins-updates)
+  - [3.3 Testing for failed Unit Tests in the Pipeline](#33-testing-for-failed-unit-tests-in-the-pipeline)
+  - [3.3 Testing for Code Coverage in the Pipeline](#33-testing-for-code-coverage-in-the-pipeline)
 - [4. Scenario Discussion](#4-scenario-discussion)
   - [4.1 Trail-Map Progress](#41-trail-map-progress)
   - [4.2 Cloud-Native Principles Progress](#42-cloud-native-principles-progress)
@@ -21,9 +25,31 @@ This may require introducing a build pipeline in Jenkins, although it is not alw
 
 # 2. Technology & Patterns
 
-TODO
+The [Agile Alliance](https://www.agilealliance.org/glossary/tdd/#q=~(infinite~false~filters~(postType~(~'page~'post~'aa_book~'aa_event_session~'aa_experience_report~'aa_glossary~'aa_research_paper~'aa_video)~tags~(~'tdd))~searchTerm~'~sort~false~sortDirection~'asc~page~1)) have a fairly good view on the definition of Test Driven Development.
+
+The central idea is that the unit tests are written first and the initial run of a test (or tests) should fail as the feature doesn't exist yet.
+
+Since this project starts with no unit tests, the aim will be to introduce a number of tests that aim to get the coverage above 60% as a start. Keep in mind that for very large and/or complex project, even 60% may be a big ask. 
+
+In my mind, the ideal for this scenario is not to add any new features/functionality until the 80% coverage mark is reached. This may not be achievable in the real world, but if teams and organizations are serious about code quality, this would be what I would aim for. By the end of the day, you want to be in a position where TDD can be a viable option taking the project forward.
+
+But why TDD? Well, I would say that forms the foundation for something called [Acceptance Test Driven Development](https://www.agilealliance.org/glossary/atdd/#q=~(infinite~false~filters~(postType~(~'page~'post~'aa_book~'aa_event_session~'aa_experience_report~'aa_glossary~'aa_research_paper~'aa_video)~tags~(~'acceptance*20test~'atdd))~searchTerm~'~sort~false~sortDirection~'asc~page~1)) which can really help test all real-world scenarios as a team learn about them and therefore ensure the best possible quality product is continuously delivered through the automated pipelines. 
 
 # 3. Step-by-Step Demo Walk Through
+
+## 3.1. Source code updates
+
+A new version branch will be created (version 0.0.2, branch `appsrc-0.0.2`) where the unit tests will be added. You checkout that branch to go through some of the practical tests documented in the README.
+
+## 3.2 Jenkins Updates
+
+TODO
+
+## 3.3 Testing for failed Unit Tests in the Pipeline
+
+TODO
+
+## 3.3 Testing for Code Coverage in the Pipeline
 
 TODO
 
