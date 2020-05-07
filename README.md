@@ -35,6 +35,8 @@ In my mind, the ideal for this scenario is not to add any new features/functiona
 
 But why TDD? Well, I would say that forms the foundation for something called [Acceptance Test Driven Development](https://www.agilealliance.org/glossary/atdd/#q=~(infinite~false~filters~(postType~(~'page~'post~'aa_book~'aa_event_session~'aa_experience_report~'aa_glossary~'aa_research_paper~'aa_video)~tags~(~'acceptance*20test~'atdd))~searchTerm~'~sort~false~sortDirection~'asc~page~1)) which can really help test all real-world scenarios as a team learn about them and therefore ensure the best possible quality product is continuously delivered through the automated pipelines. 
 
+Taking into account the Cloud Native principle of [Dev/prod parity](https://12factor.net/dev-prod-parity), I decided not to mock the unit tests at this stage, but to use an actual DB for the unit testing. That implies that we will also need a running DB server in the same network as the Jenkins build server.
+
 # 3. Step-by-Step Demo Walk Through
 
 ## 3.1. Source code updates
