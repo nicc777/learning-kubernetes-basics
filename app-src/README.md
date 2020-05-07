@@ -8,6 +8,8 @@
   - [3.2 Run the application](#32-run-the-application)
 - [4. The Swagger UI](#4-the-swagger-ui)
 - [5. Unit Tests](#5-unit-tests)
+  - [5.1. Preparation for testing](#51-preparation-for-testing)
+  - [5.2. Running the tests](#52-running-the-tests)
 
 # 1. Cool App
 
@@ -191,4 +193,35 @@ To disable the Swagger UI, set `SWAGGER_UI=0`, or just omit it from the command 
 
 # 5. Unit Tests
 
-TODO
+## 5.1. Preparation for testing
+
+The tests relies on access to a TEST database server. Ensure the Docker DB is up and running
+
+## 5.2. Running the tests
+
+To run unit tests with coverage (showing examples of earlier implementation efforts):
+
+```bash
+(venv) $ coverage run --source cool_app/ -m unittest
+......
+----------------------------------------------------------------------
+Ran 6 tests in 0.010s
+
+OK
+```
+
+Coverage report:
+
+```bash
+coverage report -m 
+Name                                    Stmts   Miss  Cover   Missing
+---------------------------------------------------------------------
+cool_app/__init__.py                       67      7    90%   15, 26, 105, 131, 154, 178, 215
+cool_app/persistence/__init__.py           28     17    39%   27-29, 36-51
+cool_app/persistence/notes.py             119    119     0%   1-206
+cool_app/persistence/user_profiles.py      88     88     0%   1-155
+cool_app/service_app.py                   152    152     0%   8-299
+---------------------------------------------------------------------
+TOTAL                                     454    383    16%
+```
+
