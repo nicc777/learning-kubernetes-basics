@@ -179,6 +179,7 @@ class Notes:
                     if order_descending is True:
                         order = 'DESC'
                     for row in connection.execute(text('SELECT uid, note_timestamp, note_text FROM notes WHERE uid = :f1 AND note_timestamp >= :f2 ORDER BY note_timestamp {} LIMIT {}'.format(order, limit)), f1=self.uid, f2=start_timestamp).fetchall():
+                        notes_loaded += 1
                         self.L.debug(message='row={}'.format(row))
                         note = Note()
                         note.uid = row['uid']
