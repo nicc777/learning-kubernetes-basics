@@ -10,6 +10,7 @@
 - [5. Unit Tests](#5-unit-tests)
   - [5.1. Preparation for testing](#51-preparation-for-testing)
   - [5.2. Running the tests](#52-running-the-tests)
+  - [5.3 Final Test Report](#53-final-test-report)
 
 # 1. Cool App
 
@@ -195,7 +196,17 @@ To disable the Swagger UI, set `SWAGGER_UI=0`, or just omit it from the command 
 
 ## 5.1. Preparation for testing
 
-The tests relies on access to a TEST database server. Ensure the Docker DB is up and running
+The tests relies on access to a TEST database server. Ensure the Docker DB is up and running.
+
+Assuming you are in the directory `./app-src`, also export the following environmental variables:
+
+```bash
+(venv) $ export LOG_LEVEL=DEBUG
+(venv) $ export DB_PASS=mysecretpassword
+(venv) $ export SPECIFICATION_DIR="$PWD/openapi"
+```
+
+__Note__: If your database is hosted in a way where the default database environment variables does not make sense, you may need to set them as well.
 
 ## 5.2. Running the tests
 
@@ -225,8 +236,19 @@ cool_app/service_app.py                   152    152     0%   8-299
 TOTAL                                     454    383    16%
 ```
 
-__NOTES__:
+## 5.3 Final Test Report
 
-1. You may need to set the various environment variables for the DB connection to match your test DB environment
-2. 
+The final report should look something like this:
+
+```text
+Name                                    Stmts   Miss  Cover   Missing
+---------------------------------------------------------------------
+cool_app/__init__.py                       67      7    90%   15, 26, 105, 131, 154, 178, 215
+cool_app/persistence/__init__.py           24      4    83%   45-49
+cool_app/persistence/notes.py             120     21    82%   55-59, 92, 95-96, 125-127, 153-155, 180, 191-193, 204-206
+cool_app/persistence/user_profiles.py      88     13    85%   50-54, 87, 90-91, 122, 125-126, 152-154
+cool_app/service_app.py                   152    121    20%   54-59, 76-82, 89-93, 108-114, 121-127, 134-156, 173-188, 195-215, 222-233, 240-253, 260-273, 277-281
+---------------------------------------------------------------------
+TOTAL                                     451    166    63%
+```
 
