@@ -1,79 +1,58 @@
 
 - [1. Intro](#1-intro)
 - [2. Building](#2-building)
-- [3. Start](#3-start)
-- [4. Test](#4-test)
+- [3. Adding the new build pipeline](#3-adding-the-new-build-pipeline)
 - [5. Setup](#5-setup)
 - [6. Conclusion](#6-conclusion)
 
 # 1. Intro
 
-This branch deals with the Jenkins setup up to scenario branch [scenario-200050](https://github.com/nicc777/learning-kubernetes-basics/tree/scenario-200050/scenario)
+This branch set-up the build pipeline for the [`appsrc-0.0.2`](https://github.com/nicc777/learning-kubernetes-basics/tree/appsrc-0.0.2/app-src) code branch.
 
 # 2. Building
 
-It is assumed the project is built on a `Server` that has Docker running. In my set-up, it is te same server that hosts Minikube, although I am **_not_** installing this Jenkins container in Kubernetes -at least, not yet.
+If you have followed the previous scenarios, you would not need to build Jenkins again. Just make sure it is running.I
 
-Run:
+If you need to build Jenkins, please checkout branch [`jenkins-upto-scenario-200050`](https://github.com/nicc777/learning-kubernetes-basics/tree/jenkins-upto-scenario-200050) and run through the README
 
-```bash
-$ cd jenkins
-$ docker build --no-cache -t jenkins-custom .
-```
-
-# 3. Start
-
-Run:
+To ensure Jenkins is running:
 
 ```bash
-$ docker container run \
---name jenkins-coolapp-builder \
--d \
---network jenkins \
--p 0.0.0.0:8085:8080 \
--p 0.0.0.0:50000:50000 \
--v jenkins-data:/var/jenkins_home \
--v /var/run/docker.sock:/var/run/docker.sock \
-jenkins-custom
+$ docker container ls | grep -v k8s
+CONTAINER ID        IMAGE               COMMAND                  CREATED             STATUS              PORTS                                              NAMES
+abd1bed6bc30        registry:2          "/entrypoint.sh /etc…"   2 days ago          Up 2 hours          0.0.0.0:5000->5000/tcp                             registry
+85b71ca6fed1        jenkins-custom      "/sbin/tini -- /usr/…"   4 days ago          Up 2 hours          0.0.0.0:50000->50000/tcp, 0.0.0.0:8085->8080/tcp   jenkins-coolapp-builder
+b6acbb212160        postgres            "docker-entrypoint.s…"   8 days ago          Up 2 hours          127.0.0.1:5432->5432/tcp                           coolapp-db
 ```
 
-You will have to tail the log file in order to find the password:
+For the build to be done, both `coolapp-db` and `jenkins-coolapp-builder` must be running.
+
+To start either or both of these, run:
 
 ```bash
-$ docker logs -f jenkins-coolapp-builder
-Running from: /usr/share/jenkins/jenkins.war
-webroot: EnvVars.masterEnvVars.get("JENKINS_HOME")
-2020-05-05 06:37:31.685+0000 [id=1]     INFO    org.eclipse.jetty.util.log.Log#initialized: Logging initialized @297ms to org.eclipse.jetty.util.log.JavaUtilLog
-   .
-   .
-   .
-2020-05-05 06:37:37.255+0000 [id=30]    INFO    jenkins.install.SetupWizard#init: 
-
-*************************************************************
-*************************************************************
-*************************************************************
-
-Jenkins initial setup is required. An admin user has been created and a password generated.
-Please use the following password to proceed to installation:
-
-a3d8da6daa46442b951761b47f2d9e1e
-
-This may also be found at: /var/jenkins_home/secrets/initialAdminPassword
-
-*************************************************************
-*************************************************************
-*************************************************************
+$ docker container start coolapp-db
+$ docker container start jenkins-coolapp-builder
 ```
 
-Once you see the password, you can launch your web browser and navigate to the Jenkins home page. On my system that would be http://192.168.0.160:8085/
+TODO:
+```text
+$ pwd
+/var/jenkins_home/workspace/coolapp-base-docker-image-build
+jenkins@85b71ca6fed1:~/workspace/coolapp-base-docker-image-build$ echo $HOME
+/var/jenkins_home
 
-You can select to install all the suggested plugins - for this project that will be all that is required.
+________________
 
-This process takes a couple of minutes.
+$ cd
+jenkins@85b71ca6fed1:~$ cd workspace/coolapp-src-build/
+jenkins@85b71ca6fed1:~/workspace/coolapp-src-build$ cd app-src/dist/
+jenkins@85b71ca6fed1:~/workspace/coolapp-src-build/app-src/dist$ pwd
+/var/jenkins_home/workspace/coolapp-src-build/app-src/dist
+jenkins@85b71ca6fed1:~/workspace/coolapp-src-build/app-src/dist$ ls
+cool_app-0.0.2.tar.gz
+```
 
-# 4. Test
-
-Of critical importance is to test if the Jenkins container can communicate with the Docker daemon running on the host `Server`, which is exposed via Unix sockets.
+# 3. Adding the new build pipeline
 
 The following is run from the `Server`, and will determine exactly where the Jenkins volume's files live:
 
