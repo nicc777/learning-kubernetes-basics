@@ -9,7 +9,9 @@
 
 # 1. Objectives of the Scenario
 
-TODO
+Add unit tests to the application. In order to separate this from the previous effort, I will be bumping the version to 0.0.2.
+
+The aim is to get a code coverage of at least 60%.
 
 # 2. Technology & Patterns
 
