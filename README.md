@@ -34,7 +34,7 @@ The trail map I will use is included below and was copied from the [Cloud-Native
 
 ([click on the map for a larger version](artwork/cncf_trailmap_latest.png))
 
-<center><a href="artwork/cncf_trailmap_latest.png"><img src="artwork/cncf_trailmap_latest.png" alt="Trail Map" height="350" width="406"></a></center>
+<center><a href="images/cncf_trailmap_latest.png"><img src="images/cncf_trailmap_latest.png" alt="Trail Map" height="350" width="406"></a></center>
 
 ## 1.2 Architecture and Scope of Work
 
@@ -42,7 +42,7 @@ The larger application is a web based application deployed in a traditional data
 
 The overview of the current stack and how the pieces fit together can be viewed in the following diagram:
 
-<center><a href="artwork/scope_of_work.png"><img src="artwork/scope_of_work.png" alt="Scope of work" height="350" width="658"></a></center>
+<center><a href="images/scope_of_work.png"><img src="images/scope_of_work.png" alt="Scope of work" height="350" width="658"></a></center>
 
 Within the `Services` block is the `Cool App` - a note taking service - with it's database (PosgreSQL).
 
@@ -62,7 +62,7 @@ The diagram below illustrate my lab setup:
 
 ([click on the map for a larger version](artwork/lab-setup.png))
 
- <center><a href="artwork/lab-setup.png"><img src="artwork/lab-setup.png" alt="Lab Set-up" height="350" width="350"></a></center>
+ <center><a href="images/lab-setup.png"><img src="images/lab-setup.png" alt="Lab Set-up" height="350" width="350"></a></center>
 
  For more information on getting Visual Studio Code to work on a remote Git repository, refer to the [documentation](https://code.visualstudio.com/docs/remote/ssh).
 
