@@ -1,8 +1,8 @@
 #!/bin/bash
 
 LOG_LEVEL=DEBUG
-DB_HOST="192.168.0.160"
-DB_PORT="5432"
+DB_HOST="jenkins-coolapp-db"
+DB_PORT="5332"
 DB_USER="postgres"
 DB_PASS="mysecretpassword"
 DB_NAME="coolapp"

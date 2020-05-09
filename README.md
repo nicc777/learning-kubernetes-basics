@@ -25,7 +25,7 @@ abd1bed6bc30        registry:2          "/entrypoint.sh /etc…"   2 days ago   
 b6acbb212160        postgres            "docker-entrypoint.s…"   8 days ago          Up 2 hours          127.0.0.1:5432->5432/tcp                           coolapp-db
 ```
 
-For the build to be done, both `coolapp-db` and `jenkins-coolapp-builder` must be running.
+For the build to be done, both `jenkins-coolapp-db` and `jenkins-coolapp-builder` must be running.
 
 To start either or both of these, run:
 
@@ -50,6 +50,16 @@ jenkins@85b71ca6fed1:~/workspace/coolapp-src-build/app-src/dist$ pwd
 /var/jenkins_home/workspace/coolapp-src-build/app-src/dist
 jenkins@85b71ca6fed1:~/workspace/coolapp-src-build/app-src/dist$ ls
 cool_app-0.0.2.tar.gz
+
+____________________
+
+docker run --name jenkins-coolapp-db \
+--network=jenkins \
+-p 0.0.0.0:5332:5432 \
+-m 512M --memory-swap 512M \
+--cpu-quota 25000 \
+-e POSTGRES_PASSWORD=mysecretpassword \
+-d postgres
 ```
 
 # 3. Adding the new build pipeline
