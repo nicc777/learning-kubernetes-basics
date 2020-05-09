@@ -41,7 +41,7 @@ Taking into account the Cloud Native principle of [Dev/prod parity](https://12fa
 
 ## 3.1. Source code updates
 
-A new version branch will be created (version 0.0.2, branch `appsrc-0.0.2`) where the unit tests will be added. You checkout that branch to go through some of the practical tests documented in the README.
+A new version branch will be created (version 0.0.2, branch [`appsrc-0.0.2`](https://github.com/nicc777/learning-kubernetes-basics/tree/appsrc-0.0.2/app-src)) where the unit tests will be added. You checkout that branch to go through some of the practical tests documented in the README.
 
 ## 3.2 Jenkins Updates
 
