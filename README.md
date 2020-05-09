@@ -1,7 +1,9 @@
 
 - [1. Intro](#1-intro)
 - [2. Building](#2-building)
-- [3. Start](#3-start)
+- [3. Start Everything Up from Fresh Builds](#3-start-everything-up-from-fresh-builds)
+  - [3.1. The test database server](#31-the-test-database-server)
+  - [3.2. Jenkins](#32-jenkins)
 - [4. Test](#4-test)
 - [5. Setup](#5-setup)
 - [6. Conclusion](#6-conclusion)
@@ -12,6 +14,19 @@ This branch deals with the Jenkins setup up to scenario branch [scenario-200050]
 
 # 2. Building
 
+Make sure the `jenkins` network is created:
+
+```bash
+$ docker network create jenkins
+$ docker network ls
+NETWORK ID          NAME                DRIVER              SCOPE
+60b03c3ac8fc        bridge              bridge              local
+eb7762f783b6        coolapp-net         bridge              local
+493baa9f41bf        host                host                local
+e06038c61d4f        jenkins             bridge              local
+8d548a8d6a9c        none                null                local
+```
+
 It is assumed the project is built on a `Server` that has Docker running. In my set-up, it is te same server that hosts Minikube, although I am **_not_** installing this Jenkins container in Kubernetes -at least, not yet.
 
 Run:
@@ -21,7 +36,74 @@ $ cd jenkins
 $ docker build --no-cache -t jenkins-custom .
 ```
 
-# 3. Start
+# 3. Start Everything Up from Fresh Builds
+
+## 3.1. The test database server
+
+The development-testing DB server can be started and prepared as follow (only to be used in later scenarios):
+
+```bash
+$ docker container stop jenkins-coolapp-db
+jenkins-coolapp-db
+
+$ docker container rm jenkins-coolapp-db
+jenkins-coolapp-db
+
+$ docker run --name jenkins-coolapp-db --network=jenkins -p 0.0.0.0:5332:5432 -m 512M --memory-swap 512M --cpu-quota 25000 -e POSTGRES_PASSWORD=mysecretpassword -d postgres
+28cc7d0dbb52a91467f709b5d49c8b1dad207125f688725c04c8c81e52ec2865
+
+$ docker run -it --rm --network jenkins postgres psql -h jenkins-coolapp-db -U postgres coolapp
+Password for user postgres:
+psql: error: could not connect to server: FATAL:  database "coolapp" does not exist
+
+$ docker run -it --rm --network jenkins postgres psql -h jenkins-coolapp-db -U postgres
+Password for user postgres:
+psql (12.2 (Debian 12.2-2.pgdg100+1))
+Type "help" for help.
+
+postgres=# create database coolapp;
+CREATE DATABASE
+postgres=# \q
+
+$ docker run -it --rm --network jenkins postgres psql -h jenkins-coolapp-db -U postgres coolapp
+Password for user postgres:
+psql (12.2 (Debian 12.2-2.pgdg100+1))
+Type "help" for help.
+
+coolapp=# CREATE TABLE public.user_profiles (
+coolapp(#     uid bigserial NOT NULL,
+coolapp(#     user_alias varchar(64) NOT NULL,
+coolapp(#     user_email_address varchar(255) NOT NULL,
+coolapp(#     account_status int4 NOT NULL DEFAULT 1,
+coolapp(#     CONSTRAINT user_profiles_pk PRIMARY KEY (uid),
+coolapp(#     CONSTRAINT user_profiles_un_001 UNIQUE (user_email_address)
+coolapp(# );
+CREATE TABLE
+coolapp=# CREATE TABLE public.notes (
+coolapp(#     nid bigserial NOT NULL,
+coolapp(#     uid int4 NOT NULL DEFAULT 1,
+coolapp(#     note_timestamp int4 NOT NULL,
+coolapp(#     note_text text NOT NULL,
+coolapp(#     CONSTRAINT notes_pk PRIMARY KEY (nid),
+coolapp(#     CONSTRAINT notes_un_01 UNIQUE (uid, note_timestamp),
+coolapp(#     CONSTRAINT notes_un_02 UNIQUE (uid, note_text),
+coolapp(#     CONSTRAINT notes_fk FOREIGN KEY (uid) REFERENCES user_profiles(uid) ON UPDATE RESTRICT ON DELETE RESTRICT
+coolapp(# );
+CREATE TABLE
+coolapp=# \d
+                  List of relations
+ Schema |         Name          |   Type   |  Owner
+--------+-----------------------+----------+----------
+ public | notes                 | table    | postgres
+ public | notes_nid_seq         | sequence | postgres
+ public | user_profiles         | table    | postgres
+ public | user_profiles_uid_seq | sequence | postgres
+(4 rows)
+
+coolapp=# \q
+```
+
+## 3.2. Jenkins
 
 Run:
 
@@ -143,7 +225,7 @@ Changes to the build config may be required as I continue through the scenarios,
 | File version                     | Scenarios                     | Notes |
 |----------------------------------|-------------------------------|-------|
 | `./jobs/cool-app/config-V1.xml`  | `scenario-200001`             | The basic building of the `cool-app` Docker image. |
-| `./jobs/cool-app/config-V2.xml`  | From `scenario-200050` onward | This will be updated as soon a V3 is created. In the `config-V2.xml`, be sure to set your registry host details |
+| `./jobs/cool-app/config-V2.xml`  | `scenario-200050` | n/a |
 
 __Important__: The configurations will all point to the [original repo](https://github.com/nicc777/learning-kubernetes-basics). If you want to point to your own fork, search for the following in the config and update the URL to point to your repo:
 
@@ -168,8 +250,8 @@ $ sudo cp -vf ./jobs/cool-app/config-V1.xml /var/lib/docker/volumes/jenkins-data
 __Note__: Typically the Jenkins `../jobs` directory will not be owned by `root`. Make sure that the `../jobs/config.xml` file is also owned by the same user as `../jobs`.
 
 ```bash
-$ sudo chown <user>:<user> /var/lib/docker/volumes/jenkins-data/_data/jobs/test-docker-access
-$ sudo chown <user>:<user> /var/lib/docker/volumes/jenkins-data/_data/jobs/test-docker-access/config.xml
+$ sudo chown <user>:<user> /var/lib/docker/volumes/jenkins-data/_data/jobs/cool-app-service-build
+$ sudo chown <user>:<user> /var/lib/docker/volumes/jenkins-data/_data/jobs/cool-app-service-build/config.xml
 ```
 
 Now, restart Jenkins:
