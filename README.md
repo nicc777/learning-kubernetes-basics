@@ -5,12 +5,14 @@
 - [2. Guiding Principles](#2-guiding-principles)
 - [3. Lab Environment](#3-lab-environment)
 - [4. Getting Started](#4-getting-started)
-  - [4.1 Preparing the Workstation](#41-preparing-the-workstation)
-  - [4.2 Preparing the Server](#42-preparing-the-server)
-  - [4.3 Network and Security](#43-network-and-security)
-  - [4.4 Cloning your repo](#44-cloning-your-repo)
-  - [4.5 Prepare your Python environment](#45-prepare-your-python-environment)
+  - [4.1. Preparing the Workstation](#41-preparing-the-workstation)
+  - [4.2. Preparing the Server](#42-preparing-the-server)
+  - [4.3. Network and Security](#43-network-and-security)
+  - [4.4. Cloning your repo](#44-cloning-your-repo)
+  - [4.5. Prepare your Python environment](#45-prepare-your-python-environment)
 - [5. Story Line and Scenarios](#5-story-line-and-scenarios)
+  - [5.1. Branch Reference Table](#51-branch-reference-table)
+  - [5.2. General Branch Quick Reference, Excluding Scenario Branches](#52-general-branch-quick-reference-excluding-scenario-branches)
 
 # 1. Introduction & Background
 
@@ -83,7 +85,7 @@ Once you have done that, i would suggest the following:
 
 Now, with that out of the way and before checking out the first `scenario`, take some time to set-up your environment.
 
-## 4.1 Preparing the Workstation
+## 4.1. Preparing the Workstation
 
 On the `Workstation` I have the following installed that I used on this project - and not all is required for following this tutorials and will be marked as optional:
 
@@ -111,7 +113,7 @@ Below is a list of extensions I have installed on VS Code. They are all optional
 * and those installed for SSH remote work
 * PostgreSQL
 
-## 4.2 Preparing the Server
+## 4.2. Preparing the Server
 
 On the `Server` I have installed the following in the context of the first scenario:
 
@@ -125,7 +127,7 @@ On the `Server` I have installed the following in the context of the first scena
 
 Other tools will be installed as per the different `scenarios`.
 
-## 4.3 Network and Security
+## 4.3. Network and Security
 
 I found it is most pleasant to configure your systems with static IP addresses as you will be connecting back and forth a lot.
 
@@ -133,7 +135,7 @@ Apart from that, I highly recommend that you set-up SSH [key based authenticatio
 
 You will probably also need SSH keys for many other uses, [such as your GitHub repo](https://help.github.com/en/github/authenticating-to-github/connecting-to-github-with-ssh).
 
-## 4.4 Cloning your repo
+## 4.4. Cloning your repo
 
 Assuming you [have now forked this repo](https://github.com/nicc777/learning-kubernetes-basics), log onto your `Server` and clone your repo:
 
@@ -146,7 +148,7 @@ $ export TUTORIAL_HOME=$PWD
 
 In all scenarios, unless otherwise stated, it is assumed you are working in `$TUTORIAL_HOME`
 
-## 4.5 Prepare your Python environment
+## 4.5. Prepare your Python environment
 
 I use a [Python Virtual Environment](https://docs.python.org/3/tutorial/venv.html) whenever possible.
 
@@ -197,5 +199,27 @@ You can start now with the first scenario by issuing the following command in `$
 ```
 
 Once you have done that, open the `scenario` [README](scenario/README.md) in another browser tab. You can also use the Visual Studio Code extension called `Markdown All in One` to open a preview in a tab.
+
+## 5.1. Branch Reference Table
+
+The following table links all the various branches together.
+
+| Scenario Branch | Related Experimentation Branches |
+|-----------------|----------------------------------|
+| [scenario-100001](https://github.com/nicc777/learning-kubernetes-basics/tree/scenario-100001/scenario) | [apparc-0.0.1](https://github.com/nicc777/learning-kubernetes-basics/tree/appsrc-0.0.1/app-src) |
+| [scenario-200001](https://github.com/nicc777/learning-kubernetes-basics/tree/scenario-200001/scenario) | [apparc-0.0.1](https://github.com/nicc777/learning-kubernetes-basics/tree/appsrc-0.0.1/app-src)<br />[jenkins-upto-scenario-200050](https://github.com/nicc777/learning-kubernetes-basics/tree/jenkins-upto-scenario-200050) |
+| [scenario-200050](https://github.com/nicc777/learning-kubernetes-basics/tree/scenario-200050/scenario) | [apparc-0.0.1](https://github.com/nicc777/learning-kubernetes-basics/tree/appsrc-0.0.1/app-src)<br />[jenkins-upto-scenario-200050](https://github.com/nicc777/learning-kubernetes-basics/tree/jenkins-upto-scenario-200050) |
+| [scenario-200100](https://github.com/nicc777/learning-kubernetes-basics/tree/scenario-200100) ||
+| [scenario-300001](https://github.com/nicc777/learning-kubernetes-basics/tree/scenario-300001) ||
+| [scenario-200150](#) ||
+
+## 5.2. General Branch Quick Reference, Excluding Scenario Branches
+
+| Branch | Descriptions |
+|--------|--------------|
+| [apparc-0.0.1](https://github.com/nicc777/learning-kubernetes-basics/tree/appsrc-0.0.1/app-src) | Application after initial containerization |
+| [apparc-0.0.2](https://github.com/nicc777/learning-kubernetes-basics/tree/appsrc-0.0.2/app-src) | Application Source version 0.0.1 |
+| [jenkins-upto-scenario-200050](https://github.com/nicc777/learning-kubernetes-basics/tree/jenkins-upto-scenario-200050) | Covers scenarios up to scenario-200050 |
+| jenkins-0.0.2 | Jenkins pipeline for version 0.0.2 of the application |
 
 
