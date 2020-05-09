@@ -1,11 +1,16 @@
 
-- [1. Building](#1-building)
-- [2. Start](#2-start)
-- [3. Test](#3-test)
-- [4. Setup](#4-setup)
-- [5. Conclusion](#5-conclusion)
+- [1. Intro](#1-intro)
+- [2. Building](#2-building)
+- [3. Start](#3-start)
+- [4. Test](#4-test)
+- [5. Setup](#5-setup)
+- [6. Conclusion](#6-conclusion)
 
-# 1. Building
+# 1. Intro
+
+This branch deals with the Jenkins setup up to scenario branch [scenario-200050](https://github.com/nicc777/learning-kubernetes-basics/tree/scenario-200050/scenario)
+
+# 2. Building
 
 It is assumed the project is built on a `Server` that has Docker running. In my set-up, it is te same server that hosts Minikube, although I am **_not_** installing this Jenkins container in Kubernetes -at least, not yet.
 
@@ -16,7 +21,7 @@ $ cd jenkins
 $ docker build --no-cache -t jenkins-custom .
 ```
 
-# 2. Start
+# 3. Start
 
 Run:
 
@@ -66,7 +71,7 @@ You can select to install all the suggested plugins - for this project that will
 
 This process takes a couple of minutes.
 
-# 3. Test
+# 4. Test
 
 Of critical importance is to test if the Jenkins container can communicate with the Docker daemon running on the host `Server`, which is exposed via Unix sockets.
 
@@ -129,7 +134,7 @@ e06038c61d4f        jenkins             bridge              local
 
 If the files exists and you see output, then everything is ready for setting up the final build job.
 
-# 4. Setup
+# 5. Setup
 
 The initial setup of the `Cool App` source will be manual. I hope to use a trigger of sorts at later stage. The configuration does cater for an hourly build though and there are checks to only build hourly if changes in the source was detected.
 
@@ -173,6 +178,6 @@ Now, restart Jenkins:
 $ docker container restart jenkins-coolapp-builder
 ```
 
-# 5. Conclusion
+# 6. Conclusion
 
 The `CI` portion is now complete. 
