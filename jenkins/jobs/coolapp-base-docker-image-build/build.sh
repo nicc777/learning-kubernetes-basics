@@ -4,7 +4,6 @@ cd ./app-src/
 echo "Checking if any of the Docker configurations changed"
 
 DOCKERFILE_BASE_CHECKSUM_FILE="docker_base_checksum"
-DOCKERFILE_BASE_BUILD_ACTION_FILE="docker_base_build_action"
 DOCKERFILE_BASE_REGISTRY_FILE="docker_base_registry"
 DOCKERFILE_BASE_CHECKSUM_OLD=""
 DOCKERFILE_BASE_CHECKSUM_CURRENT=""
@@ -12,13 +11,12 @@ BUILD_BASE=0
 DOCKER_REGISTRY_HOST="192.168.0.160"
 DOCKER_REGISTRY_PORT="5000"
 
+rm -vf /tmp/coolapp-base-docker-image-build
 
 echo "========================================"
 echo "   Checking BASE Docker configuration"
 echo "========================================"
 
-
-echo "0" > $DOCKERFILE_BASE_BUILD_ACTION_FILE
 DOCKERFILE_BASE_CHECKSUM_CURRENT=`sha256sum ./container/base/Dockerfile | awk '{print \$1}'`
 echo "   Current BASE file checksum: $DOCKERFILE_BASE_CHECKSUM_CURRENT"
 if test -f "$DOCKERFILE_BASE_CHECKSUM_FILE"; then
@@ -55,7 +53,7 @@ if [ "$BUILD_BASE" == "1" ]; then
     echo "      BASE build successful"
     
     echo "      Pushing to registry"
-    sudo docker tag cool-app-base:$BUILD_NUMBER $DOCKER_REGISTRY_HOST:$DOCKER_REGISTRY_PORT/cool-app-base
+    sudo docker tag cool-app-base:$BUILD_NUMBER $DOCKER_REGISTRY_HOST:$DOCKER_REGISTRY_PORT/cool-app-base:$BUILD_NUMBER
     EXIT_STATUS=$?
     if [ "$EXIT_STATUS" != "0" ]
 	then
@@ -72,10 +70,9 @@ if [ "$BUILD_BASE" == "1" ]; then
     echo "      Successfully pushed to the registry with tag: cool-app-base:$BUILD_NUMBER"
     echo "cool-app-base:$BUILD_NUMBER" > $DOCKERFILE_BASE_REGISTRY_FILE
     
-    
     echo $DOCKERFILE_BASE_CHECKSUM_CURRENT > $DOCKERFILE_BASE_CHECKSUM_FILE
     echo "      Checksum file updated"
-    echo "1" > $DOCKERFILE_BASE_BUILD_ACTION_FILE
+    touch /tmp/coolapp-base-docker-image-build
 fi
 
 
