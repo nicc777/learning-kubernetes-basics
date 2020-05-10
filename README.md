@@ -7,7 +7,8 @@
   - [5.1. List all the images:](#51-list-all-the-images)
   - [5.2. Get the tags for a particular image:](#52-get-the-tags-for-a-particular-image)
   - [5.3. Cleanup some old images tags](#53-cleanup-some-old-images-tags)
-- [6. Conclusion](#6-conclusion)
+- [6. Running the builds on Jenkins](#6-running-the-builds-on-jenkins)
+- [7. Creating a Jenkins Pipeline](#7-creating-a-jenkins-pipeline)
 
 # 1. Intro
 
@@ -31,33 +32,6 @@ $ cd $TUTORIAL_HOME
 
 ## 3.1. Prepare the jobs
 
-run the following:
-
-```bash
-$ sudo mkdir /var/lib/docker/volumes/jenkins-data/_data/jobs/{coolapp-src-build,coolapp-service-image-build,coolapp-coverage,coolapp-base-docker-image-build}
-
-$ sudo cp -vf jenkins/jobs/coolapp-src-build/build.sh /var/lib/docker/volumes/jenkins-data/_data/jobs/coolapp-src-build/
-
-$ sudo cp -vf jenkins/jobs/coolapp-base-docker-image-build/build.sh /var/lib/docker/volumes/jenkins-data/_data/jobs/coolapp-base-docker-image-build/
-
-$ sudo cp -vf jenkins/jobs/coolapp-coverage/build.sh /var/lib/docker/volumes/jenkins-data/_data/jobs/coolapp-coverage/
-
-$ sudo cp -vf jenkins/jobs/coolapp-service-image-build/build.sh /var/lib/docker/volumes/jenkins-data/_data/jobs/coolapp-service-image-build/
-
-$ sudo find /var/lib/docker/volumes/jenkins-data/_data/jobs/ -type d -iname coolapp* -exec chown -R <user>.<user> {} \;
-```
-
-And now restart Jenkins again:
-
-```bash
-$ docker container restart jenkins-coolapp-builder
-```
-
-
-
-
-TODO - a lot of the content below needs to be reviewed...
-
 The following is run from the `Server`, and will determine exactly where the Jenkins volume's files live:
 
 ```bash
@@ -77,45 +51,29 @@ $ docker volume inspect jenkins-data
 
 Take note of the `Mountpoint`.
 
-Next, copy the TEST job from this project:
+Next, run the following:
 
 ```bash
-$ sudo mkdir /var/lib/docker/volumes/jenkins-data/_data/jobs/test-docker-access
-$ sudo cp -vf ./jobs/test/config.xml /var/lib/docker/volumes/jenkins-data/_data/jobs/test-docker-access
+$ sudo mkdir /var/lib/docker/volumes/jenkins-data/_data/jobs/{coolapp-src-build,coolapp-service-image-build,coolapp-coverage,coolapp-base-docker-image-build}
+
+$ sudo cp -vf jenkins/jobs/coolapp-src-build/config.xml /var/lib/docker/volumes/jenkins-data/_data/jobs/coolapp-src-build/
+
+$ sudo cp -vf jenkins/jobs/coolapp-base-docker-image-build/config.xml /var/lib/docker/volumes/jenkins-data/_data/jobs/coolapp-base-docker-image-build/
+
+$ sudo cp -vf jenkins/jobs/coolapp-coverage/config.xml /var/lib/docker/volumes/jenkins-data/_data/jobs/coolapp-coverage/
+
+$ sudo cp -vf jenkins/jobs/coolapp-service-image-build/config.xml /var/lib/docker/volumes/jenkins-data/_data/jobs/coolapp-service-image-build/
+
+$ sudo find /var/lib/docker/volumes/jenkins-data/_data/jobs/ -type d -iname coolapp* -exec chown -R <user>.<user> {} \;
 ```
 
 __Note__: Typically the Jenkins `../jobs` directory will not be owned by `root`. Make sure that the `../jobs/config.xml` file is also owned by the same user as `../jobs`.
 
-```bash
-$ sudo chown <user>:<user> /var/lib/docker/volumes/jenkins-data/_data/jobs/test-docker-access
-$ sudo chown <user>:<user> /var/lib/docker/volumes/jenkins-data/_data/jobs/test-docker-access/config.xml
-```
-
-Now, restart Jenkins:
+And now restart Jenkins again:
 
 ```bash
 $ docker container restart jenkins-coolapp-builder
 ```
-
-Run a build from the new job from the Jenkins browser console. If all worked out well, you should be able to see the two files created in the job `Workspace`:
-
-```bash
-$ sudo ls -lahrt /var/lib/docker/volumes/jenkins-data/_data/workspace/test-docker-access
-total 20K
--rw-r--r-- 1 user user 6.2K May  5 08:50 containers.txt
-drwxr-xr-x 2 user user 4.0K May  5 08:50 .
--rw-r--r-- 1 user user  396 May  5 08:50 networks.txt
-drwxr-xr-x 4 user user 4.0K May  5 09:10 ..
-$ sudo cat /var/lib/docker/volumes/jenkins-data/_data/workspace/test-docker-access/networks.txt
-NETWORK ID          NAME                DRIVER              SCOPE
-dcd059f0977e        bridge              bridge              local
-eb7762f783b6        coolapp-net         bridge              local
-493baa9f41bf        host                host                local
-e06038c61d4f        jenkins             bridge              local
-8d548a8d6a9c        none                null                local
-```
-
-If the files exists and you see output, then everything is ready for setting up the final build job.
 
 # 5. Docker Registry Discussion
 
@@ -207,6 +165,15 @@ $ curl http://127.0.0.1:5000/v2/cool-app-base/tags/list
 {"name":"cool-app-base","tags":["12"]}
 ```
 
-# 6. Conclusion
+# 6. Running the builds on Jenkins
 
-The `CI` portion is now even more complete :-)
+The first manual run should be done in the following order:
+
+* `coolapp-base-docker-image-build`
+* `coolapp-coverage`
+* `coolapp-src-build`
+* `coolapp-service-image-build`
+
+# 7. Creating a Jenkins Pipeline
+
+TODO
