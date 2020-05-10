@@ -8,6 +8,7 @@ export DB_PASS="mysecretpassword"
 export DB_NAME="coolapp"
 export SPECIFICATION_DIR="$PWD/app-src/openapi"
 COVERAGE_MINIMUM="60"
+COVERAGE_CHECK_FILE="/tmp/coverage_passed"
 
 cd ./app-src/
 
@@ -17,6 +18,7 @@ echo "========================================"
 echo "   Preparing Environment"
 echo "========================================"
 
+rm -vf $COVERAGE_CHECK_FILE
 pip3 install coverage --upgrade
 pip3 install sqlalchemy --upgrade
 pip3 install connexion[swagger-ui] --upgrade
@@ -46,7 +48,7 @@ then
     exit 1
 fi
 echo "      Minimum coverage level was satisfied."
-
+touch $COVERAGE_CHECK_FILE
 
 echo "DONE"
 
