@@ -1,7 +1,8 @@
 
 - [1. Intro](#1-intro)
-- [2. Building](#2-building)
+- [2. Building & Testing](#2-building--testing)
 - [3. Adding the new build pipeline](#3-adding-the-new-build-pipeline)
+  - [3.1. Prepare the jobs](#31-prepare-the-jobs)
 - [5. Setup](#5-setup)
 - [6. Conclusion](#6-conclusion)
 
@@ -9,60 +10,48 @@
 
 This branch set-up the build pipeline for the [`appsrc-0.0.2`](https://github.com/nicc777/learning-kubernetes-basics/tree/appsrc-0.0.2/app-src) code branch.
 
-# 2. Building
+# 2. Building & Testing
 
 If you have followed the previous scenarios, you would not need to build Jenkins again. Just make sure it is running.I
 
 If you need to build Jenkins, please checkout branch [`jenkins-upto-scenario-200050`](https://github.com/nicc777/learning-kubernetes-basics/tree/jenkins-upto-scenario-200050) and run through the README
 
-To ensure Jenkins is running:
-
-```bash
-$ docker container ls | grep -v k8s
-CONTAINER ID        IMAGE               COMMAND                  CREATED             STATUS              PORTS                                              NAMES
-abd1bed6bc30        registry:2          "/entrypoint.sh /etc…"   2 days ago          Up 2 hours          0.0.0.0:5000->5000/tcp                             registry
-85b71ca6fed1        jenkins-custom      "/sbin/tini -- /usr/…"   4 days ago          Up 2 hours          0.0.0.0:50000->50000/tcp, 0.0.0.0:8085->8080/tcp   jenkins-coolapp-builder
-b6acbb212160        postgres            "docker-entrypoint.s…"   8 days ago          Up 2 hours          127.0.0.1:5432->5432/tcp                           coolapp-db
-```
-
-For the build to be done, both `jenkins-coolapp-db` and `jenkins-coolapp-builder` must be running.
-
-To start either or both of these, run:
-
-```bash
-$ docker container start coolapp-db
-$ docker container start jenkins-coolapp-builder
-```
-
-TODO:
-```text
-$ pwd
-/var/jenkins_home/workspace/coolapp-base-docker-image-build
-jenkins@85b71ca6fed1:~/workspace/coolapp-base-docker-image-build$ echo $HOME
-/var/jenkins_home
-
-________________
-
-$ cd
-jenkins@85b71ca6fed1:~$ cd workspace/coolapp-src-build/
-jenkins@85b71ca6fed1:~/workspace/coolapp-src-build$ cd app-src/dist/
-jenkins@85b71ca6fed1:~/workspace/coolapp-src-build/app-src/dist$ pwd
-/var/jenkins_home/workspace/coolapp-src-build/app-src/dist
-jenkins@85b71ca6fed1:~/workspace/coolapp-src-build/app-src/dist$ ls
-cool_app-0.0.2.tar.gz
-
-____________________
-
-docker run --name jenkins-coolapp-db \
---network=jenkins \
--p 0.0.0.0:5332:5432 \
--m 512M --memory-swap 512M \
---cpu-quota 25000 \
--e POSTGRES_PASSWORD=mysecretpassword \
--d postgres
-```
+__Important__: Ensure that any schedules or triggers currently defined in Jenkins is disabled or deleted.
 
 # 3. Adding the new build pipeline
+
+__Important__: Ensure you are in the base directory of the project:
+
+```bash
+$ cd $TUTORIAL_HOME
+```
+
+## 3.1. Prepare the jobs
+
+run the following:
+
+```bash
+$ sudo mkdir /var/lib/docker/volumes/jenkins-data/_data/jobs/{coolapp-src-build,coolapp-service-image-build,coolapp-coverage,coolapp-base-docker-image-build}
+
+$ sudo cp -vf jenkins/jobs/coolapp-src-build/build.sh /var/lib/docker/volumes/jenkins-data/_data/jobs/coolapp-src-build/
+
+$ sudo cp -vf jenkins/jobs/coolapp-base-docker-image-build/build.sh /var/lib/docker/volumes/jenkins-data/_data/jobs/coolapp-base-docker-image-build/
+
+$ sudo cp -vf jenkins/jobs/coolapp-coverage/build.sh /var/lib/docker/volumes/jenkins-data/_data/jobs/coolapp-coverage/
+
+$ sudo cp -vf jenkins/jobs/coolapp-service-image-build/build.sh /var/lib/docker/volumes/jenkins-data/_data/jobs/coolapp-service-image-build/
+
+$ sudo find /var/lib/docker/volumes/jenkins-data/_data/jobs/ -type d -iname coolapp* -exec chown -R <user>.<user> {} \;
+```
+
+And now restart Jenkins again:
+
+```bash
+$ docker container restart jenkins-coolapp-builder
+```
+
+
+
 
 The following is run from the `Server`, and will determine exactly where the Jenkins volume's files live:
 
