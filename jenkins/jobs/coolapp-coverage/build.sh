@@ -1,12 +1,13 @@
 #!/bin/bash
 
-LOG_LEVEL=DEBUG
-DB_HOST="jenkins-coolapp-db"
-DB_PORT="5332"
-DB_USER="postgres"
-DB_PASS="mysecretpassword"
-DB_NAME="coolapp"
-SPECIFICATION_DIR="$PWD/app-src/openapi"
+export LOG_LEVEL=DEBUG
+export DB_HOST="jenkins-coolapp-db"
+export DB_PORT="5432"
+export DB_USER="postgres"
+export DB_PASS="mysecretpassword"
+export DB_NAME="coolapp"
+export SPECIFICATION_DIR="$PWD/app-src/openapi"
+COVERAGE_MINIMUM="60"
 
 cd ./app-src/
 
@@ -25,7 +26,26 @@ echo "========================================"
 echo "   Running Coverage"
 echo "========================================"
 
+echo "SPECIFICATION_DIR=$SPECIFICATION_DIR"
+
 $HOME/.local/bin/coverage run --source cool_app/ -m unittest
+EXIT_STATUS=$?
+if [ "$EXIT_STATUS" != "0" ]
+then
+    echo "      Testing FAILED"
+    exit 1
+fi
+$HOME/.local/bin/coverage report -m > /tmp/coverage_detail.txt
+cat /tmp/coverage_detail.txt
+COVERAGE_PERCENTAGE=`cat /tmp/coverage_detail.txt | tail -1 | awk '{print \$4}' | awk -F\\% '{print \$1}'`
+echo "** COVERAGE_PERCENTAGE = $COVERAGE_PERCENTAGE"
+echo "** COVERAGE_MINIMUM    = $COVERAGE_MINIMUM"
+if [ "$COVERAGE_PERCENTAGE" -lt "$COVERAGE_MINIMUM" ]
+then
+    echo "      Coverage minimum check FAILED"
+    exit 1
+fi
+echo "      Minimum coverage level was satisfied."
 
 
 echo "DONE"

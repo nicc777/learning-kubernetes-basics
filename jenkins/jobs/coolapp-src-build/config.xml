@@ -1,0 +1,112 @@
+<?xml version='1.1' encoding='UTF-8'?>
+<project>
+  <actions/>
+  <description>Building the application source</description>
+  <keepDependencies>false</keepDependencies>
+  <properties/>
+  <scm class="hudson.plugins.git.GitSCM" plugin="git@4.2.2">
+    <configVersion>2</configVersion>
+    <userRemoteConfigs>
+      <hudson.plugins.git.UserRemoteConfig>
+        <url>https://github.com/nicc777/learning-kubernetes-basics</url>
+      </hudson.plugins.git.UserRemoteConfig>
+    </userRemoteConfigs>
+    <branches>
+      <hudson.plugins.git.BranchSpec>
+        <name>*/appsrc-0.0.2</name>
+      </hudson.plugins.git.BranchSpec>
+    </branches>
+    <doGenerateSubmoduleConfigurations>false</doGenerateSubmoduleConfigurations>
+    <submoduleCfg class="list"/>
+    <extensions/>
+  </scm>
+  <canRoam>true</canRoam>
+  <disabled>false</disabled>
+  <blockBuildWhenDownstreamBuilding>false</blockBuildWhenDownstreamBuilding>
+  <blockBuildWhenUpstreamBuilding>false</blockBuildWhenUpstreamBuilding>
+  <triggers/>
+  <concurrentBuild>false</concurrentBuild>
+  <builders>
+    <hudson.tasks.Shell>
+      <command>#!/bin/bash
+
+EXPECTED_FILE=&quot;dist/cool_app-0.0.2.tar.gz&quot;
+OLD_CHECKSUM_FILE=&quot;checksum_dist&quot;
+OLD_CHECKSUM_VALUE=&quot;&quot;
+NEW_CHECKSUM_VALUE=&quot;&quot;
+BUILD_FLAG_FILE=&quot;/tmp/coolapp-src-build&quot;
+
+rm -vf $BUILD_FLAG_FILE
+
+cd ./app-src/
+echo &quot;Build source - Build nr $BUILD_NUMBER&quot;
+
+rm -frR dist/
+
+echo &quot;========================================&quot;
+echo &quot;   Checking for Previous Build&quot;
+echo &quot;========================================&quot;
+
+if test -f &quot;$OLD_CHECKSUM_FILE&quot;; then
+    echo &quot;      $OLD_CHECKSUM_FILE exist&quot;
+    OLD_CHECKSUM_VALUE=`cat $OLD_CHECKSUM_FILE | head -1 | awk &apos;{print \$1}&apos;`
+    echo &quot;   Previous BASE file checksum: $OLD_CHECKSUM_VALUE&quot;
+else
+	echo &quot;newfile&quot; &gt; $OLD_CHECKSUM_FILE
+    OLD_CHECKSUM_VALUE=&quot;newfile&quot;
+    echo &quot;      $OLD_CHECKSUM_FILE created&quot;
+fi
+
+echo &quot;========================================&quot;
+echo &quot;   Updating Checksum for Source &quot;
+echo &quot;========================================&quot;
+
+rm -vf /tmp/sourced_cat
+cat `find ./cool_app/ -type f -iname &quot;*.py&quot;` &gt; /tmp/sourced_cat
+NEW_CHECKSUM_VALUE=`sha256sum /tmp/sourced_cat | awk &apos;{print \$1}&apos;`
+
+echo &quot;========================================&quot;
+echo &quot;   Check for Building Source&quot;
+echo &quot;========================================&quot;
+
+echo
+if [ &quot;$OLD_CHECKSUM_VALUE&quot; != &quot;$NEW_CHECKSUM_VALUE&quot; ]; then
+    python3 setup.py sdist
+    ls -lahrt $EXPECTED_FILE
+    if [ -f &quot;$EXPECTED_FILE&quot; ]; then
+        echo &quot;Build was completed succesfully&quot;
+    else
+        echo &quot;Build FAILED&quot;
+        exit 1
+    fi
+    touch $BUILD_FLAG_FILE
+    echo &quot;$NEW_CHECKSUM_VALUE&quot; &gt; $OLD_CHECKSUM_FILE
+    echo &quot;SOURCE UPDATED: TRUE&quot;
+else
+     echo &quot;SOURCE UPDATED: FALSE&quot;
+fi
+echo
+
+echo &quot;========================================&quot;
+echo &quot;   DONE&quot;
+echo &quot;========================================&quot;
+
+echo
+echo
+echo &quot;========================================&quot;
+echo
+echo &quot;NOTE that at The moment the build needs&quot;
+echo &quot;to be triggered manually and the APP&quot;
+echo &quot;will build every time. Automation is WIP&quot;
+echo
+echo &quot;There is a schedule for an hourly build&quot;
+echo &quot;but still no trigger per say.&quot;
+echo
+echo &quot;========================================&quot;</command>
+    </hudson.tasks.Shell>
+  </builders>
+  <publishers/>
+  <buildWrappers>
+    <hudson.plugins.timestamper.TimestamperBuildWrapper plugin="timestamper@1.11.3"/>
+  </buildWrappers>
+</project>

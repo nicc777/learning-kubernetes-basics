@@ -1,0 +1,122 @@
+<?xml version='1.1' encoding='UTF-8'?>
+<project>
+  <actions/>
+  <description>Build the base Docker image if the Dockerfile have changed.</description>
+  <keepDependencies>false</keepDependencies>
+  <properties/>
+  <scm class="hudson.plugins.git.GitSCM" plugin="git@4.2.2">
+    <configVersion>2</configVersion>
+    <userRemoteConfigs>
+      <hudson.plugins.git.UserRemoteConfig>
+        <url>https://github.com/nicc777/learning-kubernetes-basics</url>
+      </hudson.plugins.git.UserRemoteConfig>
+    </userRemoteConfigs>
+    <branches>
+      <hudson.plugins.git.BranchSpec>
+        <name>*/appsrc-0.0.2</name>
+      </hudson.plugins.git.BranchSpec>
+    </branches>
+    <doGenerateSubmoduleConfigurations>false</doGenerateSubmoduleConfigurations>
+    <submoduleCfg class="list"/>
+    <extensions/>
+  </scm>
+  <canRoam>true</canRoam>
+  <disabled>false</disabled>
+  <blockBuildWhenDownstreamBuilding>false</blockBuildWhenDownstreamBuilding>
+  <blockBuildWhenUpstreamBuilding>false</blockBuildWhenUpstreamBuilding>
+  <triggers/>
+  <concurrentBuild>false</concurrentBuild>
+  <builders>
+    <hudson.tasks.Shell>
+      <command>#!/bin/bash
+
+cd ./app-src/
+echo &quot;Checking if any of the Docker configurations changed&quot;
+
+DOCKERFILE_BASE_CHECKSUM_FILE=&quot;docker_base_checksum&quot;
+DOCKERFILE_BASE_REGISTRY_FILE=&quot;docker_base_registry&quot;
+DOCKERFILE_BASE_CHECKSUM_OLD=&quot;&quot;
+DOCKERFILE_BASE_CHECKSUM_CURRENT=&quot;&quot;
+BUILD_BASE=0
+DOCKER_REGISTRY_HOST=&quot;192.168.0.160&quot;
+DOCKER_REGISTRY_PORT=&quot;5000&quot;
+
+rm -vf /tmp/coolapp-base-docker-image-build
+
+echo &quot;========================================&quot;
+echo &quot;   Checking BASE Docker configuration&quot;
+echo &quot;========================================&quot;
+
+DOCKERFILE_BASE_CHECKSUM_CURRENT=`sha256sum ./container/base/Dockerfile | awk &apos;{print \$1}&apos;`
+echo &quot;   Current BASE file checksum: $DOCKERFILE_BASE_CHECKSUM_CURRENT&quot;
+if test -f &quot;$DOCKERFILE_BASE_CHECKSUM_FILE&quot;; then
+    echo &quot;      $DOCKERFILE_BASE_CHECKSUM_FILE exist&quot;
+    DOCKERFILE_BASE_CHECKSUM_OLD=`cat $DOCKERFILE_BASE_CHECKSUM_FILE | head -1 | awk &apos;{print \$1}&apos;`
+    echo &quot;   Previous BASE file checksum: $DOCKERFILE_BASE_CHECKSUM_OLD&quot;
+    if [ &quot;$DOCKERFILE_BASE_CHECKSUM_OLD&quot; != &quot;$DOCKERFILE_BASE_CHECKSUM_CURRENT&quot; ]; then
+    	BUILD_BASE=1
+    fi
+else
+	echo &quot;newfile&quot; &gt; $DOCKERFILE_BASE_CHECKSUM_FILE
+    echo &quot;      $DOCKERFILE_BASE_CHECKSUM_FILE created&quot;
+    BUILD_BASE=1
+fi
+
+echo &quot;      BUILD_BASE=$BUILD_BASE&quot;
+
+if [ &quot;$BUILD_BASE&quot; == &quot;1&quot; ]; then
+	echo &quot;      Building BASE Docker Image&quot;
+    sudo docker container rm cool-app-base
+	sudo docker image rm cool-app-base
+	cd container/base
+    echo &quot;      Current working directory: $PWD&quot;
+	sudo docker build --no-cache -t cool-app-base:$BUILD_NUMBER .
+    EXIT_STATUS=$?
+    cd $OLDPWD
+    echo &quot;      status=$EXIT_STATUS&quot;
+    echo &quot;      Current working directory: $PWD&quot;
+    if [ &quot;$EXIT_STATUS&quot; != &quot;0&quot; ]
+	then
+   		echo &quot;      BASE failed to build&quot;
+        exit 1
+	fi
+    echo &quot;      BASE build successful&quot;
+    
+    echo &quot;      Pushing to registry&quot;
+    sudo docker tag cool-app-base:$BUILD_NUMBER $DOCKER_REGISTRY_HOST:$DOCKER_REGISTRY_PORT/cool-app-base:$BUILD_NUMBER
+    EXIT_STATUS=$?
+    if [ &quot;$EXIT_STATUS&quot; != &quot;0&quot; ]
+	then
+		echo &quot;      Failed to tag image&quot;
+		exit 1
+	fi
+    sudo docker push $DOCKER_REGISTRY_HOST:$DOCKER_REGISTRY_PORT/cool-app-base
+    EXIT_STATUS=$?
+    if [ &quot;$EXIT_STATUS&quot; != &quot;0&quot; ]
+	then
+		echo &quot;      Failed to push to the registry&quot;
+		exit 1
+	fi
+    echo &quot;      Successfully pushed to the registry with tag: cool-app-base:$BUILD_NUMBER&quot;
+    echo &quot;cool-app-base:$BUILD_NUMBER&quot; &gt; $DOCKERFILE_BASE_REGISTRY_FILE
+    
+    echo $DOCKERFILE_BASE_CHECKSUM_CURRENT &gt; $DOCKERFILE_BASE_CHECKSUM_FILE
+    echo &quot;      Checksum file updated&quot;
+    touch /tmp/coolapp-base-docker-image-build
+fi
+
+
+</command>
+    </hudson.tasks.Shell>
+  </builders>
+  <publishers/>
+  <buildWrappers>
+    <hudson.plugins.build__timeout.BuildTimeoutWrapper plugin="build-timeout@1.19.1">
+      <strategy class="hudson.plugins.build_timeout.impl.AbsoluteTimeOutStrategy">
+        <timeoutMinutes>15</timeoutMinutes>
+      </strategy>
+      <operationList/>
+    </hudson.plugins.build__timeout.BuildTimeoutWrapper>
+    <hudson.plugins.timestamper.TimestamperBuildWrapper plugin="timestamper@1.11.3"/>
+  </buildWrappers>
+</project>
