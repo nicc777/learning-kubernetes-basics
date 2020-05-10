@@ -4,6 +4,9 @@
 - [3. Adding the new build pipeline](#3-adding-the-new-build-pipeline)
   - [3.1. Prepare the jobs](#31-prepare-the-jobs)
 - [5. Docker Registry Discussion](#5-docker-registry-discussion)
+  - [5.1. List all the images:](#51-list-all-the-images)
+  - [5.2. Get the tags for a particular image:](#52-get-the-tags-for-a-particular-image)
+  - [5.3. Cleanup some old images tags](#53-cleanup-some-old-images-tags)
 - [6. Conclusion](#6-conclusion)
 
 # 1. Intro
@@ -118,8 +121,92 @@ If the files exists and you see output, then everything is ready for setting up 
 
 The private registry exposes and API, [which is well documented](https://docs.docker.com/registry/spec/api/)
 
+__NOTE__: In order to ENABLE deletion from the registry, you have to start it with the `-e REGISTRY_STORAGE_DELETE_ENABLED=true` parameter.
 
+__Important__: I had to experiment with several options to enable deletion of images on the registry. It seems that the parameter name tends to have changed over time, so there are more than one option. The one listed here was accurate as of 10 May 2020. 
+
+## 5.1. List all the images:
+
+```bash
+$ curl http://127.0.0.1:5000/v2/_catalog
+{"repositories":["cool-app","cool-app-base"]}
+```
+
+## 5.2. Get the tags for a particular image:
+
+In the following example, I want to delete the older image tag nr 11
+
+```bash
+$ curl http://127.0.0.1:5000/v2/cool-app-base/tags/list
+{"name":"cool-app-base","tags":["12","11"]}
+
+$ curl -v -X GET -H "Accept: application/vnd.docker.distribution.manifest.v2+json" http://127.0.0.1:5000/v2/cool-app-base/manifests/11
+Note: Unnecessary use of -X or --request, GET is already inferred.
+*   Trying 127.0.0.1...
+* TCP_NODELAY set
+* Connected to 127.0.0.1 (127.0.0.1) port 5000 (#0)
+> GET /v2/cool-app-base/manifests/11 HTTP/1.1
+> Host: 127.0.0.1:5000
+> User-Agent: curl/7.58.0
+> Accept: application/vnd.docker.distribution.manifest.v2+json
+>
+< HTTP/1.1 200 OK
+< Content-Length: 2001
+< Content-Type: application/vnd.docker.distribution.manifest.v2+json
+< Docker-Content-Digest: sha256:0e0b02121cffdc04008f1b1e389f5785b3bb1a91eda50d413ab9b284acc30e4b
+< Docker-Distribution-Api-Version: registry/2.0
+< Etag: "sha256:0e0b02121cffdc04008f1b1e389f5785b3bb1a91eda50d413ab9b284acc30e4b"
+< X-Content-Type-Options: nosniff
+< Date: Sun, 10 May 2020 08:41:41 GMT
+<
+{
+   "schemaVersion": 2,
+   "mediaType": "application/vnd.docker.distribution.manifest.v2+json",
+   "config": {
+      "mediaType": "application/vnd.docker.container.image.v1+json",
+      "size": 5126,
+      "digest": "sha256:2896539299c18137c773a754ada174db12935a3803d89975d161d39a8558d9d9"
+   },
+   "layers": [
+   .
+   .
+   .
+   ]
+* Connection #0 to host 127.0.0.1 left intact
+```
+
+__Note__: The image tag checksum is listed in the header `Docker-Content-Digest`
+
+## 5.3. Cleanup some old images tags
+
+Using the `Docker-Content-Digest` value from the previous command, run the following:
+
+```bash
+curl -v -X DELETE http://127.0.0.1:5000/v2/cool-app-base/manifests/sha256:0e0b02121cffdc04008f1b1e389f5785b3bb1a91eda50d413ab9b284acc30e4b
+*   Trying 127.0.0.1...
+* TCP_NODELAY set
+* Connected to 127.0.0.1 (127.0.0.1) port 5000 (#0)
+> DELETE /v2/cool-app-base/manifests/sha256:0e0b02121cffdc04008f1b1e389f5785b3bb1a91eda50d413ab9b284acc30e4b HTTP/1.1
+> Host: 127.0.0.1:5000
+> User-Agent: curl/7.58.0
+> Accept: */*
+>
+< HTTP/1.1 202 Accepted
+< Docker-Distribution-Api-Version: registry/2.0
+< X-Content-Type-Options: nosniff
+< Date: Sun, 10 May 2020 08:49:22 GMT
+< Content-Length: 0
+<
+* Connection #0 to host 127.0.0.1 left intact
+```
+
+Verify:
+
+```bash
+$ curl http://127.0.0.1:5000/v2/cool-app-base/tags/list
+{"name":"cool-app-base","tags":["12"]}
+```
 
 # 6. Conclusion
 
-The `CI` portion is now complete. 
+The `CI` portion is now even more complete :-)
