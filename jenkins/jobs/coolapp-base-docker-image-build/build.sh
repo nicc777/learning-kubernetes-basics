@@ -4,7 +4,7 @@ cd ./app-src/
 echo "Checking if any of the Docker configurations changed"
 
 DOCKERFILE_BASE_CHECKSUM_FILE="docker_base_checksum"
-DOCKERFILE_BASE_REGISTRY_FILE="docker_base_registry"
+DOCKERFILE_BASE_REGISTRY_FILE="/tmp/docker_base_registry_entry"
 DOCKERFILE_BASE_CHECKSUM_OLD=""
 DOCKERFILE_BASE_CHECKSUM_CURRENT=""
 BUILD_BASE=0
@@ -68,7 +68,7 @@ if [ "$BUILD_BASE" == "1" ]; then
 		exit 1
 	fi
     echo "      Successfully pushed to the registry with tag: cool-app-base:$BUILD_NUMBER"
-    echo "cool-app-base:$BUILD_NUMBER" > $DOCKERFILE_BASE_REGISTRY_FILE
+    echo "$DOCKER_REGISTRY_HOST:$DOCKER_REGISTRY_PORT/cool-app-base:$BUILD_NUMBER" > $DOCKERFILE_BASE_REGISTRY_FILE
     
     echo $DOCKERFILE_BASE_CHECKSUM_CURRENT > $DOCKERFILE_BASE_CHECKSUM_FILE
     echo "      Checksum file updated"

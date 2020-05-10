@@ -3,86 +3,66 @@
 cd ./app-src/
 echo "Checking if any of the Docker configurations changed"
 
-DOCKERFILE_BASE_CHECKSUM_FILE="docker_base_checksum"
-DOCKERFILE_COOLAPP_CHECKSUM_FILE="docker_coolapp_checksum"
-DOCKERFILE_BASE_CHECKSUM_OLD=""
-DOCKERFILE_BASE_CHECKSUM_CURRENT=""
-DOCKERFILE_COOLAPP_CHECKSUM_OLD=""
-DOCKERFILE_COOLAPP_CHECKSUM_CURRENT=""
-BUILD_BASE=0
+DOCKER_COOAPP_BASE_CHANGED_FILE="/tmp/coolapp-base-docker-image-build"
+SOURCE_BUILD_FLAG_FILE="/tmp/coolapp-src-build"
+COVERAGE_PASSED_FLAG_FILE="/tmp/coverage_passed"
 BUILD_COOLAPP=0
 DOCKER_REGISTRY_HOST="192.168.0.160"
 DOCKER_REGISTRY_PORT="5000"
+LATEST_BASE_IMAGE_URL_FILE="/tmp/docker_base_registry_entry"
+LATEST_BASE_IMAGE_URL=""
+LATEST_APP_IMAGE_URL_FILE="/tmp/docker_app_registry_entry"
 
 
 echo "========================================"
-echo "   Checking BASE Docker configuration"
+echo "   Checking BASE Build Trigger"
 echo "========================================"
 
-
-DOCKERFILE_BASE_CHECKSUM_CURRENT=`sha256sum ./container/base/Dockerfile | awk '{print \$1}'`
-echo "   Current BASE file checksum: $DOCKERFILE_BASE_CHECKSUM_CURRENT"
-if test -f "$DOCKERFILE_BASE_CHECKSUM_FILE"; then
-    echo "      $DOCKERFILE_BASE_CHECKSUM_FILE exist"
-    DOCKERFILE_BASE_CHECKSUM_OLD=`cat $DOCKERFILE_BASE_CHECKSUM_FILE | head -1 | awk '{print \$1}'`
-    echo "   Previous BASE file checksum: $DOCKERFILE_BASE_CHECKSUM_OLD"
-    if [ "$DOCKERFILE_BASE_CHECKSUM_OLD" != "$DOCKERFILE_BASE_CHECKSUM_CURRENT" ]; then
-    	BUILD_BASE=1
-        BUILD_COOLAPP=1
-    fi
-else
-	echo "newfile" > $DOCKERFILE_BASE_CHECKSUM_FILE
-    echo "      $DOCKERFILE_BASE_CHECKSUM_FILE created"
-    BUILD_BASE=1
-    BUILD_COOLAPP=1
+if test -f "$DOCKER_COOAPP_BASE_CHANGED_FILE"; then
+	echo "  BASE Image changed. Proceed with build."
+	BUILD_COOLAPP=1
 fi
 
-echo "      BUILD_BASE=$BUILD_BASE"
+if test -f "$LATEST_BASE_IMAGE_URL_FILE"; then
+	LATEST_BASE_IMAGE_URL=`cat $LATEST_BASE_IMAGE_URL_FILE`
+else
+	echo "  Cannot locate $LATEST_BASE_IMAGE_URL_FILE for the latest URL. FAILING."
+	exit 1
+fi
 
-if [ "$BUILD_BASE" == "1" ]; then
-	echo "      Building BASE Docker Image"
-    sudo docker container rm cool-app-base
-	sudo docker image rm cool-app-base
-	cd container/base
-    echo "      Current working directory: $PWD"
-	sudo docker build --no-cache -t cool-app-base .
-    EXIT_STATUS=$?
-    cd $OLDPWD
-    echo "      status=$EXIT_STATUS"
-    echo "      Current working directory: $PWD"
-    if [ "$EXIT_STATUS" != "0" ]
-	then
-   		echo "      BASE failed to build"
-        exit 1
+ls -lahrt container/app/Dockerfile
+sed -i "s|FROM cool-app-base:latest|FROM $LATEST_BASE_IMAGE_URL|g" container/app/Dockerfile
+
+echo "----------------------------------------"
+echo ""
+head -2 container/app/Dockerfile
+echo ""
+echo "----------------------------------------"
+
+echo "========================================"
+echo "   Checking Source Build Trigger"
+echo "========================================"
+
+echo "BUILD_COOLAPP=$BUILD_COOLAPP"
+if [ "$BUILD_COOLAPP" == "0" ]; then
+	if test -f "$SOURCE_BUILD_FLAG_FILE"; then
+		if test -f "$COVERAGE_PASSED_FLAG_FILE"; then
+			BUILD_COOLAPP=1
+			echo "  Source change detected and coverage is in a PASSED state. Proceeding with build."
+		else
+			echo "  Detected source code changed, BUT, coverage either not yet run or failed. FAILING."
+			exit 1
+		fi
+	else
+		echo "  warning: $SOURCE_BUILD_FLAG_FILE does not exist"
 	fi
-    echo "      BASE build successful"
-    echo $DOCKERFILE_BASE_CHECKSUM_CURRENT > $DOCKERFILE_BASE_CHECKSUM_FILE
-    echo "      Checksum file updated"
-fi
-
-
-echo "========================================"
-echo "   Checking APP build history"
-echo "========================================"
-
-rm -vf /tmp/test.tar.gz
-tar czf /tmp/test.tar.gz `find ./cool_app/ -type f -iname "*.py"`
-DOCKERFILE_COOLAPP_CHECKSUM_CURRENT=`sha256sum ./container/base/Dockerfile | awk '{print \$1}'`
-echo "   Current BASE file checksum: $DOCKERFILE_COOLAPP_CHECKSUM_CURRENT"
-if test -f "$DOCKERFILE_COOLAPP_CHECKSUM_FILE"; then
-    echo "      $DOCKERFILE_COOLAPP_CHECKSUM_FILE exist"
-    DOCKERFILE_COOLAPP_CHECKSUM_OLD=`cat $DOCKERFILE_COOLAPP_CHECKSUM_FILE | head -1 | awk '{print \$1}'`
-    echo "   Previous APP file checksum: $DOCKERFILE_COOLAPP_CHECKSUM_OLD"
-    if [ "$DOCKERFILE_COOLAPP_CHECKSUM_OLD" != "$DOCKERFILE_COOLAPP_CHECKSUM_CURRENT" ]; then
-    	BUILD_COOLAPP=1
-    fi
 else
-	echo "newfile" > $DOCKERFILE_COOLAPP_CHECKSUM_FILE
-    echo "      $DOCKERFILE_COOLAPP_CHECKSUM_FILE created"
-    BUILD_COOLAPP=1
+	echo "  Build already set..."
 fi
 
-echo "      BUILD_BASE=$BUILD_COOLAPP"
+echo "========================================"
+echo "   Checking Final Image Actions"
+echo "========================================"
 
 if [ "$BUILD_COOLAPP" == "1" ]; then
 	rm -frR dist/
@@ -95,32 +75,32 @@ if [ "$BUILD_COOLAPP" == "1" ]; then
 	sudo docker build --no-cache -t cool-app:$BUILD_NUMBER .
 	EXIT_STATUS=$?
 	cd $OLDPWD
-	echo "      status=$EXIT_STATUS"
-	echo "      Current working directory: $PWD"
+	echo "  status=$EXIT_STATUS"
+	echo "  Current working directory: $PWD"
 	if [ "$EXIT_STATUS" != "0" ]
 	then
-		echo "      COOLAPP failed to build"
+		echo "  COOLAPP failed to build"
 		exit 1
 	fi
-	echo "      COOLAPP build successful"
-    echo "      Pushing to registry"
-    sudo docker tag cool-app:$BUILD_NUMBER $DOCKER_REGISTRY_HOST:$DOCKER_REGISTRY_PORT/cool-app
+	echo "  COOLAPP build successful"
+    echo "  Pushing to registry"
+    sudo docker tag cool-app:$BUILD_NUMBER $DOCKER_REGISTRY_HOST:$DOCKER_REGISTRY_PORT/cool-app:$BUILD_NUMBER
     EXIT_STATUS=$?
     if [ "$EXIT_STATUS" != "0" ]
 	then
-		echo "      Failed to tag image"
+		echo "  Failed to tag image"
 		exit 1
 	fi
     sudo docker push $DOCKER_REGISTRY_HOST:$DOCKER_REGISTRY_PORT/cool-app
     EXIT_STATUS=$?
     if [ "$EXIT_STATUS" != "0" ]
 	then
-		echo "      Failed to push to the registry"
+		echo "  Failed to push to the registry"
 		exit 1
 	fi
-    echo "      Successfully pushed to the registry with tag: cool-app:$BUILD_NUMBER"
-    echo $DOCKERFILE_COOLAPP_CHECKSUM_CURRENT > $DOCKERFILE_COOLAPP_CHECKSUM_FILE
-  	echo "      Local checksum updated"  
+    echo "  Successfully pushed to the registry with tag: cool-app:$BUILD_NUMBER"
+
+	echo "$DOCKER_REGISTRY_HOST:$DOCKER_REGISTRY_PORT/cool-app:$BUILD_NUMBER" > $LATEST_APP_IMAGE_URL_FILE
 fi
 
 echo
