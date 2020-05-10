@@ -30,12 +30,16 @@ The steps are fairly basic since Docker already has a out-of-the-box solution fo
 Run the following command:
 
 ```bash
-(venv) $ docker run -d -p 0.0.0.0:5000:5000 --restart=always --name registry registry:2
+(venv) $ docker run -d -e REGISTRY_STORAGE_DELETE_ENABLED=true -p 0.0.0.0:5000:5000 --restart=always --name registry registry:2
 ```
 
 __Note__: I have setup the registry to listen on the Ethernet interface in order to expose the service to my entire LAN. You may need to adjust this to suite your needs.
 
+__Note__: In order to ENABLE deletion from the registry, you have to start it with the `-e REGISTRY_STORAGE_DELETE_ENABLED=true` parameter.
+
 __Security Note__: The [documentation](https://docs.docker.com/registry/deploying/) has a lot more detail around various scenarios, including TLS certificates and authentication. Again, adjust for your needs.
+
+__Important__: I had to experiment with several options to enable deletion of images on the registry. It seems that the parameter name tends to have changed over time, so there are more than one option. The one listed here was accurate as of 10 May 2020. 
 
 ## 3.2. Adjusting Jenkins to push newly built images to the registry
 
