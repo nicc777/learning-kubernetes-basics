@@ -224,7 +224,7 @@ OK
 Coverage report:
 
 ```bash
-coverage report -m 
+$ coverage report -m 
 Name                                    Stmts   Miss  Cover   Missing
 ---------------------------------------------------------------------
 cool_app/__init__.py                       67      7    90%   15, 26, 105, 131, 154, 178, 215
