@@ -56,6 +56,12 @@ In Jenkins there will be a job defined called `coolapp-coverage`. This job will 
 * A unit test fails
 * The coverage is not above a certain level
 
+To test the effect for a failed unit test, first checkout `appsrc-0.0.2`. Then open the file `app-src/tests/test_force_fail.py` and remove the comment where applicable (it is easy to spot in the code).
+
+Now commit and push to your origin and re-run the `coolapp-coverage` job. It should now fail.
+
+Open the file `app-src/tests/test_force_fail.py` again and place the comment where it was previously. Commit and push to your origin and re-run the `coolapp-coverage` job, which should now pass.
+
 ## 3.3 Testing for Code Coverage in the Pipeline
 
 TODO
