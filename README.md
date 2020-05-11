@@ -184,8 +184,8 @@ In the table below is a brief explanation of the proposed sequence in which you 
 | Containers (Docker) | Getting Started | Basic orientation of the app and how to get it built using Docker | scenario-100001 | Ready |
 | CI/CD | Set-up a build pipeline | Implement processes and tooling to automatically detect new releases that automatically creates new builds and artifacts. | scenario-200001 | Ready |
 | CI/CD | Publish Container Images | Implement processes and tooling to automatically publish new container images to a container repo | scenario-200050 | Ready |
-| CI/CD | Unit test pass validation | Ensure unit tests and code coverage passes minimum standards before publishing images to the registry. | scenario-200100 | Not-Started, Not-Ready |
-| Orchestration & Application Definition | Manually deploy our application in a Kubernetes Cluster (Minikube) | In this scenario we see our app running for the first time in Kubernetes. It also lays the ground work for the `CD` exercises to follow to complete our `CI/CD` pipeline. | scenario-300001 | Not-Started, Not-Ready |
+| CI/CD | Unit test pass validation | Ensure unit tests and code coverage passes minimum standards before publishing images to the registry. | scenario-200100 | Ready |
+| Orchestration & Application Definition | Manually deploy our application in a Kubernetes Cluster (Minikube) | In this scenario we see our app running for the first time in Kubernetes. It also lays the ground work for the `CD` exercises to follow to complete our `CI/CD` pipeline. | scenario-300001 |In-Progress, Not-Ready |
 | CI/CD | Explore [Argo](https://argoproj.github.io/argo-cd/) for the `CD` portion of the pipeline | Initial iteration of `Argo` to explore the set-up and configuration required to push our application to the Kubernetes cluster as part of a `CI/CD` pipeline | scenario-200150 | Not-Started, Not-Ready |
 
 __Note__: The table will be updated as I get time to document my learnings.
@@ -206,10 +206,10 @@ The following table links all the various branches together.
 
 | Scenario Branch | Related Experimentation Branches |
 |-----------------|----------------------------------|
-| [scenario-100001](https://github.com/nicc777/learning-kubernetes-basics/tree/scenario-100001/scenario) | [apparc-0.0.1](https://github.com/nicc777/learning-kubernetes-basics/tree/appsrc-0.0.1/app-src) |
-| [scenario-200001](https://github.com/nicc777/learning-kubernetes-basics/tree/scenario-200001/scenario) | [apparc-0.0.1](https://github.com/nicc777/learning-kubernetes-basics/tree/appsrc-0.0.1/app-src)<br />[jenkins-upto-scenario-200050](https://github.com/nicc777/learning-kubernetes-basics/tree/jenkins-upto-scenario-200050) |
-| [scenario-200050](https://github.com/nicc777/learning-kubernetes-basics/tree/scenario-200050/scenario) | [apparc-0.0.1](https://github.com/nicc777/learning-kubernetes-basics/tree/appsrc-0.0.1/app-src)<br />[jenkins-upto-scenario-200050](https://github.com/nicc777/learning-kubernetes-basics/tree/jenkins-upto-scenario-200050) |
-| [scenario-200100](https://github.com/nicc777/learning-kubernetes-basics/tree/scenario-200100) ||
+| [scenario-100001](https://github.com/nicc777/learning-kubernetes-basics/tree/scenario-100001/scenario) | [appsrc-0.0.1](https://github.com/nicc777/learning-kubernetes-basics/tree/appsrc-0.0.1/app-src) |
+| [scenario-200001](https://github.com/nicc777/learning-kubernetes-basics/tree/scenario-200001/scenario) | [appsrc-0.0.1](https://github.com/nicc777/learning-kubernetes-basics/tree/appsrc-0.0.1/app-src)<br />[jenkins-upto-scenario-200050](https://github.com/nicc777/learning-kubernetes-basics/tree/jenkins-upto-scenario-200050) |
+| [scenario-200050](https://github.com/nicc777/learning-kubernetes-basics/tree/scenario-200050/scenario) | [appsrc-0.0.1](https://github.com/nicc777/learning-kubernetes-basics/tree/appsrc-0.0.1/app-src)<br />[jenkins-upto-scenario-200050](https://github.com/nicc777/learning-kubernetes-basics/tree/jenkins-upto-scenario-200050) |
+| [scenario-200100](https://github.com/nicc777/learning-kubernetes-basics/tree/scenario-200100) | [appsrc-0.0.2](https://github.com/nicc777/learning-kubernetes-basics/tree/appsrc-0.0.2/app-src)<br />[jenkins-0.0.2](https://github.com/nicc777/learning-kubernetes-basics/tree/jenkins-0.0.2) |
 | [scenario-300001](https://github.com/nicc777/learning-kubernetes-basics/tree/scenario-300001) ||
 | [scenario-200150](#) ||
 
@@ -217,9 +217,8 @@ The following table links all the various branches together.
 
 | Branch | Descriptions |
 |--------|--------------|
-| [apparc-0.0.1](https://github.com/nicc777/learning-kubernetes-basics/tree/appsrc-0.0.1/app-src) | Application after initial containerization |
-| [apparc-0.0.2](https://github.com/nicc777/learning-kubernetes-basics/tree/appsrc-0.0.2/app-src) | Application Source version 0.0.1 |
+| [appsrc-0.0.1](https://github.com/nicc777/learning-kubernetes-basics/tree/appsrc-0.0.1/app-src) | Application after initial containerization |
+| [appsrc-0.0.2](https://github.com/nicc777/learning-kubernetes-basics/tree/appsrc-0.0.2/app-src) | Application Source version 0.0.1 |
 | [jenkins-upto-scenario-200050](https://github.com/nicc777/learning-kubernetes-basics/tree/jenkins-upto-scenario-200050) | Covers scenarios up to scenario-200050 |
-| jenkins-0.0.2 | Jenkins pipeline for version 0.0.2 of the application |
-
+| [jenkins-0.0.2](https://github.com/nicc777/learning-kubernetes-basics/tree/jenkins-0.0.2) | Jenkins pipeline for version 0.0.2 of the application |
 
