@@ -45,11 +45,16 @@ A new version branch will be created (version 0.0.2, branch [`appsrc-0.0.2`](htt
 
 ## 3.2 Jenkins Updates
 
-TODO
+The updated Jenkins configuration is in branch [`jenkins-0.0.2`](https://github.com/nicc777/learning-kubernetes-basics/tree/jenkins-0.0.2).
+
+The build process is broken up into stages from which a pipeline is then put together. You now have a choice to build individual parts, or build everything.
 
 ## 3.3 Testing for failed Unit Tests in the Pipeline
 
-TODO
+In Jenkins there will be a job defined called `coolapp-coverage`. This job will run the `coverage` tests, which include running the normal unit tests. The job will fail in two cases:
+
+* A unit test fails
+* The coverage is not above a certain level
 
 ## 3.3 Testing for Code Coverage in the Pipeline
 
