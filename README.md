@@ -9,6 +9,7 @@
   - [5.3. Cleanup some old images tags](#53-cleanup-some-old-images-tags)
 - [6. Running the builds on Jenkins](#6-running-the-builds-on-jenkins)
 - [7. Creating a Jenkins Pipeline](#7-creating-a-jenkins-pipeline)
+- [8. Special note on the `coolapp-coverage` Job - Parameterized Builds](#8-special-note-on-the-coolapp-coverage-job---parameterized-builds)
 
 # 1. Intro
 
@@ -192,4 +193,10 @@ And now restart Jenkins again:
 $ docker container restart jenkins-coolapp-builder
 ```
 
+# 8. Special note on the `coolapp-coverage` Job - Parameterized Builds
 
+This job uses a parameter, [configured as per documentation](https://wiki.jenkins.io/display/JENKINS/Parameterized+Build), to set the coverage level.
+
+When the build is manually run, you will have the opportunity to adjust the level. To permanently set a new default level, you have to configure the Job in Jenkins.
+
+__Note__: Pipeline builds will use the default value and will not provide you an option to set the value.

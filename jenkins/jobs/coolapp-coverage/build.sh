@@ -7,12 +7,12 @@ export DB_USER="postgres"
 export DB_PASS="mysecretpassword"
 export DB_NAME="coolapp"
 export SPECIFICATION_DIR="$PWD/app-src/openapi"
-COVERAGE_MINIMUM="60"
 COVERAGE_CHECK_FILE="/tmp/coverage_passed"
 
 cd ./app-src/
 
 echo "Build source and running unit tests"
+echo "COVERAGE_MINIMUM=$COVERAGE_MINIMUM"
 
 echo "========================================"
 echo "   Preparing Environment"
