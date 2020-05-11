@@ -5,7 +5,6 @@
   - [3.1. Source code updates](#31-source-code-updates)
   - [3.2 Jenkins Updates](#32-jenkins-updates)
   - [3.3 Testing for failed Unit Tests in the Pipeline](#33-testing-for-failed-unit-tests-in-the-pipeline)
-  - [3.3 Testing for Code Coverage in the Pipeline](#33-testing-for-code-coverage-in-the-pipeline)
 - [4. Scenario Discussion](#4-scenario-discussion)
   - [4.1 Trail-Map Progress](#41-trail-map-progress)
   - [4.2 Cloud-Native Principles Progress](#42-cloud-native-principles-progress)
@@ -62,13 +61,7 @@ Now commit and push to your origin and re-run the `coolapp-coverage` job. It sho
 
 Open the file `app-src/tests/test_force_fail.py` again and place the comment where it was previously. Commit and push to your origin and re-run the `coolapp-coverage` job, which should now pass.
 
-## 3.3 Testing for Code Coverage in the Pipeline
-
-TODO
-
 # 4. Scenario Discussion
-
-TODO
 
 In each scenario we will map our progress against the Cloud-Native Trail Map and against the Cloud-Native Principles.
 
@@ -76,8 +69,8 @@ In each scenario we will map our progress against the Cloud-Native Trail Map and
 
 | Category                               | Technologies & Patterns Used | Progress and other notes |
 |----------------------------------------|------------------------------|--------------------------|
-| Containers (Docker)                    | n/a                          | not started yet          |
-| CI/CD                                  | n/a                          | not started yet          |
+| Containers (Docker)                    | Docker | Current application and database have been containerized |
+| CI/CD                                  | Jenkins | A proper build pipeline is now available. There are still lots that can be optimized, and some aspects will probably be worked on as we progress through this project, but for the most part the `CI` portion is now considered fully functional. The `CD` portion is still outstanding. |
 | Orchestration & Application Definition | n/a                          | not started yet          |
 | Observability and Analysis             | n/a                          | not started yet          |
 | Service Proxy, Discovery & Mesh        | n/a                          | not started yet          |
@@ -91,22 +84,23 @@ In each scenario we will map our progress against the Cloud-Native Trail Map and
 
 | Factor                        | Progress and Discussion |
 |-------------------------------|-------------------------|
-| Code Base                     | No progress yet         |
-| Dependencies                  | No progress yet         |
-| Configurations                | No progress yet         |
-| Backing Services              | No progress yet         |
-| Build, Release, Run           | No progress yet         |
-| Processes                     | No progress yet         |
-| Port Binding                  | No progress yet         |
-| Concurrency                   | No progress yet         |
-| Disposability                 | No progress yet         |
+| Code Base                     | Source code is tracked in Git. Each version will have it's own branch. Each version can be independently built and deployed. |
+| Dependencies                  | As part of the containerization effort, all dependencies are defined in the base and main application Docker files. There is still potential for finding a more lightweight base image to start with. The approach takes was to use the base Docker configuration to install all required software and dependencies. This image is typically build once as it will take the most time to build. The application Docker image is essentially just an installation of the latest Python application package and the build is relatively quick and is perfectly geared to be done many times. |
+| Configurations                | Configuration is now done entirely through environment variable defined in the Docker configuration files. Configuration parameters can be set when launching the application. The same principle have been applied to the `CI` pipeline. |
+| Backing Services              | The database server has also been containerized. The application is simple enough to not rely too much on database versions and therefore almost any version of PostgreSQL can be used. Changing from PostgreSQL to something else is relatively easy as long as that something else is supported by [SQLAlchemy](https://www.sqlalchemy.org) and only minor code changes will then be required. If this will happen often (which it shouldn't), more configuration options and a more dynamic dependency system can be considered. |
+| Build, Release, Run           | The `CI` portion of the `CI/CD` pipeline have been implemented with a Jenkins build that will produce an application Docker image on the `Server`. The image is pushed to a Docker registry. |
+| Processes                     | No active effort have been made to ensure the application is truly stateless. Future testing will prove this and the application will be adjusted accordingly. At the moment the application should be able to run with multiple instances. |
+| Port Binding                  | This is considered completed as the application is hosted in the container and exposed via [gunicorn](https://gunicorn.org). |
+| Concurrency                   | Untested but assumed to not be a problem. Will revisit during more testing in future scenarios. |
+| Disposability                 | Untested but assumed to not be a problem. Will revisit during more testing in future scenarios. |
 | Dev/Prod Parity               | No progress yet         |
-| Logging                       | No progress yet         |
+| Logging                       | Logs are now logged to a file as well as `STDOUT`, and can be accessed via the Docker API. No log events are published yet and more work remain. |
 | Admin Processes               | No progress yet         |
-| API First                     | No progress yet         |
+| API First                     | Through the use of [connexion](https://github.com/zalando/connexion) the application have been implemented with an API first principle from the start. This is considered DONE. |
 | Telemetry                     | No progress yet         |
-| Authentication/ Authorization | No progress yet         |
+| Authentication/ Authorization | No progress yet. The application currently completely trusts the Application Server and relies on external configuration to prevent other unauthorized services connecting to it. |
 
 # 5. References
 
-TODO
+* [Parameterized Builds in Jenkins](https://wiki.jenkins.io/display/JENKINS/Parameterized+Build)
+* [Jenkins Pipelines](https://www.jenkins.io/doc/book/pipeline/)
