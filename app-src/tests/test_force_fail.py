@@ -6,7 +6,7 @@ class TestForceFail(unittest.TestCase):
         '''
             To force a failure, which is handy to test your Jenkins jobs, uncomment the line below.
         '''
-        #self.assertTrue(False)
+        self.assertTrue(False)
         self.assertTrue(True)
 
 # EOF
