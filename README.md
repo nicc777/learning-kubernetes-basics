@@ -176,4 +176,20 @@ The first manual run should be done in the following order:
 
 # 7. Creating a Jenkins Pipeline
 
-TODO
+As with any other Jenkins Job, copy the config and restart:
+
+```bash
+$ sudo mkdir /var/lib/docker/volumes/jenkins-data/_data/jobs/coolapp-pipeline
+
+$ sudo cp -vf jenkins/jobs/coolapp-pipeline/config.xml /var/lib/docker/volumes/jenkins-data/_data/jobs/coolapp-pipeline/
+```
+
+__Note__: Typically the Jenkins `../jobs` directory will not be owned by `root`. Make sure that the `../jobs/config.xml` file is also owned by the same user as `../jobs`.
+
+And now restart Jenkins again:
+
+```bash
+$ docker container restart jenkins-coolapp-builder
+```
+
+
