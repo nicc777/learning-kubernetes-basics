@@ -4,10 +4,19 @@
   - [2.1. The Setup](#21-the-setup)
   - [2.2. Laying the Foundations for GitOps](#22-laying-the-foundations-for-gitops)
 - [3. Step-by-Step Demo Walk Through](#3-step-by-step-demo-walk-through)
+  - [3.1. Installing Minikube](#31-installing-minikube)
+  - [3.2. GitOps Branch](#32-gitops-branch)
+  - [3.3. Creating and Using Namespaces](#33-creating-and-using-namespaces)
+  - [3.4. Defining Pods and Services](#34-defining-pods-and-services)
+  - [3.5. Deployment into Development Namespace](#35-deployment-into-development-namespace)
+  - [3.6. Testing in the Development Namespace](#36-testing-in-the-development-namespace)
+  - [3.7. Deployment into Production Namespace](#37-deployment-into-production-namespace)
+  - [3.8. Testing in the Production Namespace](#38-testing-in-the-production-namespace)
+  - [3.9. Code changes and Upgrades in the Development Namespace](#39-code-changes-and-upgrades-in-the-development-namespace)
+  - [3.10. Production Blue/Green Deployments](#310-production-bluegreen-deployments)
 - [4. Scenario Discussion](#4-scenario-discussion)
   - [4.1 Trail-Map Progress](#41-trail-map-progress)
   - [4.2 Cloud-Native Principles Progress](#42-cloud-native-principles-progress)
-- [5. References](#5-references)
 
 # 1. Objectives of the Scenario 
 
@@ -58,6 +67,59 @@ In all the scenarios, however, I am not focusing on the practice of the various 
 
 # 3. Step-by-Step Demo Walk Through
 
+This scenario demonstrates the following:
+
+* Installing Minikube and required tools on the `Server`
+* Creating a GitOps branch for our Kubernetes configs
+* Defining our environments
+* Defining our Pods and Services
+* Manual deployment to the development namespace
+* Testing in the development namespace
+* Manual deployment to the production namespace
+* Testing in the production namespace
+* Making a change to the code and testing in development
+* Rolling the change to production (blue/green deployment)
+
+For all examples I am using a terminal session to the `Server` and issue all commands on the `Server`.
+
+## 3.1. Installing Minikube
+
+TODO
+
+## 3.2. GitOps Branch
+
+TODO
+
+## 3.3. Creating and Using Namespaces
+
+TODO
+
+## 3.4. Defining Pods and Services
+
+TODO
+
+## 3.5. Deployment into Development Namespace
+
+TODO
+
+## 3.6. Testing in the Development Namespace
+
+TODO
+
+## 3.7. Deployment into Production Namespace
+
+TODO
+
+## 3.8. Testing in the Production Namespace
+
+TODO
+
+## 3.9. Code changes and Upgrades in the Development Namespace
+
+TODO
+
+## 3.10. Production Blue/Green Deployments
+
 TODO
 
 # 4. Scenario Discussion
@@ -101,6 +163,3 @@ In each scenario we will map our progress against the Cloud-Native Trail Map and
 | Telemetry                     | No progress yet         |
 | Authentication/ Authorization | No progress yet         |
 
-# 5. References
-
-TODO
