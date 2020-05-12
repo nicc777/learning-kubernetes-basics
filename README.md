@@ -17,6 +17,7 @@
 - [4. Scenario Discussion](#4-scenario-discussion)
   - [4.1 Trail-Map Progress](#41-trail-map-progress)
   - [4.2 Cloud-Native Principles Progress](#42-cloud-native-principles-progress)
+- [5. References](#5-references)
 
 # 1. Objectives of the Scenario 
 
@@ -84,7 +85,56 @@ For all examples I am using a terminal session to the `Server` and issue all com
 
 ## 3.1. Installing Minikube
 
-TODO
+I am not going to list the detail in this step, but there are some really good resources available on how to install Minikube and get going. Here is a short list of resources you can consider, depending on your environment:
+
+* [How To Install Minikube on Ubuntu 20.04/18.04 & Debian 10 Linux](https://computingforgeeks.com/how-to-install-minikube-on-ubuntu-debian-linux/)
+* [Kubernetes Official Installation Guide](https://kubernetes.io/docs/tasks/tools/install-minikube/)
+
+After you are done, you should be able to use the `kubectl` command and see something similar to this:
+
+```bash
+$ kubectl version -o json
+{
+  "clientVersion": {
+    "major": "1",
+    "minor": "17",
+    "gitVersion": "v1.17.4",
+    "gitCommit": "8d8aa39598534325ad77120c120a22b3a990b5ea",
+    "gitTreeState": "clean",
+    "buildDate": "2020-03-12T21:03:42Z",
+    "goVersion": "go1.13.8",
+    "compiler": "gc",
+    "platform": "linux/amd64"
+  },
+  "serverVersion": {
+    "major": "1",
+    "minor": "17",
+    "gitVersion": "v1.17.0",
+    "gitCommit": "70132b0f130acc0bed193d9ba59dd186f0e634cf",
+    "gitTreeState": "clean",
+    "buildDate": "2019-12-07T21:12:17Z",
+    "goVersion": "go1.13.4",
+    "compiler": "gc",
+    "platform": "linux/amd64"
+  }
+}
+
+$ kubectl get all
+NAME                 TYPE        CLUSTER-IP   EXTERNAL-IP   PORT(S)   AGE
+service/kubernetes   ClusterIP   10.96.0.1    <none>        443/TCP   21d
+
+$ kubectl get namespaces
+NAME                   STATUS   AGE
+default                Active   21d
+demo                   Active   14d
+kube-node-lease        Active   21d
+kube-public            Active   21d
+kube-system            Active   21d
+kubernetes-dashboard   Active   20d
+mystuff                Active   15d
+```
+
+__Note__: In the output you may find some differences, depending how you experimented during the particular guide you followed.
 
 ## 3.2. GitOps Branch
 
@@ -163,3 +213,6 @@ In each scenario we will map our progress against the Cloud-Native Trail Map and
 | Telemetry                     | No progress yet         |
 | Authentication/ Authorization | No progress yet         |
 
+# 5. References
+
+* [GitHub Flow](https://guides.github.com/introduction/flow/)
