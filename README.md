@@ -138,7 +138,14 @@ __Note__: In the output you may find some differences, depending how you experim
 
 ## 3.2. GitOps Branch
 
-TODO
+There may be some changes required as we go through the entire series of scenarios, so in terms of organization, the branching structure will work as follows:
+
+* There is a new branch, from master, called `kube-ops`. 
+* From this branch, several other branches will be created depending on the scenario.
+
+The branch for this scenario, therefore, would be `kube-ops-300001`. 
+
+In practice, changes will be made in `kube-ops-300001` and through a Pull Request (PR) be merged back into `kube-ops`, which will be the branch our `CD` tooling monitors for changes.
 
 ## 3.3. Creating and Using Namespaces
 
