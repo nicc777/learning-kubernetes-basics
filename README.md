@@ -210,7 +210,7 @@ The following table links all the various branches together.
 | [scenario-200001](https://github.com/nicc777/learning-kubernetes-basics/tree/scenario-200001/scenario) | [appsrc-0.0.1](https://github.com/nicc777/learning-kubernetes-basics/tree/appsrc-0.0.1/app-src)<br />[jenkins-upto-scenario-200050](https://github.com/nicc777/learning-kubernetes-basics/tree/jenkins-upto-scenario-200050) |
 | [scenario-200050](https://github.com/nicc777/learning-kubernetes-basics/tree/scenario-200050/scenario) | [appsrc-0.0.1](https://github.com/nicc777/learning-kubernetes-basics/tree/appsrc-0.0.1/app-src)<br />[jenkins-upto-scenario-200050](https://github.com/nicc777/learning-kubernetes-basics/tree/jenkins-upto-scenario-200050) |
 | [scenario-200100](https://github.com/nicc777/learning-kubernetes-basics/tree/scenario-200100) | [appsrc-0.0.2](https://github.com/nicc777/learning-kubernetes-basics/tree/appsrc-0.0.2/app-src)<br />[jenkins-0.0.2](https://github.com/nicc777/learning-kubernetes-basics/tree/jenkins-0.0.2) |
-| [scenario-300001](https://github.com/nicc777/learning-kubernetes-basics/tree/scenario-300001) ||
+| [scenario-300001](https://github.com/nicc777/learning-kubernetes-basics/tree/scenario-300001) | [`kube-ops`](https://github.com/nicc777/learning-kubernetes-basics/tree/kube-ops) |
 | [scenario-200150](#) ||
 
 ## 5.2. General Branch Quick Reference, Excluding Scenario Branches
@@ -221,4 +221,5 @@ The following table links all the various branches together.
 | [appsrc-0.0.2](https://github.com/nicc777/learning-kubernetes-basics/tree/appsrc-0.0.2/app-src) | Application Source version 0.0.1 |
 | [jenkins-upto-scenario-200050](https://github.com/nicc777/learning-kubernetes-basics/tree/jenkins-upto-scenario-200050) | Covers scenarios up to scenario-200050 |
 | [jenkins-0.0.2](https://github.com/nicc777/learning-kubernetes-basics/tree/jenkins-0.0.2) | Jenkins pipeline for version 0.0.2 of the application |
-
+| [`kube-ops`](https://github.com/nicc777/learning-kubernetes-basics/tree/kube-ops) | Where we will do `GitOps`. All Kubernetes related configurations will be available here with the scripts required to configure the running environment aligned to the scenario. |
+| [`kube-ops-300001`](https://github.com/nicc777/learning-kubernetes-basics/tree/kube-ops-300001) | Working branch for `scenario-300001` |
