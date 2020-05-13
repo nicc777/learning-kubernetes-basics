@@ -140,12 +140,10 @@ __Note__: In the output you may find some differences, depending how you experim
 
 There may be some changes required as we go through the entire series of scenarios, so in terms of organization, the branching structure will work as follows:
 
-* There is a new branch, from master, called `kube-ops`. 
-* From this branch, several other branches will be created depending on the scenario.
+* There is a new branch, from master, called [`kube-ops`](https://github.com/nicc777/learning-kubernetes-basics/tree/kube-ops). 
+* From this branch, several other branches will be created depending on the scenario. __Note__: You do not have to work in these branches. They will all be merged back into the main `kube-ops` branch.
 
-The branch for this scenario, therefore, would be `kube-ops-300001`. 
-
-In practice, changes will be made in `kube-ops-300001` and through a Pull Request (PR) be merged back into `kube-ops`, which will be the branch our `CD` tooling monitors for changes.
+The `kube-ops` branch will contain the necessary scripts to ensure you apply the correct configuration to Kubernetes.
 
 ## 3.3. Creating and Using Namespaces
 
@@ -223,3 +221,10 @@ In each scenario we will map our progress against the Cloud-Native Trail Map and
 # 5. References
 
 * [GitHub Flow](https://guides.github.com/introduction/flow/)
+* [Kubernetes Namespaces](https://kubernetes.io/docs/concepts/overview/working-with-objects/namespaces/)
+  * [Various tasks in Namespaces](https://kubernetes.io/docs/tasks/administer-cluster/namespaces/)
+* [kustomize](https://github.com/kubernetes-sigs/kustomize)
+  * [Kubernetes: Merge Multiple YAML Files Into One](https://levelup.gitconnected.com/kubernetes-merge-multiple-yaml-into-one-e8844479a73a)
+  * [Kubernetes: Change base YAML config for different environments prod/test using Kustomize](https://levelup.gitconnected.com/kubernetes-change-base-yaml-config-for-different-environments-prod-test-6224bfb6cdd6)
+
+
