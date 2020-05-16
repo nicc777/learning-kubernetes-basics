@@ -409,25 +409,21 @@ Below is a screenshot to demonstrate how you could use `tmux` or similar utiliti
 
 # 4. Scenario Discussion
 
-TODO
+This was a rather big scenario with a lot of actions required to get the application running in Minikube. There is a ton of stuff that can go wrong, and I suspect many people following this series may run into all kinds of issues. If you find a solution to a very specific scenario, consider sharing in a new scenario branch with a pull request.
 
-__Code changes and Upgrades in the Development Namespace__
+__Code changes and Upgrades in the Development Namespace and Development Blue/Green Deployments__
 
-TODO
+At this point we have only covered the initial deployment. In an upcoming scenario we will look in more depth at the manual releasing of updates or upgrades to the deployed solution. 
 
-__Development Blue/Green Deployments__
-
-TODO
-
-In each scenario we will map our progress against the Cloud-Native Trail Map and against the Cloud-Native Principles.
+After we have played with manual updates of the running application, we need to consider how we can do these updates in a more structured way. We will start to introduce `argo` and examine how we can facilitate a blue/green deployment.
 
 ## 4.1 Trail-Map Progress
 
 | Category                               | Technologies & Patterns Used | Progress and other notes |
 |----------------------------------------|------------------------------|--------------------------|
-| Containers (Docker)                    | n/a                          | not started yet          |
-| CI/CD                                  | n/a                          | not started yet          |
-| Orchestration & Application Definition | n/a                          | not started yet          |
+| Containers (Docker)                    | Docker                       | Current application and database have been containerized |
+| CI/CD                                  | Jenkins                      | A proper build pipeline is now available. There are still lots that can be optimized, and some aspects will probably be worked on as we progress through this project, but for the most part the `CI` portion is now considered fully functional. The `CD` portion is still outstanding. |
+| Orchestration & Application Definition | Minikube, `kubectl`          | We have created a Kubernetes cluster in a lab environment using Minikube. All infrastructure and applications were manually deployed using the `kubectl` command. |
 | Observability and Analysis             | n/a                          | not started yet          |
 | Service Proxy, Discovery & Mesh        | n/a                          | not started yet          |
 | Networking, Policy & Security          | n/a                          | not started yet          |
@@ -440,29 +436,24 @@ In each scenario we will map our progress against the Cloud-Native Trail Map and
 
 | Factor                        | Progress and Discussion |
 |-------------------------------|-------------------------|
-| Code Base                     | No progress yet         |
-| Dependencies                  | No progress yet         |
-| Configurations                | No progress yet         |
-| Backing Services              | No progress yet         |
-| Build, Release, Run           | No progress yet         |
-| Processes                     | No progress yet         |
-| Port Binding                  | No progress yet         |
-| Concurrency                   | No progress yet         |
-| Disposability                 | No progress yet         |
-| Dev/Prod Parity               | No progress yet         |
-| Logging                       | No progress yet         |
+| Code Base                     | Source code is tracked in Git. Each version will have it's own branch. Each version can be independently built and deployed. |
+| Dependencies                  | As part of the containerization effort, all dependencies are defined in the base and main application Docker files. There is still potential for finding a more lightweight base image to start with. The approach takes was to use the base Docker configuration to install all required software and dependencies. This image is typically build once as it will take the most time to build. The application Docker image is essentially just an installation of the latest Python application package and the build is relatively quick and is perfectly geared to be done many times. |
+| Configurations                | Configuration is now done entirely through environment variable defined in the Docker configuration files. Configuration parameters can be set when launching the application. The same principle have been applied to the `CI` pipeline. |
+| Backing Services              | The database server has also been containerized. The application is simple enough to not rely too much on database versions and therefore almost any version of PostgreSQL can be used. Changing from PostgreSQL to something else is relatively easy as long as that something else is supported by [SQLAlchemy](https://www.sqlalchemy.org) and only minor code changes will then be required. If this will happen often (which it shouldn't), more configuration options and a more dynamic dependency system can be considered. |
+| Build, Release, Run           | The `CI` portion of the `CI/CD` pipeline have been implemented with a Jenkins build that will produce an application Docker image on the `Server`. The image is pushed to a Docker registry. |
+| Processes                     | No active effort have been made to ensure the application is truly stateless. Future testing will prove this and the application will be adjusted accordingly. At the moment the application should be able to run with multiple instances. |
+| Port Binding                  | Port binding is now managed in the Kubernetes configurations. We have split configuration files into `Persisted Volumes`, `Deployments` and `Services` - each in their own file. The port binding portion is defined in both the `Deployments` and `Services` files. |
+| Concurrency                   | Untested but assumed to not be a problem. Will revisit during more testing in future scenarios. |
+| Disposability                 | Untested but assumed to not be a problem. Will revisit during more testing in future scenarios. |
+| Dev/Prod Parity               | We have started the introduction of `Namespaces` which will help us separate development and production environments. For the moment we are still deploying everything in our lab environment running `Minikube`. |
+| Logging                       | Logs are now logged to a file as well as `STDOUT`, and can be accessed via the Kubernetes API. No log events are published yet and more work remain. |
 | Admin Processes               | No progress yet         |
-| API First                     | No progress yet         |
+| API First                     | Through the use of [connexion](https://github.com/zalando/connexion) the application have been implemented with an API first principle from the start. This is considered DONE. |
 | Telemetry                     | No progress yet         |
-| Authentication/ Authorization | No progress yet         |
+| Authentication/ Authorization | No progress yet. The application currently completely trusts the Application Server and relies on external configuration to prevent other unauthorized services connecting to it. |
 
 # 5. References
 
 * [GitHub Flow](https://guides.github.com/introduction/flow/)
 * [Kubernetes Namespaces](https://kubernetes.io/docs/concepts/overview/working-with-objects/namespaces/)
   * [Various tasks in Namespaces](https://kubernetes.io/docs/tasks/administer-cluster/namespaces/)
-* [kustomize](https://github.com/kubernetes-sigs/kustomize)
-  * [Kubernetes: Merge Multiple YAML Files Into One](https://levelup.gitconnected.com/kubernetes-merge-multiple-yaml-into-one-e8844479a73a)
-  * [Kubernetes: Change base YAML config for different environments prod/test using Kustomize](https://levelup.gitconnected.com/kubernetes-change-base-yaml-config-for-different-environments-prod-test-6224bfb6cdd6)
-
-
