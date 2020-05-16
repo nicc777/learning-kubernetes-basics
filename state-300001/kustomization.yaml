@@ -3,3 +3,7 @@ kind: Kustomization
 
 resources:
   - namespaces.yaml
+  - database-dev.yaml
+  - coolapp-dev.yaml
+  - database-prod.yaml
+  - coolapp-prod.yaml
