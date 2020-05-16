@@ -8,13 +8,10 @@
   - [3.2. GitOps Branch](#32-gitops-branch)
   - [3.3. Creating and Using Namespaces](#33-creating-and-using-namespaces)
   - [3.4. Defining Pods and Services](#34-defining-pods-and-services)
-    - [2.5.1. Problem when application starts before the database](#251-problem-when-application-starts-before-the-database)
-    - [2.5.2 Database requiring an external mount-point with it's associated challenges](#252-database-requiring-an-external-mount-point-with-its-associated-challenges)
+    - [3.4.1. Problem when application starts before the database](#341-problem-when-application-starts-before-the-database)
+    - [3.4.2 Database requiring an external mount-point with it's associated challenges](#342-database-requiring-an-external-mount-point-with-its-associated-challenges)
   - [3.5. Deployment into Development Namespace](#35-deployment-into-development-namespace)
   - [3.6. Testing in the Development Namespace](#36-testing-in-the-development-namespace)
-  - [3.7. The  Production Namespace](#37-the-production-namespace)
-  - [3.9. Code changes and Upgrades in the Development Namespace](#39-code-changes-and-upgrades-in-the-development-namespace)
-  - [3.10. Development Blue/Green Deployments- 1. Objectives of the Scenario](#310-development-bluegreen-deployments--1-objectives-of-the-scenario)
 - [4. Scenario Discussion](#4-scenario-discussion)
   - [4.1 Trail-Map Progress](#41-trail-map-progress)
   - [4.2 Cloud-Native Principles Progress](#42-cloud-native-principles-progress)
@@ -175,7 +172,7 @@ $ sudo chown -R $USER.$USER /opt/pod-volumes
 
 Finally, there are some other considerations at this point:
 
-### 2.5.1. Problem when application starts before the database
+### 3.4.1. Problem when application starts before the database
 
 In a traditional setting, there would have been enough measures to ensure the database is set-up before the application starts.
 
@@ -185,7 +182,7 @@ This implementation is not yet in our app and we will introduce it later. Theref
 
 Another option is to use [Pod Priority and Preemption](https://kubernetes.io/docs/concepts/configuration/pod-priority-preemption/), but I think in this specific scenario it would be better to aim for the circuit breaker pattern as this is a very common use case for it.
 
-### 2.5.2 Database requiring an external mount-point with it's associated challenges
+### 3.4.2 Database requiring an external mount-point with it's associated challenges
 
 We will have to expose a mount-point from the host via NFS as this is where the database files will reside and be persisted.
 
@@ -406,21 +403,17 @@ Below is a screenshot to demonstrate how you could use `tmux` or similar utiliti
 
 ([click on the map for a larger version](artwork/cncf_trailmap_latest.png))
 
-<center><a href="images/tmux_session.png"><img src="images/tmux_session.png" alt="Trail Map" height="350" width="120"></a></center>
-
-## 3.7. The  Production Namespace
-
-At this stage we are not yet ready to deploy to productions, so we will leave this part for a future `scenario`.
-
-## 3.9. Code changes and Upgrades in the Development Namespace
-
-TODO
-
-## 3.10. Development Blue/Green Deployments- [1. Objectives of the Scenario](#1-objectives-of-the-scenario)
-
-TODO
+<center><a href="images/tmux_session.png"><img src="images/tmux_session.png" alt="Trail Map" width="350" height="120"></a></center>
 
 # 4. Scenario Discussion
+
+TODO
+
+__Code changes and Upgrades in the Development Namespace__
+
+TODO
+
+__Development Blue/Green Deployments__
 
 TODO
 
