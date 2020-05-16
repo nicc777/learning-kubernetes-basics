@@ -242,6 +242,8 @@ exit
 
 __Important__: We started minikube with a parameter `--insecure-registry`. In production, we will use properly secured registries, and it should be kept in mind that this is a lab environment. In future scenarios, we will start to address these issues.
 
+__Note__: The above steps illustrate how easy it is to re-create a lab environment. This is why Minikube is such a powerful tool in order to get going, as a production Kubernetes cluster require far more effort, and there may be many other services running which means you cannot just decide to start over. The Minikube environment is where we test and refine our processes as a step toward a fully automated CI/CD pipeline.
+
 References:
 
 * [Persisted Volumes](https://kubernetes.io/docs/concepts/storage/persistent-volumes/)
