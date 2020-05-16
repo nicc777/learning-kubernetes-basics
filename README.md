@@ -9,11 +9,13 @@
 
 # 1. Objectives of the Scenario
 
-TODO
+The objective of this scenario is more focused around the source code and more specifically refactoring around the `Circuit Breaker` patterns in order to cater for several scenarios within the `microservices` context that may see our application handling requests with some issue on the database (either it's still starting up, or there is some maintenance happening, making it unavailable).
 
 # 2. Technology & Patterns
 
-TODO
+The primary pattern that will be implemented in this scenario is the [The Circuit Breaker Pattern](https://martinfowler.com/bliki/CircuitBreaker.html).
+
+By extensive use of unit tests, various scenarios will be simulated where the database is unavailable.
 
 # 3. Step-by-Step Demo Walk Through
 
@@ -21,9 +23,11 @@ TODO
 
 # 4. Scenario Discussion
 
-TODO
+Referring to version 0.0.2 of the source code, you may notice that the database calls required for each object is embedded in the classes for `User Profiles` and `Notes`. An example can be seen in the [`notes` module](https://github.com/nicc777/learning-kubernetes-basics/blob/appsrc-0.0.2/app-src/cool_app/persistence/notes.py).
 
-In each scenario we will map our progress against the Cloud-Native Trail Map and against the Cloud-Native Principles.
+We already have a number of unit tests to test the positive cases of the various operations. The unit tests will be adapted to cater for testing cases where the database is unavailable. The tests will also test scenarios where connectivity is unavailable for a certain time. These tests will form the bases for testing our `Circuit Breaker`.
+
+The refactoring exercise will move the database calls out of the `User Profiles` and `Notes` classes and into dedicated database related functions. We will thereby rid the user profile and note objects from any back-end logic.
 
 ## 4.1 Trail-Map Progress
 
@@ -62,4 +66,7 @@ In each scenario we will map our progress against the Cloud-Native Trail Map and
 
 # 5. References
 
-TODO
+* [The Circuit Breaker Pattern](https://martinfowler.com/bliki/CircuitBreaker.html) by Martin Fowler
+* [Python Circuit Breaker Pattern Implementation](https://pypi.org/project/circuitbreaker/)
+  * You can also consider to [fork the repo](https://github.com/fabfuel/circuitbreaker) to experiment on your own.
+
