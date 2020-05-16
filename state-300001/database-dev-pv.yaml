@@ -11,8 +11,8 @@ spec:
   accessModes:
     - ReadWriteOnce
   nfs:
-    #server: 192.168.0.160
-    server: 172.17.0.4
+    server: 192.168.0.160
+    #server: 172.17.0.1
     # FIXME this may need to be a parameter of sorts...
     path: "/opt/pod-volumes/database-dev"
 ---
