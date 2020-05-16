@@ -1,0 +1,91 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: coolapp-dev
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: coolapp-prod
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: coolapp-app-dev
+  namespace: coolapp-dev
+spec:
+  containers:
+  - image: 192.168.0.160:5000/cool-app:10
+    name: coolapp-app
+    resources:
+      limits:
+        cpu: "1"
+        memory: 256Mi
+      requests:
+        memory: 128Mi
+    volumeMounts: null
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: coolapp-database-dev
+  namespace: coolapp-dev
+spec:
+  containers:
+  - image: postgres:latest
+    name: coolapp-database
+    resources:
+      limits:
+        cpu: "1"
+        memory: 1024Mi
+      requests:
+        memory: 500Mi
+    volumeMounts:
+    - mountPath: /var/lib/postgresql/data
+      name: coolapp-database-dev-volume
+  volumes:
+  - hostPath:
+      path: /opt/pod-volumes/database-dev
+      type: Directory
+    name: coolapp-database-dev-volume
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: coolapp-app-prod
+  namespace: coolapp-prod
+spec:
+  containers:
+  - image: 192.168.0.160:5000/cool-app:10
+    name: coolapp-app
+    resources:
+      limits:
+        cpu: "1"
+        memory: 256Mi
+      requests:
+        memory: 128Mi
+    volumeMounts: null
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: coolapp-database-prod
+  namespace: coolapp-prod
+spec:
+  containers:
+  - image: postgres:latest
+    name: coolapp-database
+    resources:
+      limits:
+        cpu: "1"
+        memory: 1024Mi
+      requests:
+        memory: 500Mi
+    volumeMounts:
+    - mountPath: /var/lib/postgresql/data
+      name: coolapp-database-dev-volume
+  volumes:
+  - hostPath:
+      path: /opt/pod-volumes/database-prod
+      type: Directory
+    name: coolapp-database-dev-volume
