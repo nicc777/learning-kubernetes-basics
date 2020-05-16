@@ -74,10 +74,6 @@ This scenario demonstrates the following:
 * Defining our Pods and Services
 * Manual deployment to the development namespace
 * Testing in the development namespace
-* Manual deployment to the production namespace
-* Testing in the production namespace
-* Making a change to the code and testing in development
-* Rolling the change to production (blue/green deployment)
 
 For all examples I am using a terminal session to the `Server` and issue all commands on the `Server`.
 
