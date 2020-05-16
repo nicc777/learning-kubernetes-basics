@@ -179,14 +179,15 @@ The major focus areas are aligned to the 10 areas as described in the Trail and 
 
 In the table below is a brief explanation of the proposed sequence in which you can run the `scenarios`.
 
-| Focus Area | Scenario | Description | Branch | Status |
-|------------|----------|-------------|--------|--------|
-| Containers (Docker) | Getting Started | Basic orientation of the app and how to get it built using Docker | scenario-100001 | Ready |
-| CI/CD | Set-up a build pipeline | Implement processes and tooling to automatically detect new releases that automatically creates new builds and artifacts. | scenario-200001 | Ready |
-| CI/CD | Publish Container Images | Implement processes and tooling to automatically publish new container images to a container repo | scenario-200050 | Ready |
-| CI/CD | Unit test pass validation | Ensure unit tests and code coverage passes minimum standards before publishing images to the registry. | scenario-200100 | Ready |
-| Orchestration & Application Definition | Manually deploy our application in a Kubernetes Cluster (Minikube) | In this scenario we see our app running for the first time in Kubernetes. It also lays the ground work for the `CD` exercises to follow to complete our `CI/CD` pipeline. | scenario-300001 |In-Progress, Not-Ready |
-| CI/CD | Explore [Argo](https://argoproj.github.io/argo-cd/) for the `CD` portion of the pipeline | Initial iteration of `Argo` to explore the set-up and configuration required to push our application to the Kubernetes cluster as part of a `CI/CD` pipeline | scenario-200150 | Not-Started, Not-Ready |
+| Focus Area                             | Scenario | Description | Branch | Status |
+|----------------------------------------|----------|-------------|--------|--------|
+| Containers (Docker)                    | Getting Started | Basic orientation of the app and how to get it built using Docker | scenario-100001 | Ready |
+| CI/CD                                  | Set-up a build pipeline | Implement processes and tooling to automatically detect new releases that automatically creates new builds and artifacts. | scenario-200001 | Ready |
+| CI/CD                                  | Publish Container Images | Implement processes and tooling to automatically publish new container images to a container repo | scenario-200050 | Ready |
+| CI/CD                                  | Unit test pass validation | Ensure unit tests and code coverage passes minimum standards before publishing images to the registry. | scenario-200100 | Ready |
+| Orchestration & Application Definition | Manually deploy our application in a Kubernetes Cluster (Minikube) | In this scenario we see our app running for the first time in Kubernetes. It also lays the ground work for the `CD` exercises to follow to complete our `CI/CD` pipeline. | scenario-300001 | Ready |
+| CI/CD                                  | Application Refactoring | We need to introduce the `Circuit Breaker` pattern to cater for scenarios where the application may start before the database, and also to more gracefully handle situations where the database is not available (for maintenance, for example). | scenario-200150 | In-Progress, Not-Ready |
+| CI/CD                                  | Explore [Argo](https://argoproj.github.io/argo-cd/) for the `CD` portion of the pipeline | Initial iteration of `Argo` to explore the set-up and configuration required to push our application to the Kubernetes cluster as part of a `CI/CD` pipeline | scenario-200200 | Not-Started, Not-Ready |
 
 __Note__: The table will be updated as I get time to document my learnings.
 
@@ -211,15 +212,21 @@ The following table links all the various branches together.
 | [scenario-200050](https://github.com/nicc777/learning-kubernetes-basics/tree/scenario-200050/scenario) | [appsrc-0.0.1](https://github.com/nicc777/learning-kubernetes-basics/tree/appsrc-0.0.1/app-src)<br />[jenkins-upto-scenario-200050](https://github.com/nicc777/learning-kubernetes-basics/tree/jenkins-upto-scenario-200050) |
 | [scenario-200100](https://github.com/nicc777/learning-kubernetes-basics/tree/scenario-200100) | [appsrc-0.0.2](https://github.com/nicc777/learning-kubernetes-basics/tree/appsrc-0.0.2/app-src)<br />[jenkins-0.0.2](https://github.com/nicc777/learning-kubernetes-basics/tree/jenkins-0.0.2) |
 | [scenario-300001](https://github.com/nicc777/learning-kubernetes-basics/tree/scenario-300001) | [`kube-ops`](https://github.com/nicc777/learning-kubernetes-basics/tree/kube-ops) |
-| [scenario-200150](#) ||
+| [scenario-200150](https://github.com/nicc777/learning-kubernetes-basics/tree/scenario-200150) |  |
+| [scenario-200200](#) ||
 
 ## 5.2. General Branch Quick Reference, Excluding Scenario Branches
 
 | Branch | Descriptions |
 |--------|--------------|
 | [appsrc-0.0.1](https://github.com/nicc777/learning-kubernetes-basics/tree/appsrc-0.0.1/app-src) | Application after initial containerization |
-| [appsrc-0.0.2](https://github.com/nicc777/learning-kubernetes-basics/tree/appsrc-0.0.2/app-src) | Application Source version 0.0.1 |
+| [appsrc-0.0.2](https://github.com/nicc777/learning-kubernetes-basics/tree/appsrc-0.0.2/app-src) | Application Source version 0.0.2 |
+| [appsrc-0.0.3](#) | Application Source version 0.0.3 |
 | [jenkins-upto-scenario-200050](https://github.com/nicc777/learning-kubernetes-basics/tree/jenkins-upto-scenario-200050) | Covers scenarios up to scenario-200050 |
 | [jenkins-0.0.2](https://github.com/nicc777/learning-kubernetes-basics/tree/jenkins-0.0.2) | Jenkins pipeline for version 0.0.2 of the application |
+| [jenkins-0.0.2](#) | Jenkins pipeline for version 0.0.3 of the application |
 | [`kube-ops`](https://github.com/nicc777/learning-kubernetes-basics/tree/kube-ops) | Where we will do `GitOps`. All Kubernetes related configurations will be available here with the scripts required to configure the running environment aligned to the scenario. |
 | [`kube-ops-300001`](https://github.com/nicc777/learning-kubernetes-basics/tree/kube-ops-300001) | Working branch for `scenario-300001` |
+| [`kube-ops-200150`](#) | Working branch for `scenario-200150` |
+
+
