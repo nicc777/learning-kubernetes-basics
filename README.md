@@ -147,7 +147,7 @@ You do not have to do anything special at this point.
 
 ## 3.4. Defining Pods and Services
 
-The following files contain the [POD](https://kubernetes.io/docs/concepts/workloads/pods/pod/) details:
+The following files contain the configurations for our entire application stack for deployment in Kubernetes (or Minikube in this case):
 
 | File                        | Description                             |
 |-----------------------------|-----------------------------------------|
