@@ -149,14 +149,14 @@ You do not have to do anything special at this point.
 
 The following files contain the [POD](https://kubernetes.io/docs/concepts/workloads/pods/pod/) details:
 
-| File | Description |
-|------|-------------|
-|  | The database definition for the `dev` namespace. Pod uses a persisted volume. |
-|||
-|||
-|||
-
-There is some preparation required as some pods will use [hostPath](https://kubernetes.io/docs/concepts/storage/volumes/#hostpath) volumes.
+| File                        | Description                             |
+|-----------------------------|-----------------------------------------|
+| `namespaces.yaml`           | The namespaces definition.              |
+| `database-dev-pv.yaml`      | The persisted volume definition         |
+| `database-dev.yaml`         | The actual database POD.                |
+| `database-dev-service.yaml` | The definition for the database service |
+| `coolapp-dev.yaml`          | The application definition              |
+| `coolapp-dev-service.yaml`  | The application service definition      |
 
 To prepare the local volumes run the following commands:
 
@@ -165,7 +165,6 @@ $ sudo rm -frR /opt/pod-volumes/database-dev
 $ sudo mkdir -p /opt/pod-volumes/database-dev
 $ sudo chown -R $USER.$USER /opt/pod-volumes
 ```
-
 Finally, there are some other considerations at this point:
 
 ### 3.4.1. Problem when application starts before the database
@@ -234,9 +233,14 @@ root@minikube:/# apt-get update
    .
    .
 root@minikube:/# apt-get install nfs-common -y
+   .
+   .
+   .
 root@minikube:/# exit
 exit 
 ```
+
+__Important__: We started minikube with a parameter `--insecure-registry`. In production, we will use properly secured registries, and it should be kept in mind that this is a lab environment. In future scenarios, we will start to address these issues.
 
 References:
 
