@@ -249,7 +249,7 @@ References:
 ## 3.5. Deployment into Development Namespace
 
 ```bash
-$ kubectl apply -f state-300001/namespaces.yaml -n coolapp-dev
+$ kubectl apply -f state-300001/namespaces.yaml
 namespace/coolapp-dev created
 namespace/coolapp-prod created
 $ kubectl apply -f state-300001/database-dev-pv.yaml -n coolapp-dev
