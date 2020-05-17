@@ -224,7 +224,7 @@ The following table links all the various branches together.
 | [appsrc-0.0.3](#) | Application Source version 0.0.3 |
 | [jenkins-upto-scenario-200050](https://github.com/nicc777/learning-kubernetes-basics/tree/jenkins-upto-scenario-200050) | Covers scenarios up to scenario-200050 |
 | [jenkins-0.0.2](https://github.com/nicc777/learning-kubernetes-basics/tree/jenkins-0.0.2) | Jenkins pipeline for version 0.0.2 of the application |
-| [jenkins-0.0.2](#) | Jenkins pipeline for version 0.0.3 of the application |
+| [jenkins-0.0.3](#) | Jenkins pipeline for version 0.0.3 of the application |
 | [`kube-ops`](https://github.com/nicc777/learning-kubernetes-basics/tree/kube-ops) | Where we will do `GitOps`. All Kubernetes related configurations will be available here with the scripts required to configure the running environment aligned to the scenario. |
 | [`kube-ops-300001`](https://github.com/nicc777/learning-kubernetes-basics/tree/kube-ops-300001) | Working branch for `scenario-300001` |
 | [`kube-ops-200150`](#) | Working branch for `scenario-200150` |
