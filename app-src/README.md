@@ -1,18 +1,22 @@
 
 - [1. Cool App](#1-cool-app)
-- [2. Building the App](#2-building-the-app)
+- [2. Building the App (Local Testing)](#2-building-the-app-local-testing)
   - [2.1 Preparing the base container](#21-preparing-the-base-container)
   - [2.2 Build the app](#22-build-the-app)
-- [3. Run the application](#3-run-the-application)
+- [3. Run the application (Local Testing)](#3-run-the-application-local-testing)
   - [3.1 Preparing to run the application for the first time](#31-preparing-to-run-the-application-for-the-first-time)
   - [3.2 Run the application](#32-run-the-application)
 - [4. The Swagger UI](#4-the-swagger-ui)
+- [5. Unit Tests](#5-unit-tests)
+  - [5.1. Preparation for testing](#51-preparation-for-testing)
+  - [5.2. Running the tests](#52-running-the-tests)
+  - [5.3 Final Test Report](#53-final-test-report)
 
 # 1. Cool App
 
 The cool app is a simple note taking app for users. This implementation comprises of the back-end services that handle note persistence as well as user profile management.
 
-# 2. Building the App
+# 2. Building the App (Local Testing)
 
 Ensure you are in the correct working directory:
 
@@ -37,14 +41,22 @@ Run the following commands:
 Run the following commands:
 
 ```bash
-(venv) $ ./build.sh
+(venv) $ rm -frR dist/
+(venv) $ python3 setup.py sdist
+(venv) $ docker container rm cool-app
+(venv) $ rm -frR container/app/dist
+(venv) $ mkdir container/app/dist
+(venv) $ cp -vf dist/* container/app/dist/
+(venv) $ cp -vf openapi/* container/app/dist/
+(venv) $ cd container/app
+(venv) $ docker build --no-cache -t cool-app .
 ```
 
-# 3. Run the application
+# 3. Run the application (Local Testing)
 
 ## 3.1 Preparing to run the application for the first time
 
-First, define a network:
+First, define a network (if it doesn't already exists):
 
 ```bash
 (venv) $ docker network create coolapp-net
@@ -57,7 +69,16 @@ eb7762f783b6        coolapp-net         bridge              local
 8d548a8d6a9c        none                null                local
 ```
 
-Next, run a PostgreSQL server:
+Check it the DB container exists:
+
+```bash
+$ docker container ls --all | grep postgres
+b6acbb212160        postgres                    "docker-entrypoint.s…"    6 days ago          Exited (137) 3 days ago                                                        coolapp-db
+```
+
+If it does **_not_** exist, run the following, or skip to the marker `DB EXISTS`:
+
+__MARKER: DB DOES NOT EXIST__
 
 ```bash
 (venv) $ docker run --name coolapp-db \
@@ -89,6 +110,14 @@ Once you have access to PostgreSQL, you can apply the SQL scripts to prepare som
 3. `sql/initial_notes.sql`
 
 __Tip__: Using SSH port forwarding it will be possible to connect to the database using a GUI tool like [DBeaver](https://dbeaver.io/)
+
+__MARKER: DB EXISTS__
+
+Run the following:
+
+```bash
+(venv) $ docker container start coolapp-db
+```
 
 ## 3.2 Run the application
 
@@ -162,4 +191,64 @@ And the related log entries:
 If you started the app with the `SWAGGER_UI=1` you can view the Swagger UI in your browser: http://192.168.0.160:8080/v1/ui/
 
 To disable the Swagger UI, set `SWAGGER_UI=0`, or just omit it from the command line - the default value is `0` (disabled).
+
+# 5. Unit Tests
+
+## 5.1. Preparation for testing
+
+The tests relies on access to a TEST database server. Ensure the Docker DB is up and running.
+
+Assuming you are in the directory `./app-src`, also export the following environmental variables:
+
+```bash
+(venv) $ export LOG_LEVEL=DEBUG
+(venv) $ export DB_PASS=mysecretpassword
+(venv) $ export SPECIFICATION_DIR="$PWD/openapi"
+```
+
+__Note__: If your database is hosted in a way where the default database environment variables does not make sense, you may need to set them as well.
+
+## 5.2. Running the tests
+
+To run unit tests with coverage (showing examples of earlier implementation efforts):
+
+```bash
+(venv) $ coverage run --source cool_app/ -m unittest
+......
+----------------------------------------------------------------------
+Ran 6 tests in 0.010s
+
+OK
+```
+
+Coverage report:
+
+```bash
+$ coverage report -m 
+Name                                    Stmts   Miss  Cover   Missing
+---------------------------------------------------------------------
+cool_app/__init__.py                       67      7    90%   15, 26, 105, 131, 154, 178, 215
+cool_app/persistence/__init__.py           28     17    39%   27-29, 36-51
+cool_app/persistence/notes.py             119    119     0%   1-206
+cool_app/persistence/user_profiles.py      88     88     0%   1-155
+cool_app/service_app.py                   152    152     0%   8-299
+---------------------------------------------------------------------
+TOTAL                                     454    383    16%
+```
+
+## 5.3 Final Test Report
+
+The final report should look something like this:
+
+```text
+Name                                    Stmts   Miss  Cover   Missing
+---------------------------------------------------------------------
+cool_app/__init__.py                       67      7    90%   15, 26, 105, 131, 154, 178, 215
+cool_app/persistence/__init__.py           24      4    83%   45-49
+cool_app/persistence/notes.py             120     21    82%   55-59, 92, 95-96, 125-127, 153-155, 180, 191-193, 204-206
+cool_app/persistence/user_profiles.py      88     13    85%   50-54, 87, 90-91, 122, 125-126, 152-154
+cool_app/service_app.py                   152    121    20%   54-59, 76-82, 89-93, 108-114, 121-127, 134-156, 173-188, 195-215, 222-233, 240-253, 260-273, 277-281
+---------------------------------------------------------------------
+TOTAL                                     451    166    63%
+```
 
