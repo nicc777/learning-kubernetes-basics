@@ -532,7 +532,7 @@ class WebsiteUser(HttpUser):
         print('QTY notes: {}'.format(len(notes)))
 ```
 
-__Note__: The file above will be included in the `appsr-0.0.3` branch.
+__Note__: The file above will be included in the `appsrc-0.0.3` branch.
 
 And then run the test:
 
