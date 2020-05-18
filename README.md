@@ -542,13 +542,37 @@ And then run the test:
 
 And then navigate with your browser to http://host-running-locust:8089/
 
-TODO: screenshot of locust page to start the test
+([click on the map for a larger version](images/locust_01_start.png))
+
+<center><a href="images/locust_01_start.png"><img src="images/locust_01_start.png" alt="Trail Map" width="350" height="386"></a></center>
+
 
 __Note__: I found that it works best to start with a low number of initial users (say 4) and then ramp up every couple of minutes. Keep an eye on your systems performance stats to find the sweet spot. On my setup it appeared as if 80 users was about as much as I could handle.
 
 Below is the result from the test run:
 
-TODO: Screenshots of the locust test run
+__screenshot 1__
+<center><a href="images/locust_02_running.png"><img src="images/locust_02_running.png" alt="Trail Map" width="350" height="129"></a></center>
+
+__screenshot 2__
+<center><a href="images/locust_03_running.png"><img src="images/locust_03_running.png" alt="Trail Map" width="350" height="116"></a></center>
+
+__screenshot 3__
+<center><a href="images/locust_04_running.png"><img src="images/locust_04_running.png" alt="Trail Map" width="350" height="161"></a></center>
+
+You can also check some of the other screens that may give some insights into various issues you may run into:
+
+__Exceptions__
+
+You should not have any exceptions:
+
+<center><a href="images/locust_06_exceptions.png"><img src="images/locust_06_exceptions.png" alt="Trail Map" width="350" height="92"></a></center>
+
+__Errors__
+
+Normal behaviour is only a number of `404` errors for resources not yet created while we searched for them:
+
+<center><a href="images/locust_05_failures.png"><img src="images/locust_05_failures.png" alt="Trail Map" width="350" height="133"></a></center>
 
 At this stage you can now, while the system is under load, rip the DB server out and start it up again and see from your load test if/when/how the system recovers.
 
