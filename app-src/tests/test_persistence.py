@@ -7,7 +7,7 @@ sys.path.append(os.path.normpath(os.path.join(SCRIPT_DIR, PACKAGE_PARENT)))
 
 import unittest
 from cool_app import ServiceLogger
-from cool_app.persistence import engine, test_data_source, db_create_user_profile, db_load_user_profile_by_email_address
+from cool_app.persistence import engine, test_data_source, db_create_user_profile, db_load_user_profile_by_email_address, db_load_user_profile_by_uid, db_update_user_profile
 from tests import DummyLogger
 import time
 import traceback
@@ -104,6 +104,39 @@ class TestDbIntergation(unittest.TestCase):
         self.assertIsInstance(result['uid'], int)
         self.assertTrue(result['uid'] > 0)
 
+    def test_db_load_user_profile_by_uid(self):
+        self.assertTrue(
+            db_create_user_profile(
+                user_alias='user3',
+                user_email_address='user3@example.tld',
+                account_status=1,
+                L=DummyLogger()
+            )
+        )
+        uid = db_load_user_profile_by_email_address(user_email_address='user3@example.tld', L=DummyLogger())['uid']
+        result = db_load_user_profile_by_uid(uid=uid, L=DummyLogger())
+        self.assertIsNotNone(result)
+        self.assertIsInstance(result, dict)
+        self.assertEqual(result['user_email_address'], 'user3@example.tld')
+
+    def test_db_update_user_profile(self):
+        self.assertTrue(
+            db_create_user_profile(
+                user_alias='user4',
+                user_email_address='user4@example.tld',
+                account_status=1,
+                L=DummyLogger()
+            )
+        )
+        uid = db_load_user_profile_by_email_address(user_email_address='user4@example.tld', L=DummyLogger())['uid']
+        update_result = db_update_user_profile(user_alias='user04', user_email_address='user04@example2.tld', uid=uid, account_status=1, L=DummyLogger())
+        self.assertTrue(update_result)
+        profile = db_load_user_profile_by_uid(uid=uid, L=DummyLogger())
+        self.assertIsNotNone(profile)
+        self.assertIsInstance(profile, dict)
+        self.assertTrue('user_email_address' in profile)
+        self.assertEqual(profile['user_email_address'], 'user04@example2.tld')
+
 
 class TestCircuitBreakerWithMocking(unittest.TestCase):
 
@@ -198,6 +231,108 @@ class TestCircuitBreakerWithMocking(unittest.TestCase):
                 self.assertTrue('user_alias' in result)
                 self.assertTrue('user_email_address' in result)
                 self.assertTrue('account_status' in result)
+            except:
+                L.error(message='EXCEPTION: {}'.format(traceback.format_exc()))
+                exception_raised = True
+            self.assertEqual(exception_raised, runs[key]['ExpectException'], 'Failed Exception. Run # {}'.format(key))
+            if key == '3':
+                self.assertFalse(runs[key]['Engine'].connection.execute_called, 'Run # {} circuit breaker failed. Call to back end was still made.'.format(key))
+            else:
+                self.assertTrue(runs[key]['Engine'].connection.execute_called, 'Run # {} circuit breaker failed. Call to back end was NOT made.'.format(key))
+            print('patience... sleeping for {} seconds'.format(runs[key]['Sleep']))
+            time.sleep(runs[key]['Sleep'])
+
+    def test_db_load_user_profile_by_uid(self):
+        L = DummyLogger()
+        profile_data = dict()
+        profile_data['uid'] = 101
+        profile_data['user_alias'] = 'SomeUser'
+        profile_data['user_email_address'] = 'someuser@example.tld'
+        profile_data['account_status'] = 0
+        runs = {
+            '1': {
+                'Engine': MockEngine(connection=MockConnection(expected_result=MockResultSet(expected_result=profile_data))),
+                'ExpectException': False,
+                'Result': profile_data,
+                'Sleep': 2
+            },
+            '2': {
+                'Engine': MockEngine(connection=MockConnection(expected_result=Exception('Broken'))),
+                'ExpectException': True,
+                'Result': None,
+                'Sleep': 2
+            },
+            '3': {
+                'Engine': MockEngine(connection=MockConnection(expected_result=Exception('Broken'))),
+                'ExpectException': True,
+                'Result': None,
+                'Sleep': 35
+            },
+            '4': {
+                'Engine': MockEngine(connection=MockConnection(expected_result=MockResultSet(expected_result=profile_data))),
+                'ExpectException': False,
+                'Result': profile_data,
+                'Sleep': 1
+            }
+        }
+        keys = list(runs.keys())
+        keys.sort()
+        for key in keys:
+            exception_raised = False
+            try:
+                result = db_load_user_profile_by_uid(uid=101, f_engine=runs[key]['Engine'], L=L)
+                self.assertIsNotNone(result, 'Run # {} returned None. Expected a dict.'.format(key))
+                self.assertIsInstance(result, dict, 'Run # {} did not return an expected dict. Return type: {}'.format(key, type(result)))
+                self.assertTrue('uid' in result)
+                self.assertTrue('user_alias' in result)
+                self.assertTrue('user_email_address' in result)
+                self.assertTrue('account_status' in result)
+            except:
+                L.error(message='EXCEPTION: {}'.format(traceback.format_exc()))
+                exception_raised = True
+            self.assertEqual(exception_raised, runs[key]['ExpectException'], 'Failed Exception. Run # {}'.format(key))
+            if key == '3':
+                self.assertFalse(runs[key]['Engine'].connection.execute_called, 'Run # {} circuit breaker failed. Call to back end was still made.'.format(key))
+            else:
+                self.assertTrue(runs[key]['Engine'].connection.execute_called, 'Run # {} circuit breaker failed. Call to back end was NOT made.'.format(key))
+            print('patience... sleeping for {} seconds'.format(runs[key]['Sleep']))
+            time.sleep(runs[key]['Sleep'])
+    
+    def test_db_update_user_profile(self):
+        L = DummyLogger()
+        runs = {
+            '1': {
+                'Engine': MockEngine(connection=MockConnection(expected_result=True)),
+                'ExpectException': False,
+                'Result': True,
+                'Sleep': 2
+            },
+            '2': {
+                'Engine': MockEngine(connection=MockConnection(expected_result=Exception('Broken'))),
+                'ExpectException': True,
+                'Result': None,
+                'Sleep': 2
+            },
+            '3': {
+                'Engine': MockEngine(connection=MockConnection(expected_result=Exception('Broken'))),
+                'ExpectException': True,
+                'Result': None,
+                'Sleep': 35
+            },
+            '4': {
+                'Engine': MockEngine(connection=MockConnection(expected_result=True)),
+                'ExpectException': False,
+                'Result': True,
+                'Sleep': 2
+            }
+        }
+        keys = list(runs.keys())
+        keys.sort()
+        for key in keys:
+            exception_raised = False
+            try:
+                result = db_update_user_profile(user_alias='user01', user_email_address='user01@example.tld', uid=101, account_status=1, f_engine=runs[key]['Engine'], L=L)
+                self.assertEqual(result, runs[key]['Result'], 'Result test failed for Run # {}'.format(key))
             except:
                 L.error(message='EXCEPTION: {}'.format(traceback.format_exc()))
                 exception_raised = True

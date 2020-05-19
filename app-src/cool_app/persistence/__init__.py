@@ -74,9 +74,9 @@ def db_load_user_profile_by_email_address(user_email_address, f_engine=engine, L
 
 
 @circuit(failure_threshold=1)
-def db_load_user_profile_by_uid(uid: int, engine=engine, L: ServiceLogger=L)->dict:
+def db_load_user_profile_by_uid(uid: int, f_engine=engine, L: ServiceLogger=L)->dict:
     profile = dict()
-    with engine.connect() as connection:
+    with f_engine.connect() as connection:
         result = connection.execute(text('SELECT uid, user_alias, user_email_address, account_status FROM user_profiles WHERE uid = :f1'), f1=uid).fetchone()
         L.debug(message='result={}'.format(result))
         if result:
@@ -88,8 +88,8 @@ def db_load_user_profile_by_uid(uid: int, engine=engine, L: ServiceLogger=L)->di
 
 
 @circuit(failure_threshold=1)
-def db_update_user_profile(user_alias: str, user_email_address: str, uid:int, account_status: int, engine=engine, L: ServiceLogger=L)->bool:
-    with engine.connect() as connection:
+def db_update_user_profile(user_alias: str, user_email_address: str, uid:int, account_status: int, f_engine=engine, L: ServiceLogger=L)->bool:
+    with f_engine.connect() as connection:
         result = connection.execute(text('UPDATE user_profiles SET user_alias = :f1, user_email_address = :f2, account_status = :f3 WHERE uid = :f4'), f1=user_alias, f2=user_email_address, f3=account_status, f4=uid)
         L.debug(message='result={}'.format(result))
     return True
