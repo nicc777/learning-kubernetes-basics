@@ -3,7 +3,7 @@ import traceback
 import sys
 import os
 from cool_app import ServiceLogger
-from cool_app.persistence import engine
+from cool_app.persistence import engine, db_create_user_profile, db_load_user_profile_by_email_address, db_load_user_profile_by_uid, db_update_user_profile
 
 
 class User:
@@ -15,7 +15,11 @@ class User:
     def __init__(
         self,
         logger: ServiceLogger=ServiceLogger(),
-        engine=engine
+        engine=engine,
+        db_create_user_profile_function=db_create_user_profile,
+        db_load_user_profile_by_email_address_function=db_load_user_profile_by_email_address,
+        db_load_user_profile_by_uid_function=db_load_user_profile_by_uid,
+        db_update_user_profile_function=db_update_user_profile
     ):
         self.uid = None
         self.user_alias = None
@@ -23,6 +27,10 @@ class User:
         self.account_status = None
         self.L = logger
         self.engine = engine
+        self.db_create_user_profile_function = db_create_user_profile_function
+        self.db_load_user_profile_by_email_address_function = db_load_user_profile_by_email_address_function
+        self.db_load_user_profile_by_uid_function = db_load_user_profile_by_uid_function
+        self.db_update_user_profile_function = db_update_user_profile_function
 
     def create_user_profile(self)->bool:
         '''
@@ -41,13 +49,11 @@ class User:
         self.L.info(message='Attempting to create user profile in database for user with e-mail address "{}"'.format(self.user_email_address))
         if self.uid is None and self.user_alias is not None and self.user_email_address is not None and self.account_status is not None:
             try:
-                if self.engine is not None:
-                    with engine.connect() as connection:
-                        result = connection.execute(text('INSERT INTO user_profiles ( user_alias, user_email_address, account_status ) VALUES ( :f1, :f2, :f3 )'), f1=self.user_alias, f2=self.user_email_address, f3=self.account_status)
-                        self.L.debug(message='result={}'.format(result))
-                        user_created = True
-                else:
-                    self.L.error(message='Database engine not ready. User profile not persisted')
+                user_created = self.db_create_user_profile_function(
+                    user_alias=self.user_alias,
+                    user_email_address=self.user_email_address,
+                    account_status=self.account_status,
+                    L=self.L)
             except:
                 self.L.error(message='EXCEPTION: {}'.format(traceback.format_exc()))
         else:
@@ -74,18 +80,13 @@ class User:
         self.user_alias = None
         self.account_status = None
         try:
-            if self.engine is not None:
-                with engine.connect() as connection:
-                    result = connection.execute(text('SELECT uid, user_alias, user_email_address, account_status FROM user_profiles WHERE user_email_address = :f1'), f1=user_email_address).fetchone()
-                    self.L.debug(message='result={}'.format(result))
-                    if result:
-                        self.uid = result['uid']
-                        self.user_alias = result['user_alias']
-                        self.user_email_address = result['user_email_address']
-                        self.account_status = result['account_status']
-            else:
-                self.L.error(message='Database engine not ready. User profile not loaded')
-            if self.uid is not None and self.user_alias is not None and self.user_email_address is not None and self.account_status is not None:
+            result = self.db_load_user_profile_by_email_address_function(user_email_address=user_email_address, L=self.L)
+            self.L.debug(message='result={}'.format(result))
+            if int(result['uid']) > 0:
+                self.uid = result['uid']
+                self.user_alias = result['user_alias']
+                self.user_email_address = result['user_email_address']
+                self.account_status = result['account_status']
                 user_loaded = True
         except:
             self.L.error(message='EXCEPTION: {}'.format(traceback.format_exc()))
@@ -109,18 +110,13 @@ class User:
         self.user_alias = None
         self.account_status = None
         try:
-            if self.engine is not None:
-                with engine.connect() as connection:
-                    result = connection.execute(text('SELECT uid, user_alias, user_email_address, account_status FROM user_profiles WHERE uid = :f1'), f1=uid).fetchone()
-                    self.L.debug(message='result={}'.format(result))
-                    if result:
-                        self.uid = result['uid']
-                        self.user_alias = result['user_alias']
-                        self.user_email_address = result['user_email_address']
-                        self.account_status = result['account_status']
-            else:
-                self.L.error(message='Database engine not ready. User profile not loaded')
-            if self.uid is not None and self.user_alias is not None and self.user_email_address is not None and self.account_status is not None:
+            result = self.db_load_user_profile_by_uid_function(uid=uid, L=self.L)
+            self.L.debug(message='result={}'.format(result))
+            if int(result['uid']) > 0:
+                self.uid = result['uid']
+                self.user_alias = result['user_alias']
+                self.user_email_address = result['user_email_address']
+                self.account_status = result['account_status']
                 user_loaded = True
         except:
             self.L.error(message='EXCEPTION: {}'.format(traceback.format_exc()))
@@ -142,14 +138,7 @@ class User:
         '''
         user_updated = False
         try:
-            if self.engine is not None:
-                with engine.connect() as connection:
-                    result = connection.execute(text('UPDATE user_profiles SET user_alias = :f1, user_email_address = :f2, account_status = :f3 WHERE uid = :f4'), f1=self.user_alias, f2=self.user_email_address, f3=self.account_status, f4=self.uid)
-                    self.L.debug(message='result={}'.format(result))
-                    if result:
-                        user_updated = True
-            else:
-                self.L.error(message='Database engine not ready. User profile not loaded')
+            user_updated = self.db_update_user_profile_function(user_alias=self.user_alias, user_email_address=self.user_email_address, uid=int(self.uid), account_status=int(self.account_status), L=self.L)
         except:
             self.L.error(message='EXCEPTION: {}'.format(traceback.format_exc()))
         return user_updated

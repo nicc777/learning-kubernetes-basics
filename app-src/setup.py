@@ -9,7 +9,7 @@ with open(path.join(here, 'README.md'), encoding='utf-8') as f:
 
 setup(
     name='cool_app',
-    version='0.0.2',
+    version='0.0.3',
     description='An example Flask project, deployed in Docker for testing Kubernetes',
     long_description=long_description,
     long_description_content_type='text/markdown',
@@ -32,7 +32,7 @@ setup(
     #packages=find_packages(where='src'),  
     packages=find_packages(),  
     include_package_data=True,
-    install_requires=['gunicorn', 'connexion[swagger-ui]', 'sqlalchemy', 'psycopg2-binary'],
+    install_requires=['gunicorn', 'connexion[swagger-ui]', 'sqlalchemy', 'psycopg2-binary', 'circuitbreaker'],
     python_requires='>=3.*, <4',
     extras_require={  
         'dev': ['check-manifest'],

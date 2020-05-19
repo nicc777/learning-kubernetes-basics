@@ -9,6 +9,7 @@ import traceback
 import sys
 import os
 from cool_app import ServiceLogger
+from circuitbreaker import circuit
 
 
 L = ServiceLogger()
@@ -48,5 +49,50 @@ def test_data_source(L: ServiceLogger=L)->bool:
     except:
         L.error(message='EXCEPTION: {}'.format(traceback.format_exc()))
     return working
+
+
+@circuit(failure_threshold=1)
+def db_create_user_profile(user_alias: str, user_email_address: str, account_status: int=0, f_engine=engine, L: ServiceLogger=L)->bool:
+    with f_engine.connect() as connection:
+        result = connection.execute(text('INSERT INTO user_profiles ( user_alias, user_email_address, account_status ) VALUES ( :f1, :f2, :f3 )'), f1=user_alias, f2=user_email_address, f3=account_status)
+        L.debug(message='result={}'.format(result))
+    return True
+
+
+@circuit(failure_threshold=1)
+def db_load_user_profile_by_email_address(user_email_address, f_engine=engine, L: ServiceLogger=L)->dict:
+    profile = dict()
+    with f_engine.connect() as connection:
+        result = connection.execute(text('SELECT uid, user_alias, user_email_address, account_status FROM user_profiles WHERE user_email_address = :f1'), f1=user_email_address).fetchone()
+        L.debug(message='result={}'.format(result))
+        if result:
+            profile['uid'] = result['uid']
+            profile['user_alias'] = result['user_alias']
+            profile['user_email_address'] = result['user_email_address']
+            profile['account_status'] = result['account_status']
+    return profile
+
+
+@circuit(failure_threshold=1)
+def db_load_user_profile_by_uid(uid: int, engine=engine, L: ServiceLogger=L)->dict:
+    profile = dict()
+    with engine.connect() as connection:
+        result = connection.execute(text('SELECT uid, user_alias, user_email_address, account_status FROM user_profiles WHERE uid = :f1'), f1=uid).fetchone()
+        L.debug(message='result={}'.format(result))
+        if result:
+            profile['uid'] = result['uid']
+            profile['user_alias'] = result['user_alias']
+            profile['user_email_address'] = result['user_email_address']
+            profile['account_status'] = result['account_status']
+    return profile
+
+
+@circuit(failure_threshold=1)
+def db_update_user_profile(user_alias: str, user_email_address: str, uid:int, account_status: int, engine=engine, L: ServiceLogger=L)->bool:
+    with engine.connect() as connection:
+        result = connection.execute(text('UPDATE user_profiles SET user_alias = :f1, user_email_address = :f2, account_status = :f3 WHERE uid = :f4'), f1=user_alias, f2=user_email_address, f3=account_status, f4=uid)
+        L.debug(message='result={}'.format(result))
+    return True
+
 
 # EOF
