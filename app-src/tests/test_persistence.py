@@ -7,10 +7,11 @@ sys.path.append(os.path.normpath(os.path.join(SCRIPT_DIR, PACKAGE_PARENT)))
 
 import unittest
 from cool_app import ServiceLogger
-from cool_app.persistence import engine, test_data_source, db_create_user_profile, db_load_user_profile_by_email_address, db_load_user_profile_by_uid, db_update_user_profile
+from cool_app.persistence import engine, test_data_source, db_create_user_profile, db_load_user_profile_by_email_address, db_load_user_profile_by_uid, db_update_user_profile, db_create_note, db_load_note
 from tests import DummyLogger
 import time
 import traceback
+from sqlalchemy.sql import text
 
 
 class TestEngineInit(unittest.TestCase):
@@ -136,6 +137,47 @@ class TestDbIntergation(unittest.TestCase):
         self.assertIsInstance(profile, dict)
         self.assertTrue('user_email_address' in profile)
         self.assertEqual(profile['user_email_address'], 'user04@example2.tld')
+
+
+class TestDbIntergationForNote(unittest.TestCase):
+
+    @classmethod
+    def setUpClass(cls):
+        with engine.connect() as connection:
+            connection.execute('DELETE FROM notes')
+            connection.execute('DELETE FROM user_profiles')
+            for uid in range(1, 5):
+                user_alias = 'user{}'.format(uid)
+                user_email_address = 'user{}@example.tld'.format(uid)
+                account_status = 1
+                connection.execute(text('INSERT INTO user_profiles ( user_alias, user_email_address, account_status ) VALUES ( :f1, :f2, :f3 )'), f1=user_alias, f2=user_email_address, f3=account_status)
+
+    def setUp(self):
+        self.uids = list()
+        with engine.connect() as connection:
+            for row in connection.execute('SELECT uid FROM user_profiles'):
+                self.uids.append(row[0])
+        self.uids.sort()
+
+    def test_db_create_note(self):
+        if len(self.uids) <= 0:
+            self.fail('No UIDs available')
+        L = DummyLogger()
+        result = db_create_note(uid=self.uids[0], note_timestamp='1001', note_text='Test note.', L=L)
+        self.assertTrue(result)
+
+    def test_db_load_note(self):
+        if len(self.uids) <= 0:
+            self.fail('No UIDs available')
+        L = DummyLogger()
+        db_create_note(uid=self.uids[0], note_timestamp='1002', note_text='Test note.', L=L)
+        result = db_load_note(uid=self.uids[0], note_timestamp='1002', L=L)
+        self.assertIsNotNone(result)
+        self.assertIsInstance(result, dict)
+        self.assertTrue('uid' in result)
+        self.assertTrue('note_timestamp' in result)
+        self.assertTrue('note_text' in result)
+        self.assertEqual(result['note_text'], 'Test note.')
 
 
 class TestCircuitBreakerWithMocking(unittest.TestCase):

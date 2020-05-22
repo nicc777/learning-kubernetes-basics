@@ -50,6 +50,9 @@ def test_data_source(L: ServiceLogger=L)->bool:
         L.error(message='EXCEPTION: {}'.format(traceback.format_exc()))
     return working
 
+'''
+    #region USER PROFILE SECTION
+'''
 
 @circuit(failure_threshold=1)
 def db_create_user_profile(user_alias: str, user_email_address: str, account_status: int=0, f_engine=engine, L: ServiceLogger=L)->bool:
@@ -94,5 +97,72 @@ def db_update_user_profile(user_alias: str, user_email_address: str, uid:int, ac
         L.debug(message='result={}'.format(result))
     return True
 
+'''
+    #endregion
+'''
+
+'''
+    #region NOTES SECTION
+'''
+
+@circuit(failure_threshold=1)
+def db_get_all_notes_from_timestamp(uid: int, start_timestamp: int=0, limit: int=20, order_descending: bool=False, f_engine=engine, L: ServiceLogger=L)->tuple:
+    timestamps = list()
+    notes = list()
+    with f_engine.connect() as connection:
+        order = 'ASC'
+        if order_descending is True:
+            order = 'DESC'
+        for row in connection.execute(text('SELECT uid, note_timestamp, note_text FROM notes WHERE uid = :f1 AND note_timestamp >= :f2 ORDER BY note_timestamp {} LIMIT {}'.format(order, limit)), f1=uid, f2=start_timestamp).fetchall():
+            L.debug(message='row={}'.format(row))
+            note = dict()
+            note['uid'] = row['uid']
+            note['note_timestamp'] = int(row['note_timestamp'])
+            note['note_text'] = row['note_text']
+            timestamps.append(note['note_timestamp'])
+            notes.append(note)
+    return (timestamps, notes)
+
+
+@circuit(failure_threshold=1)
+def db_get_notes_total_qty_for_user(uid: int, f_engine=engine, L: ServiceLogger=L)->list:
+    result = list()
+    with f_engine.connect() as connection:
+        for row in connection.execute(text('SELECT note_timestamp FROM notes WHERE uid = :f1'), f1=uid).fetchall():
+            result.append(row[0])
+    return result
+
+'''
+    #endregion
+'''
+
+
+'''
+    #region NOTE SECTION
+'''
+
+
+def db_create_note(uid: int, note_timestamp: int, note_text: str, f_engine=engine, L: ServiceLogger=L)->bool:
+    with engine.connect() as connection:
+        result = connection.execute(text('INSERT INTO notes ( uid, note_timestamp, note_text ) VALUES ( :f1, :f2, :f3 )'), f1=uid, f2=note_timestamp, f3=note_text)
+        L.debug(message='result={}'.format(result))
+    return True
+
+
+def db_load_note(uid: int, note_timestamp: int, f_engine=engine, L: ServiceLogger=L)->dict:
+    note = dict()
+    with engine.connect() as connection:
+        result = connection.execute(text('SELECT uid, note_timestamp, note_text FROM notes WHERE uid = :f1 AND note_timestamp = :f2'), f1=uid, f2=note_timestamp).fetchone()
+        L.debug(message='result={}'.format(result))
+        if result:
+            note['uid'] = result['uid']
+            note['note_timestamp'] = result['note_timestamp']
+            note['note_text'] = result['note_text']
+    return note
+
+
+'''
+    #endregion
+'''
 
 # EOF

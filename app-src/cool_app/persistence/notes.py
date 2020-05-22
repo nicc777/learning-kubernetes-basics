@@ -3,7 +3,7 @@ import traceback
 import sys
 import os
 from cool_app import ServiceLogger
-from cool_app.persistence import engine
+from cool_app.persistence import engine, db_get_all_notes_from_timestamp, db_get_notes_total_qty_for_user, db_create_note, db_load_note
 
 
 class Note:
@@ -47,19 +47,15 @@ class Note:
         self.L.info(message='Attempting to create note in database')
         exception_caught = False
         try:
-            if self.engine is not None:
-                with engine.connect() as connection:
-                    result = connection.execute(text('INSERT INTO notes ( uid, note_timestamp, note_text ) VALUES ( :f1, :f2, :f3 )'), f1=self.uid, f2=self.note_timestamp, f3=self.note_text)
-                    self.L.debug(message='result={}'.format(result))
-            else:
-                self.L.error(message='Database engine not ready. User profile not persisted')
+            db_create_note(uid=self.uid, note_timestamp=self.note_timestamp, note_text=self.note_text, L=self.L)
         except:
             self.L.error(message='EXCEPTION: {}'.format(traceback.format_exc()))
-            self.L.error(message='CRITICAL: the new note could NOT be created')
             exception_caught = True
         if exception_caught is False:            
             if self.load_note(note_timestamp=self.note_timestamp):
                 note_created = True
+            else:
+                self.L.error(message='CRITICAL: the new note could NOT be created')
             self.L.debug(message='Final result: {}'.format(note_created))
         return note_created
 
@@ -80,16 +76,10 @@ class Note:
         self.note_text = None
         self.note_timestamp = None
         try:
-            if self.engine is not None:
-                with engine.connect() as connection:
-                    result = connection.execute(text('SELECT uid, note_timestamp, note_text FROM notes WHERE uid = :f1 AND note_timestamp = :f2'), f1=self.uid, f2=note_timestamp).fetchone()
-                    self.L.debug(message='result={}'.format(result))
-                    if result:
-                        self.uid = result['uid']
-                        self.note_timestamp = result['note_timestamp']
-                        self.note_text = result['note_text']
-            else:
-                self.L.error(message='Database engine not ready. User profile not loaded')
+            note_dict = db_load_note(uid=self.uid, note_timestamp=note_timestamp, L=self.L)
+            self.uid = note_dict['uid']
+            self.note_timestamp = note_dict['note_timestamp']
+            self.note_text = note_dict['note_text']
             if self.uid is not None and self.note_timestamp is not None and self.note_text is not None:
                 note_loaded = True
         except:
@@ -173,35 +163,30 @@ class Notes:
         notes_loaded = 0
         self.refresh_note_qty()
         try:
-            if self.engine is not None:
-                with engine.connect() as connection:
-                    order = 'ASC'
-                    if order_descending is True:
-                        order = 'DESC'
-                    for row in connection.execute(text('SELECT uid, note_timestamp, note_text FROM notes WHERE uid = :f1 AND note_timestamp >= :f2 ORDER BY note_timestamp {} LIMIT {}'.format(order, limit)), f1=self.uid, f2=start_timestamp).fetchall():
-                        notes_loaded += 1
-                        self.L.debug(message='row={}'.format(row))
-                        note = Note()
-                        note.uid = row['uid']
-                        note.note_timestamp = int(row['note_timestamp'])
-                        note.note_text = row['note_text']
-                        self.timestamps.append(note.note_timestamp)
-                        self.notes.append(note)
-            else:
-                self.L.error(message='Database engine not ready. User profile not loaded')
+            result = db_get_all_notes_from_timestamp(
+                uid=self.uid,
+                start_timestamp=start_timestamp,
+                limit=limit,
+                order_descending=order_descending,
+                L=self.L
+            )
+            if len(result[0]) > 0:
+                self.timestamps = result[0]
+                for n in result[1]:
+                    note = Note()
+                    note.uid = n['uid']
+                    note.note_timestamp = int(n['note_timestamp'])
+                    note.note_text = n['note_text']
+                    self.notes.append(note)
+                notes_loaded = len(self.notes)
+            self.refresh_note_qty()
         except:
             self.L.error(message='EXCEPTION: {}'.format(traceback.format_exc()))
         return (notes_loaded, self.total_notes_qty)
 
     def refresh_note_qty(self)->int:
         try:
-            if self.engine is not None:
-                with engine.connect() as connection:
-                    result = connection.execute(text('SELECT COUNT(*) AS qty FROM notes WHERE uid = :f1'), f1=self.uid).fetchone()
-                    self.L.info(message='type(result)={}   result={}'.format(type(result), result))
-                    self.total_notes_qty = int(result['qty'])
-            else:
-                self.L.error(message='Database engine not ready. User profile not loaded')
+            self.total_notes_qty = len(db_get_notes_total_qty_for_user(uid=self.uid, L=self.L))
         except:
             self.L.error(message='EXCEPTION: {}'.format(traceback.format_exc()))
         return self.total_notes_qty
