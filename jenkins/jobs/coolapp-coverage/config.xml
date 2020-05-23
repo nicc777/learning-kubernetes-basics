@@ -1,0 +1,114 @@
+<?xml version='1.1' encoding='UTF-8'?>
+<project>
+  <actions/>
+  <description>Coverage test of coolapp source</description>
+  <keepDependencies>false</keepDependencies>
+  <properties>
+    <hudson.model.ParametersDefinitionProperty>
+      <parameterDefinitions>
+        <hudson.model.StringParameterDefinition>
+          <name>COVERAGE_MINIMUM</name>
+          <description>The minimum coverage in order to pass</description>
+          <defaultValue>60</defaultValue>
+          <trim>false</trim>
+        </hudson.model.StringParameterDefinition>
+      </parameterDefinitions>
+    </hudson.model.ParametersDefinitionProperty>
+  </properties>
+  <scm class="hudson.plugins.git.GitSCM" plugin="git@4.2.2">
+    <configVersion>2</configVersion>
+    <userRemoteConfigs>
+      <hudson.plugins.git.UserRemoteConfig>
+        <url>https://github.com/nicc777/learning-kubernetes-basics</url>
+      </hudson.plugins.git.UserRemoteConfig>
+    </userRemoteConfigs>
+    <branches>
+      <hudson.plugins.git.BranchSpec>
+        <name>*/appsrc-0.0.2</name>
+      </hudson.plugins.git.BranchSpec>
+    </branches>
+    <doGenerateSubmoduleConfigurations>false</doGenerateSubmoduleConfigurations>
+    <submoduleCfg class="list"/>
+    <extensions/>
+  </scm>
+  <canRoam>true</canRoam>
+  <disabled>false</disabled>
+  <blockBuildWhenDownstreamBuilding>false</blockBuildWhenDownstreamBuilding>
+  <blockBuildWhenUpstreamBuilding>false</blockBuildWhenUpstreamBuilding>
+  <triggers/>
+  <concurrentBuild>false</concurrentBuild>
+  <builders>
+    <hudson.tasks.Shell>
+      <command>#!/bin/bash
+
+export LOG_LEVEL=DEBUG
+export DB_HOST=&quot;jenkins-coolapp-db&quot;
+export DB_PORT=&quot;5432&quot;
+export DB_USER=&quot;postgres&quot;
+export DB_PASS=&quot;mysecretpassword&quot;
+export DB_NAME=&quot;coolapp&quot;
+export SPECIFICATION_DIR=&quot;$PWD/app-src/openapi&quot;
+COVERAGE_CHECK_FILE=&quot;/tmp/coverage_passed&quot;
+
+cd ./app-src/
+
+echo &quot;Build source and running unit tests&quot;
+echo &quot;COVERAGE_MINIMUM=$COVERAGE_MINIMUM&quot;
+
+echo &quot;========================================&quot;
+echo &quot;   Preparing Environment&quot;
+echo &quot;========================================&quot;
+
+rm -vf $COVERAGE_CHECK_FILE
+pip3 install coverage --upgrade
+pip3 install sqlalchemy --upgrade
+pip3 install connexion[swagger-ui] --upgrade
+pip3 install psycopg2-binary --upgrade
+
+echo &quot;========================================&quot;
+echo &quot;   Running Coverage&quot;
+echo &quot;========================================&quot;
+
+echo &quot;SPECIFICATION_DIR=$SPECIFICATION_DIR&quot;
+
+$HOME/.local/bin/coverage run --source cool_app/ -m unittest
+EXIT_STATUS=$?
+if [ &quot;$EXIT_STATUS&quot; != &quot;0&quot; ]
+then
+    echo &quot;      Testing FAILED&quot;
+    exit 1
+fi
+$HOME/.local/bin/coverage report -m &gt; /tmp/coverage_detail.txt
+cat /tmp/coverage_detail.txt
+COVERAGE_PERCENTAGE=`cat /tmp/coverage_detail.txt | tail -1 | awk &apos;{print \$4}&apos; | awk -F\\% &apos;{print \$1}&apos;`
+echo &quot;** COVERAGE_PERCENTAGE = $COVERAGE_PERCENTAGE&quot;
+echo &quot;** COVERAGE_MINIMUM    = $COVERAGE_MINIMUM&quot;
+if [ &quot;$COVERAGE_PERCENTAGE&quot; -lt &quot;$COVERAGE_MINIMUM&quot; ]
+then
+    echo &quot;      Coverage minimum check FAILED&quot;
+    exit 1
+fi
+echo &quot;      Minimum coverage level was satisfied.&quot;
+touch $COVERAGE_CHECK_FILE
+
+echo &quot;DONE&quot;
+
+echo
+echo
+echo &quot;========================================&quot;
+echo
+echo &quot;NOTE that at The moment the build needs&quot;
+echo &quot;to be triggered manually and the APP&quot;
+echo &quot;will build every time. Automation is WIP&quot;
+echo
+echo &quot;There is a schedule for an hourly build&quot;
+echo &quot;but still no trigger per say.&quot;
+echo
+echo &quot;========================================&quot;</command>
+    </hudson.tasks.Shell>
+  </builders>
+  <publishers/>
+  <buildWrappers>
+    <hudson.plugins.timestamper.TimestamperBuildWrapper plugin="timestamper@1.11.3"/>
+  </buildWrappers>
+</project>

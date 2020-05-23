@@ -1,0 +1,160 @@
+<?xml version='1.1' encoding='UTF-8'?>
+<project>
+  <actions/>
+  <description>Build the application final image if all checks pass</description>
+  <keepDependencies>false</keepDependencies>
+  <properties/>
+  <scm class="hudson.plugins.git.GitSCM" plugin="git@4.2.2">
+    <configVersion>2</configVersion>
+    <userRemoteConfigs>
+      <hudson.plugins.git.UserRemoteConfig>
+        <url>https://github.com/nicc777/learning-kubernetes-basics/</url>
+      </hudson.plugins.git.UserRemoteConfig>
+    </userRemoteConfigs>
+    <branches>
+      <hudson.plugins.git.BranchSpec>
+        <name>*/appsrc-0.0.2</name>
+      </hudson.plugins.git.BranchSpec>
+    </branches>
+    <doGenerateSubmoduleConfigurations>false</doGenerateSubmoduleConfigurations>
+    <submoduleCfg class="list"/>
+    <extensions/>
+  </scm>
+  <canRoam>true</canRoam>
+  <disabled>false</disabled>
+  <blockBuildWhenDownstreamBuilding>false</blockBuildWhenDownstreamBuilding>
+  <blockBuildWhenUpstreamBuilding>false</blockBuildWhenUpstreamBuilding>
+  <triggers/>
+  <concurrentBuild>false</concurrentBuild>
+  <builders>
+    <hudson.tasks.Shell>
+      <command>#!/bin/bash
+
+cd ./app-src/
+echo &quot;Checking if any of the Docker configurations changed&quot;
+
+DOCKER_COOAPP_BASE_CHANGED_FILE=&quot;/tmp/coolapp-base-docker-image-build&quot;
+SOURCE_BUILD_FLAG_FILE=&quot;/tmp/coolapp-src-build&quot;
+COVERAGE_PASSED_FLAG_FILE=&quot;/tmp/coverage_passed&quot;
+BUILD_COOLAPP=0
+DOCKER_REGISTRY_HOST=&quot;192.168.0.160&quot;
+DOCKER_REGISTRY_PORT=&quot;5000&quot;
+LATEST_BASE_IMAGE_URL_FILE=&quot;/tmp/docker_base_registry_entry&quot;
+LATEST_BASE_IMAGE_URL=&quot;&quot;
+LATEST_APP_IMAGE_URL_FILE=&quot;/tmp/docker_app_registry_entry&quot;
+
+
+echo &quot;========================================&quot;
+echo &quot;   Checking BASE Build Trigger&quot;
+echo &quot;========================================&quot;
+
+if test -f &quot;$DOCKER_COOAPP_BASE_CHANGED_FILE&quot;; then
+	echo &quot;  BASE Image changed. Proceed with build.&quot;
+	BUILD_COOLAPP=1
+fi
+
+if test -f &quot;$LATEST_BASE_IMAGE_URL_FILE&quot;; then
+	LATEST_BASE_IMAGE_URL=`cat $LATEST_BASE_IMAGE_URL_FILE`
+else
+	echo &quot;  Cannot locate $LATEST_BASE_IMAGE_URL_FILE for the latest URL. FAILING.&quot;
+	exit 1
+fi
+
+ls -lahrt container/app/Dockerfile
+sed -i &quot;s|FROM cool-app-base:latest|FROM $LATEST_BASE_IMAGE_URL|g&quot; container/app/Dockerfile
+
+echo &quot;----------------------------------------&quot;
+echo &quot;&quot;
+head -2 container/app/Dockerfile
+echo &quot;&quot;
+echo &quot;----------------------------------------&quot;
+
+echo &quot;========================================&quot;
+echo &quot;   Checking Source Build Trigger&quot;
+echo &quot;========================================&quot;
+
+echo &quot;BUILD_COOLAPP=$BUILD_COOLAPP&quot;
+if [ &quot;$BUILD_COOLAPP&quot; == &quot;0&quot; ]; then
+	if test -f &quot;$SOURCE_BUILD_FLAG_FILE&quot;; then
+		if test -f &quot;$COVERAGE_PASSED_FLAG_FILE&quot;; then
+			BUILD_COOLAPP=1
+			echo &quot;  Source change detected and coverage is in a PASSED state. Proceeding with build.&quot;
+		else
+			echo &quot;  Detected source code changed, BUT, coverage either not yet run or failed. FAILING.&quot;
+			exit 1
+		fi
+	else
+		echo &quot;  warning: $SOURCE_BUILD_FLAG_FILE does not exist&quot;
+	fi
+else
+	echo &quot;  Build already set...&quot;
+fi
+
+echo &quot;========================================&quot;
+echo &quot;   Checking Final Image Actions&quot;
+echo &quot;========================================&quot;
+
+if [ &quot;$BUILD_COOLAPP&quot; == &quot;1&quot; ]; then
+	rm -frR dist/
+	python3 setup.py sdist
+	rm -frR container/app/dist
+	mkdir container/app/dist
+	cp -vf dist/* container/app/dist/
+	cp -vf openapi/* container/app/dist/
+	cd container/app
+	sudo docker build --no-cache -t cool-app:$BUILD_NUMBER .
+	EXIT_STATUS=$?
+	cd $OLDPWD
+	echo &quot;  status=$EXIT_STATUS&quot;
+	echo &quot;  Current working directory: $PWD&quot;
+	if [ &quot;$EXIT_STATUS&quot; != &quot;0&quot; ]
+	then
+		echo &quot;  COOLAPP failed to build&quot;
+		exit 1
+	fi
+	echo &quot;  COOLAPP build successful&quot;
+    echo &quot;  Pushing to registry&quot;
+    sudo docker tag cool-app:$BUILD_NUMBER $DOCKER_REGISTRY_HOST:$DOCKER_REGISTRY_PORT/cool-app:$BUILD_NUMBER
+    EXIT_STATUS=$?
+    if [ &quot;$EXIT_STATUS&quot; != &quot;0&quot; ]
+	then
+		echo &quot;  Failed to tag image&quot;
+		exit 1
+	fi
+    sudo docker push $DOCKER_REGISTRY_HOST:$DOCKER_REGISTRY_PORT/cool-app
+    EXIT_STATUS=$?
+    if [ &quot;$EXIT_STATUS&quot; != &quot;0&quot; ]
+	then
+		echo &quot;  Failed to push to the registry&quot;
+		exit 1
+	fi
+    echo &quot;  Successfully pushed to the registry with tag: cool-app:$BUILD_NUMBER&quot;
+
+	echo &quot;$DOCKER_REGISTRY_HOST:$DOCKER_REGISTRY_PORT/cool-app:$BUILD_NUMBER&quot; &gt; $LATEST_APP_IMAGE_URL_FILE
+fi
+
+echo
+echo
+echo &quot;========================================&quot;
+echo
+echo &quot;NOTE that at The moment the build needs&quot;
+echo &quot;to be triggered manually and the APP&quot;
+echo &quot;will build every time. Automation is WIP&quot;
+echo
+echo &quot;There is a schedule for an hourly build&quot;
+echo &quot;but still no trigger per say.&quot;
+echo
+echo &quot;========================================&quot;</command>
+    </hudson.tasks.Shell>
+  </builders>
+  <publishers/>
+  <buildWrappers>
+    <hudson.plugins.build__timeout.BuildTimeoutWrapper plugin="build-timeout@1.19.1">
+      <strategy class="hudson.plugins.build_timeout.impl.AbsoluteTimeOutStrategy">
+        <timeoutMinutes>10</timeoutMinutes>
+      </strategy>
+      <operationList/>
+    </hudson.plugins.build__timeout.BuildTimeoutWrapper>
+    <hudson.plugins.timestamper.TimestamperBuildWrapper plugin="timestamper@1.11.3"/>
+  </buildWrappers>
+</project>
