@@ -196,7 +196,7 @@ class TestDbIntergationForNote(unittest.TestCase):
         self.assertEqual(updated_note['note_text'], 'Test note 3 updated')
 
 
-class TestCircuitBreakerWithMocking(unittest.TestCase):
+class TestCircuitBreaker(unittest.TestCase):
 
     def test_db_test_without_try_block(self):
         L = DummyLogger()
