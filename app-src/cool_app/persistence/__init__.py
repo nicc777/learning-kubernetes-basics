@@ -65,7 +65,6 @@ def db_test_without_try_block(f_engine=engine, L: ServiceLogger=L, use_invalid_s
         else:
             result = connection.execute(text('SELECT 1+1;')).fetchone()
         L.debug(message='value={}'.format(result[0]))
-        L.debug(message='result={}'.format(result))
     return True
 
 
@@ -82,7 +81,6 @@ def db_test_with_try_block(f_engine=engine, L: ServiceLogger=L, use_invalid_sql:
             else:
                 result = connection.execute(text('SELECT 1+1;')).fetchone()
             L.debug(message='value={}'.format(result[0]))
-            L.debug(message='result={}'.format(result))
         except:
             L.error(message='EXCEPTION: {}'.format(traceback.format_exc()))
     return True
