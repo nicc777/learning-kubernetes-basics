@@ -52,7 +52,7 @@ def test_data_source(L: ServiceLogger=L)->bool:
 
 
 @circuit(failure_threshold=1)
-def db_test_db_connection_without_try_block(f_engine=engine, L: ServiceLogger=L, use_invalid_sql: bool=False)->bool:
+def db_test_without_try_block(f_engine=engine, L: ServiceLogger=L, use_invalid_sql: bool=False)->bool:
     '''
         This function will still trigger the circuit breaker on an invalid SQL statement, even though the connections is fine.
 
@@ -70,7 +70,7 @@ def db_test_db_connection_without_try_block(f_engine=engine, L: ServiceLogger=L,
 
 
 @circuit(failure_threshold=1)
-def db_test_db_connection_with_try_block(f_engine=engine, L: ServiceLogger=L, use_invalid_sql: bool=False)->bool:
+def db_test_with_try_block(f_engine=engine, L: ServiceLogger=L, use_invalid_sql: bool=False)->bool:
     '''
         This example is the EXPECTED behavior - the circuit breaker only triggers if there is a connectivity issue, regardless of the valid SQL or not.
     '''
