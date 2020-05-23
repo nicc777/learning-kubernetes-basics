@@ -3,13 +3,9 @@
 cd ./app-src/
 echo "Checking if any of the Docker configurations changed"
 
-DOCKERFILE_BASE_CHECKSUM_FILE="docker_base_checksum"
-DOCKERFILE_BASE_REGISTRY_FILE="/tmp/docker_base_registry_entry"
 DOCKERFILE_BASE_CHECKSUM_OLD=""
 DOCKERFILE_BASE_CHECKSUM_CURRENT=""
 BUILD_BASE=0
-DOCKER_REGISTRY_HOST="192.168.0.160"
-DOCKER_REGISTRY_PORT="5000"
 
 rm -vf /tmp/coolapp-base-docker-image-build
 

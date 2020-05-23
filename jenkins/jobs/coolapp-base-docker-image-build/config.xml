@@ -3,7 +3,36 @@
   <actions/>
   <description>Build the base Docker image if the Dockerfile have changed.</description>
   <keepDependencies>false</keepDependencies>
-  <properties/>
+  <properties>
+    <hudson.model.ParametersDefinitionProperty>
+      <parameterDefinitions>
+        <hudson.model.StringParameterDefinition>
+          <name>DOCKER_REGISTRY_HOST</name>
+          <description></description>
+          <defaultValue>192.168.0.160</defaultValue>
+          <trim>false</trim>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>DOCKER_REGISTRY_PORT</name>
+          <description></description>
+          <defaultValue>5000</defaultValue>
+          <trim>false</trim>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>DOCKERFILE_BASE_REGISTRY_FILE</name>
+          <description></description>
+          <defaultValue>/tmp/docker_base_registry_entry</defaultValue>
+          <trim>false</trim>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>DOCKERFILE_BASE_CHECKSUM_FILE</name>
+          <description></description>
+          <defaultValue>docker_base_checksum</defaultValue>
+          <trim>false</trim>
+        </hudson.model.StringParameterDefinition>
+      </parameterDefinitions>
+    </hudson.model.ParametersDefinitionProperty>
+  </properties>
   <scm class="hudson.plugins.git.GitSCM" plugin="git@4.2.2">
     <configVersion>2</configVersion>
     <userRemoteConfigs>
@@ -13,7 +42,7 @@
     </userRemoteConfigs>
     <branches>
       <hudson.plugins.git.BranchSpec>
-        <name>*/appsrc-0.0.2</name>
+        <name>*/appsrc-0.0.3</name>
       </hudson.plugins.git.BranchSpec>
     </branches>
     <doGenerateSubmoduleConfigurations>false</doGenerateSubmoduleConfigurations>
@@ -33,13 +62,9 @@
 cd ./app-src/
 echo &quot;Checking if any of the Docker configurations changed&quot;
 
-DOCKERFILE_BASE_CHECKSUM_FILE=&quot;docker_base_checksum&quot;
-DOCKERFILE_BASE_REGISTRY_FILE=&quot;docker_base_registry&quot;
 DOCKERFILE_BASE_CHECKSUM_OLD=&quot;&quot;
 DOCKERFILE_BASE_CHECKSUM_CURRENT=&quot;&quot;
 BUILD_BASE=0
-DOCKER_REGISTRY_HOST=&quot;192.168.0.160&quot;
-DOCKER_REGISTRY_PORT=&quot;5000&quot;
 
 rm -vf /tmp/coolapp-base-docker-image-build
 
@@ -98,7 +123,7 @@ if [ &quot;$BUILD_BASE&quot; == &quot;1&quot; ]; then
 		exit 1
 	fi
     echo &quot;      Successfully pushed to the registry with tag: cool-app-base:$BUILD_NUMBER&quot;
-    echo &quot;cool-app-base:$BUILD_NUMBER&quot; &gt; $DOCKERFILE_BASE_REGISTRY_FILE
+    echo &quot;$DOCKER_REGISTRY_HOST:$DOCKER_REGISTRY_PORT/cool-app-base:$BUILD_NUMBER&quot; &gt; $DOCKERFILE_BASE_REGISTRY_FILE
     
     echo $DOCKERFILE_BASE_CHECKSUM_CURRENT &gt; $DOCKERFILE_BASE_CHECKSUM_FILE
     echo &quot;      Checksum file updated&quot;

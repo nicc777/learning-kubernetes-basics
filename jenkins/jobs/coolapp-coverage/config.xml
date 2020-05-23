@@ -9,7 +9,43 @@
         <hudson.model.StringParameterDefinition>
           <name>COVERAGE_MINIMUM</name>
           <description>The minimum coverage in order to pass</description>
-          <defaultValue>60</defaultValue>
+          <defaultValue>65</defaultValue>
+          <trim>false</trim>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>COVERAGE_TEST_DB_HOST</name>
+          <description></description>
+          <defaultValue>jenkins-coolapp-db</defaultValue>
+          <trim>false</trim>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>COVERAGE_TEST_DB_PORT</name>
+          <description></description>
+          <defaultValue>5432</defaultValue>
+          <trim>false</trim>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>COVERAGE_TEST_DB_USER</name>
+          <description></description>
+          <defaultValue>postgres</defaultValue>
+          <trim>false</trim>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>COVERAGE_TEST_DB_PASS</name>
+          <description></description>
+          <defaultValue>mysecretpassword</defaultValue>
+          <trim>false</trim>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>COVERAGE_TEST_DB_NAME</name>
+          <description></description>
+          <defaultValue>coolapp</defaultValue>
+          <trim>false</trim>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>COVERAGE_CHECK_FILE</name>
+          <description></description>
+          <defaultValue>/tmp/coverage_passed</defaultValue>
           <trim>false</trim>
         </hudson.model.StringParameterDefinition>
       </parameterDefinitions>
@@ -24,7 +60,7 @@
     </userRemoteConfigs>
     <branches>
       <hudson.plugins.git.BranchSpec>
-        <name>*/appsrc-0.0.2</name>
+        <name>*/appsrc-0.0.3</name>
       </hudson.plugins.git.BranchSpec>
     </branches>
     <doGenerateSubmoduleConfigurations>false</doGenerateSubmoduleConfigurations>
@@ -42,13 +78,13 @@
       <command>#!/bin/bash
 
 export LOG_LEVEL=DEBUG
-export DB_HOST=&quot;jenkins-coolapp-db&quot;
-export DB_PORT=&quot;5432&quot;
-export DB_USER=&quot;postgres&quot;
-export DB_PASS=&quot;mysecretpassword&quot;
-export DB_NAME=&quot;coolapp&quot;
 export SPECIFICATION_DIR=&quot;$PWD/app-src/openapi&quot;
-COVERAGE_CHECK_FILE=&quot;/tmp/coverage_passed&quot;
+export DB_HOST=$COVERAGE_TEST_DB_HOST
+export DB_POST=$COVERAGE_TEST_DB_PORT
+export DB_USER=$COVERAGE_TEST_DB_USER
+export DB_PASS=$COVERAGE_TEST_DB_PASS
+export DB_NAME=$COVERAGE_TEST_DB_NAME
+#COVERAGE_MINIMUM=&quot;60&quot;
 
 cd ./app-src/
 
@@ -64,6 +100,7 @@ pip3 install coverage --upgrade
 pip3 install sqlalchemy --upgrade
 pip3 install connexion[swagger-ui] --upgrade
 pip3 install psycopg2-binary --upgrade
+pip3 install circuitbreaker --upgrade
 
 echo &quot;========================================&quot;
 echo &quot;   Running Coverage&quot;
@@ -109,6 +146,12 @@ echo &quot;========================================&quot;</command>
   </builders>
   <publishers/>
   <buildWrappers>
+    <hudson.plugins.build__timeout.BuildTimeoutWrapper plugin="build-timeout@1.19.1">
+      <strategy class="hudson.plugins.build_timeout.impl.AbsoluteTimeOutStrategy">
+        <timeoutMinutes>10</timeoutMinutes>
+      </strategy>
+      <operationList/>
+    </hudson.plugins.build__timeout.BuildTimeoutWrapper>
     <hudson.plugins.timestamper.TimestamperBuildWrapper plugin="timestamper@1.11.3"/>
   </buildWrappers>
 </project>

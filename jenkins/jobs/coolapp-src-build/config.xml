@@ -3,7 +3,30 @@
   <actions/>
   <description>Building the application source</description>
   <keepDependencies>false</keepDependencies>
-  <properties/>
+  <properties>
+    <hudson.model.ParametersDefinitionProperty>
+      <parameterDefinitions>
+        <hudson.model.StringParameterDefinition>
+          <name>SRC_EXPECTED_FILE</name>
+          <description></description>
+          <defaultValue>dist/cool_app-0.0.3.tar.gz</defaultValue>
+          <trim>false</trim>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>SRC_OLD_CHECKSUM_FILE</name>
+          <description></description>
+          <defaultValue>checksum_dist</defaultValue>
+          <trim>false</trim>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>SRC_BUILD_FLAG_FILE</name>
+          <description></description>
+          <defaultValue>/tmp/coolapp-src-build</defaultValue>
+          <trim>false</trim>
+        </hudson.model.StringParameterDefinition>
+      </parameterDefinitions>
+    </hudson.model.ParametersDefinitionProperty>
+  </properties>
   <scm class="hudson.plugins.git.GitSCM" plugin="git@4.2.2">
     <configVersion>2</configVersion>
     <userRemoteConfigs>
@@ -13,7 +36,7 @@
     </userRemoteConfigs>
     <branches>
       <hudson.plugins.git.BranchSpec>
-        <name>*/appsrc-0.0.2</name>
+        <name>*/appsrc-0.0.3</name>
       </hudson.plugins.git.BranchSpec>
     </branches>
     <doGenerateSubmoduleConfigurations>false</doGenerateSubmoduleConfigurations>
@@ -30,11 +53,11 @@
     <hudson.tasks.Shell>
       <command>#!/bin/bash
 
-EXPECTED_FILE=&quot;dist/cool_app-0.0.2.tar.gz&quot;
-OLD_CHECKSUM_FILE=&quot;checksum_dist&quot;
+EXPECTED_FILE=$SRC_EXPECTED_FILE
+OLD_CHECKSUM_FILE=$SRC_OLD_CHECKSUM_FILE
 OLD_CHECKSUM_VALUE=&quot;&quot;
 NEW_CHECKSUM_VALUE=&quot;&quot;
-BUILD_FLAG_FILE=&quot;/tmp/coolapp-src-build&quot;
+BUILD_FLAG_FILE=$SRC_BUILD_FLAG_FILE
 
 rm -vf $BUILD_FLAG_FILE
 
@@ -107,6 +130,12 @@ echo &quot;========================================&quot;</command>
   </builders>
   <publishers/>
   <buildWrappers>
+    <hudson.plugins.build__timeout.BuildTimeoutWrapper plugin="build-timeout@1.19.1">
+      <strategy class="hudson.plugins.build_timeout.impl.AbsoluteTimeOutStrategy">
+        <timeoutMinutes>10</timeoutMinutes>
+      </strategy>
+      <operationList/>
+    </hudson.plugins.build__timeout.BuildTimeoutWrapper>
     <hudson.plugins.timestamper.TimestamperBuildWrapper plugin="timestamper@1.11.3"/>
   </buildWrappers>
 </project>

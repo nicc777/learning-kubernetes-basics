@@ -1,13 +1,13 @@
 #!/bin/bash
 
 export LOG_LEVEL=DEBUG
-export DB_HOST="jenkins-coolapp-db"
-export DB_PORT="5432"
-export DB_USER="postgres"
-export DB_PASS="mysecretpassword"
-export DB_NAME="coolapp"
 export SPECIFICATION_DIR="$PWD/app-src/openapi"
-COVERAGE_CHECK_FILE="/tmp/coverage_passed"
+export DB_HOST=$COVERAGE_TEST_DB_HOST
+export DB_POST=$COVERAGE_TEST_DB_PORT
+export DB_USER=$COVERAGE_TEST_DB_USER
+export DB_PASS=$COVERAGE_TEST_DB_PASS
+export DB_NAME=$COVERAGE_TEST_DB_NAME
+#COVERAGE_MINIMUM="60"
 
 cd ./app-src/
 
@@ -23,6 +23,7 @@ pip3 install coverage --upgrade
 pip3 install sqlalchemy --upgrade
 pip3 install connexion[swagger-ui] --upgrade
 pip3 install psycopg2-binary --upgrade
+pip3 install circuitbreaker --upgrade
 
 echo "========================================"
 echo "   Running Coverage"

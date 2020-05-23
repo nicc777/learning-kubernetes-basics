@@ -3,22 +3,18 @@
 cd ./app-src/
 echo "Checking if any of the Docker configurations changed"
 
-DOCKER_COOAPP_BASE_CHANGED_FILE="/tmp/coolapp-base-docker-image-build"
-SOURCE_BUILD_FLAG_FILE="/tmp/coolapp-src-build"
-COVERAGE_PASSED_FLAG_FILE="/tmp/coverage_passed"
+SOURCE_BUILD_FLAG_FILE=$SRC_BUILD_FLAG_FILE
+COVERAGE_PASSED_FLAG_FILE=$COVERAGE_CHECK_FILE
 BUILD_COOLAPP=0
-DOCKER_REGISTRY_HOST="192.168.0.160"
-DOCKER_REGISTRY_PORT="5000"
-LATEST_BASE_IMAGE_URL_FILE="/tmp/docker_base_registry_entry"
+LATEST_BASE_IMAGE_URL_FILE=$DOCKERFILE_BASE_REGISTRY_FILE
 LATEST_BASE_IMAGE_URL=""
-LATEST_APP_IMAGE_URL_FILE="/tmp/docker_app_registry_entry"
 
 
 echo "========================================"
 echo "   Checking BASE Build Trigger"
 echo "========================================"
 
-if test -f "$DOCKER_COOAPP_BASE_CHANGED_FILE"; then
+if test -f "$DOCKER_COOLAPP_BASE_CHANGED_FILE"; then
 	echo "  BASE Image changed. Proceed with build."
 	BUILD_COOLAPP=1
 fi

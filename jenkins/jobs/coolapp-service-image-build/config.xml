@@ -3,7 +3,54 @@
   <actions/>
   <description>Build the application final image if all checks pass</description>
   <keepDependencies>false</keepDependencies>
-  <properties/>
+  <properties>
+    <hudson.model.ParametersDefinitionProperty>
+      <parameterDefinitions>
+        <hudson.model.StringParameterDefinition>
+          <name>DOCKER_COOLAPP_BASE_CHANGED_FILE</name>
+          <description></description>
+          <defaultValue>/tmp/coolapp-base-docker-image-build</defaultValue>
+          <trim>false</trim>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>SRC_BUILD_FLAG_FILE</name>
+          <description></description>
+          <defaultValue>/tmp/coolapp-src-build</defaultValue>
+          <trim>false</trim>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>COVERAGE_CHECK_FILE</name>
+          <description></description>
+          <defaultValue>/tmp/coverage_passed</defaultValue>
+          <trim>false</trim>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>DOCKER_REGISTRY_HOST</name>
+          <description></description>
+          <defaultValue>192.168.0.160</defaultValue>
+          <trim>false</trim>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>DOCKER_REGISTRY_PORT</name>
+          <description></description>
+          <defaultValue>5000</defaultValue>
+          <trim>false</trim>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>DOCKERFILE_BASE_REGISTRY_FILE</name>
+          <description></description>
+          <defaultValue>/tmp/docker_base_registry_entry</defaultValue>
+          <trim>false</trim>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>LATEST_APP_IMAGE_URL_FILE</name>
+          <description></description>
+          <defaultValue>/tmp/docker_app_registry_entry</defaultValue>
+          <trim>false</trim>
+        </hudson.model.StringParameterDefinition>
+      </parameterDefinitions>
+    </hudson.model.ParametersDefinitionProperty>
+  </properties>
   <scm class="hudson.plugins.git.GitSCM" plugin="git@4.2.2">
     <configVersion>2</configVersion>
     <userRemoteConfigs>
@@ -13,7 +60,7 @@
     </userRemoteConfigs>
     <branches>
       <hudson.plugins.git.BranchSpec>
-        <name>*/appsrc-0.0.2</name>
+        <name>*/appsrc-0.0.3</name>
       </hudson.plugins.git.BranchSpec>
     </branches>
     <doGenerateSubmoduleConfigurations>false</doGenerateSubmoduleConfigurations>
@@ -33,22 +80,18 @@
 cd ./app-src/
 echo &quot;Checking if any of the Docker configurations changed&quot;
 
-DOCKER_COOAPP_BASE_CHANGED_FILE=&quot;/tmp/coolapp-base-docker-image-build&quot;
-SOURCE_BUILD_FLAG_FILE=&quot;/tmp/coolapp-src-build&quot;
-COVERAGE_PASSED_FLAG_FILE=&quot;/tmp/coverage_passed&quot;
+SOURCE_BUILD_FLAG_FILE=$SRC_BUILD_FLAG_FILE
+COVERAGE_PASSED_FLAG_FILE=$COVERAGE_CHECK_FILE
 BUILD_COOLAPP=0
-DOCKER_REGISTRY_HOST=&quot;192.168.0.160&quot;
-DOCKER_REGISTRY_PORT=&quot;5000&quot;
-LATEST_BASE_IMAGE_URL_FILE=&quot;/tmp/docker_base_registry_entry&quot;
+LATEST_BASE_IMAGE_URL_FILE=$DOCKERFILE_BASE_REGISTRY_FILE
 LATEST_BASE_IMAGE_URL=&quot;&quot;
-LATEST_APP_IMAGE_URL_FILE=&quot;/tmp/docker_app_registry_entry&quot;
 
 
 echo &quot;========================================&quot;
 echo &quot;   Checking BASE Build Trigger&quot;
 echo &quot;========================================&quot;
 
-if test -f &quot;$DOCKER_COOAPP_BASE_CHANGED_FILE&quot;; then
+if test -f &quot;$DOCKER_COOLAPP_BASE_CHANGED_FILE&quot;; then
 	echo &quot;  BASE Image changed. Proceed with build.&quot;
 	BUILD_COOLAPP=1
 fi
