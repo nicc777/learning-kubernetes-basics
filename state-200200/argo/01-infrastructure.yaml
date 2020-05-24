@@ -1,0 +1,22 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: coolapp-infrastructure
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/nicc777/learning-kubernetes-basics.git
+    targetRevision: kube-ops
+    path: state-200200/app-dev/01-infrastructure-pipeline
+    directory:
+      recurse: true
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: coolapp-dev
+  syncPolicy:
+    automated:
+      prune: false 
+      selfHeal: false 
