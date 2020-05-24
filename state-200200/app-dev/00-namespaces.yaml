@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: coolapp-dev
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: coolapp-prod

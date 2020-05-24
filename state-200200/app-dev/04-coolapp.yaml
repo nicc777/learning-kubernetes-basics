@@ -1,0 +1,35 @@
+apiVersion: apps/v1 
+kind: Deployment
+metadata:
+  name: coolapp
+spec:
+  selector:
+    matchLabels:
+      app: coolapp
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: coolapp
+    spec:
+      containers:
+      - image: 192.168.0.160:5000/cool-app:10
+        name: coolapp-app
+        env:
+        - name: SWAGGER_UI
+          value: "1"
+        - name: DB_HOST
+          value: "coolapp-database"
+          # FIXME use secrets...
+        - name: DB_PASS
+          value: "mysecretpassword"
+        ports:
+        - containerPort: 8080
+          name: coolapp
+        resources:
+          limits:
+            memory: "256Mi"
+            cpu: "0.5"
+          requests:
+            memory: "128Mi"
