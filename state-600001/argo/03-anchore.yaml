@@ -1,0 +1,19 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: coolapp-infrastructure
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  source:
+    helm:
+      releaseName: stable/anchore-engine
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: devsecops
+  syncPolicy:
+    automated:
+      prune: false 
+      selfHeal: false 
