@@ -10,6 +10,7 @@ spec:
   source:
     repoURL: https://github.com/nicc777/learning-kubernetes-basics.git
     targetRevision: kube-ops
+    path: /dev/null
     chart: stable/anchore-engine
     helm:
       releaseName: coolapp-anchore-engine
